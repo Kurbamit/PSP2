@@ -1,0 +1,2 @@
+C:/Users/domcer/source/repos/ReactApp1/reactapp1.client/obj/Debug/reactapp1.client.esproj.CoreCompileInputs.cache
+/Users/dominykas.cernovas/Documents/Documents - Dominykas’s Laptop - 1/PSP/PSP2/ReactApp1/reactapp1.client/obj/Debug/reactapp1.client.esproj.CoreCompileInputs.cache
