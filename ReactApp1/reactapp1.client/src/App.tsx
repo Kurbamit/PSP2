@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import './App.css';
+import { API_BASE_URL } from "../config.ts";
 
 interface Forecast {
     date: string;
@@ -47,7 +48,7 @@ function App() {
     );
 
     async function populateWeatherData() {
-        const response = await fetch('weatherforecast');
+        const response = await fetch(`${API_BASE_URL}/weatherforecast`);
         const data = await response.json();
         setForecasts(data);
     }
