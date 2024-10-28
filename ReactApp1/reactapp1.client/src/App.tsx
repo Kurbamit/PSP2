@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import NavigationBar from './components/Navbar';
+import NavigationBar from "./components/Base/Navbar.tsx";
+import Items from "./components/Domain/Items.tsx";
 import './App.css';
 import { API_BASE_URL } from "../config";
 
@@ -59,6 +60,7 @@ function App() {
                             {contents}
                         </div>
                     } />
+                    <Route path="/items" element={<Items />} />
                 </Routes>
             </div>
         </Router>
