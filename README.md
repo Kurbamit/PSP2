@@ -28,7 +28,7 @@ Requirements:
    3. port: ```5432```
 5. Run ```dotnet ef database update```
 
-### HTTPS Sertificate problem
+### HTTPS Certificate problem
 There could be HTTPS problem starting reactapp1.client
 
 If you get this error, you should open ```/Users/username/.aspnet/https`` folder with terminal.
