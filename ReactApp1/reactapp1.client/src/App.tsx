@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavigationBar from "./components/Base/Navbar.tsx";
 import Items from "./components/Domain/Items.tsx";
+import Register from "./components/Base/Register.tsx";
+import Login from "./components/Base/Login.tsx";
+import Logout from "./components/Base/Logout.tsx";
 import './App.css';
 import { API_BASE_URL } from "../config";
 
@@ -13,7 +16,11 @@ interface Forecast {
 }
 
 function App() {
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [forecasts, setForecasts] = useState<Forecast[]>();
+
+    const handleLogin = () => setIsLoggedIn(true);  // Mock login
+    const handleLogout = () => setIsLoggedIn(false); // Mock logout
 
     useEffect(() => {
         populateWeatherData();
@@ -50,7 +57,7 @@ function App() {
 
     return (
         <Router>
-            <NavigationBar />
+            <NavigationBar isLoggedIn={isLoggedIn} />
             <div style={{ marginTop: '4rem', padding: '1rem' }}>
                 <Routes>
                     <Route path="/" element={
@@ -61,6 +68,11 @@ function App() {
                         </div>
                     } />
                     <Route path="/items" element={<Items />} />
+                    <Route path="/register" element={<Register onRegister={handleLogin} />} />
+                    <Route path="/login" element={<Login onLogin={handleLogin} />} />
+                    <Route path="/logout" element={
+                        <Logout onLogout={handleLogout} />
+                    } />
                 </Routes>
             </div>
         </Router>
