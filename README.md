@@ -35,3 +35,8 @@ If you get this error, you should open ```/Users/username/.aspnet/https`` folder
 Run following commands:
 - ```openssl genrsa -out reactapp1.client.key 2048```
 - ```openssl req -x509 -new -nodes -key pspapp.key -sha256 -days 365 -out reactapp1.client.pem```
+
+### Dummy data
+There is a `.sql` script for adding dummy data.
+The database should be empty for it to work properly.
+Run the `DummyData.sql` file in your database.
