@@ -159,10 +159,6 @@ public class AppDbContext : DbContext
             entity.HasOne(fo => fo.Order)
                 .WithMany(o => o.FullOrders)
                 .HasForeignKey(fo => fo.OrderId);
-            
-            entity.HasOne(fo => fo.Item)
-                .WithMany(i => i.FullOrders)
-                .HasForeignKey(fo => fo.ItemId);
 
             entity.Property(e => e.FullOrderId)
                 .IsRequired()
