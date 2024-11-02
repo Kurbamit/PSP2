@@ -50,6 +50,10 @@ public class Employee
     [StringLength(255)]
     public string? Email { get; set; }
     
+    [Column("PasswordHash")]
+    [StringLength(255)]
+    public string? PasswordHash { get; set; }
+    
     [ForeignKey(nameof(AddressId))]
     public virtual EmployeeAddress EmployeeAddress { get; set; }
     

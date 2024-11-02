@@ -6,6 +6,11 @@ namespace ReactApp1.Server.Models;
 [Table("FullOrder")]
 public class FullOrder
 {
+    public FullOrder()
+    {
+        Items = new HashSet<Item>();
+    }
+    
     [Key]
     public int FullOrderId { get; set; }
 
@@ -22,5 +27,5 @@ public class FullOrder
     public virtual Order Order { get; set; }
 
     // Navigation property for Item
-    public virtual Item Item { get; set; }
+    public virtual ICollection<Item> Items { get; set; }
 }
