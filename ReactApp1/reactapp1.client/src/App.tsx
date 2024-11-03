@@ -17,27 +17,7 @@ interface Forecast {
 }
 
 function App() {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [forecasts, setForecasts] = useState<Forecast[]>();
-
-    useEffect(() => {
-        // Check if the token exists in cookies on initial load
-        const token = Cookies.get('token');
-        if (token) {
-            setIsLoggedIn(true);
-        }
-        populateWeatherData();
-    }, []);
-
-    const handleLogin = (token: string) => {
-        Cookies.set('token', token, { expires: 1 }); // Set the cookie with expiration
-        setIsLoggedIn(true);
-    };
-    const handleLogout = () => {
-        Cookies.remove('token'); // Remove the cookie
-        setIsLoggedIn(false);
-    };
-
 
     useEffect(() => {
         populateWeatherData();
@@ -47,30 +27,24 @@ function App() {
         ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
         : <table className="table table-striped" aria-labelledby="tabelLabel">
             <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
+                <tr>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
+                </tr>
             </thead>
             <tbody>
-            {forecasts.map(forecast =>
-                <tr key={forecast.date}>
-                    <td>{forecast.date}</td>
-                    <td>{forecast.temperatureC}</td>
-                    <td>{forecast.temperatureF}</td>
-                    <td>{forecast.summary}</td>
-                </tr>
-            )}
+                {forecasts.map(forecast =>
+                    <tr key={forecast.date}>
+                        <td>{forecast.date}</td>
+                        <td>{forecast.temperatureC}</td>
+                        <td>{forecast.temperatureF}</td>
+                        <td>{forecast.summary}</td>
+                    </tr>
+                )}
             </tbody>
         </table>;
-
-    async function populateWeatherData() {
-        const response = await fetch(`${API_BASE_URL}/weatherforecast`);
-        const data = await response.json();
-        setForecasts(data);
-    }
 
     return (
         <Router>
@@ -94,6 +68,12 @@ function App() {
             </div>
         </Router>
     );
+
+    async function populateWeatherData() {
+        const response = await fetch(`${API_BASE_URL}/weatherforecast`);
+        const data = await response.json();
+        setForecasts(data);
+    }
 }
 
 export default App;
