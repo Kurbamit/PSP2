@@ -8,15 +8,10 @@ VALUES ('Lithuania', 'Vilnius', 'Naugarduko', '24', CURRENT_TIMESTAMP, 1),
        ('Lithuania', 'Kaunas', 'Laisvės', '24', CURRENT_TIMESTAMP, 2),
        ('Lithuania', 'Vilnius', 'Didlaukio', '59', CURRENT_TIMESTAMP, 3);
 
-<<<<<<< HEAD
+
 INSERT INTO public."Employee" ("Title", "EstablishmentId", "AddressId", "PersonalCode", "FirstName", "LastName", "BirthDate", "ReceiveTime", "Phone", "Email", "PasswordHash")
 VALUES  (100, 1, 1, '50303060000', 'John', 'Krasinski', '2003-03-06', CURRENT_TIMESTAMP, '+37061234556', 'john.krasinski@gmail.com', '$2a$12$PhK89F7LE/YEyiVhd2wG1eoZoS4arsYu06WwOYIsH9IvKZw5Ev1cO'),
 		(2, 1, 1, '40303060000', 'Emily', 'Black', '2000-04-20', CURRENT_TIMESTAMP, '+37067658110', 'emily.black@gmail.com', '$2a$12$PhK89F7LE/YEyiVhd2wG1eoZoS4arsYu06WwOYIsH9IvKZw5Ev1cO');
-=======
-INSERT INTO public."Employee" ("Title", "EstablishmentId", "AddressId", "PersonalCode", "FirstName", "LastName", "BirthDate", "ReceiveTime", "Phone", "Email")
-VALUES  (100, 1, 1, '50303060000', 'John', 'Krasinski', '2003-03-06', CURRENT_TIMESTAMP, '+37061234556', 'john.krasinski@gmail.com'),
-		(2, 1, 1, '40303060000', 'Emily', 'Black', '2000-04-20', CURRENT_TIMESTAMP, '+37067658110', 'emily.black@gmail.com');
->>>>>>> main
 		
 INSERT INTO public."EmployeeAddress" ("Country", "City", "Street", "StreetNumber", "HouseNumber", "ReceiveTime", "EmployeeId")
 VALUES  ('Lithuania', 'Vilnius', 'Liepyno', '24', '1', CURRENT_TIMESTAMP, 1),
