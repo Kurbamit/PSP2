@@ -7,6 +7,7 @@ import Login from "./components/Base/Login.tsx";
 import Logout from "./components/Base/Logout.tsx";
 import './App.css';
 import { API_BASE_URL } from "../config";
+import Cookies from 'js-cookie';
 
 interface Forecast {
     date: string;
@@ -19,8 +20,24 @@ function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [forecasts, setForecasts] = useState<Forecast[]>();
 
-    const handleLogin = () => setIsLoggedIn(true);  // Mock login
-    const handleLogout = () => setIsLoggedIn(false); // Mock logout
+    useEffect(() => {
+        // Check if the token exists in cookies on initial load
+        const token = Cookies.get('token');
+        if (token) {
+            setIsLoggedIn(true);
+        }
+        populateWeatherData();
+    }, []);
+
+    const handleLogin = (token: string) => {
+        Cookies.set('token', token, { expires: 1 }); // Set the cookie with expiration
+        setIsLoggedIn(true);
+    };
+    const handleLogout = () => {
+        Cookies.remove('token'); // Remove the cookie
+        setIsLoggedIn(false);
+    };
+
 
     useEffect(() => {
         populateWeatherData();

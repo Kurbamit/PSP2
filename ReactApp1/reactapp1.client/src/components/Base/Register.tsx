@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {API_BASE_URL} from "../../../config.ts";
 
 interface RegisterProps {
-    onRegister: () => void;
+    onRegister: (token: string) => void; // Update to accept a token
 }
 
 const Register: React.FC<RegisterProps> = ({ onRegister }) => {
@@ -21,9 +21,10 @@ const Register: React.FC<RegisterProps> = ({ onRegister }) => {
             body: JSON.stringify({ username, email, password })
         });
         if (response.ok) {
+            const data = await response.json(); // Assuming the token is returned here
+            const { token } = data; // Adjust based on your API response structure
             console.log('Registration successful');
-            onRegister();
-            // Redirect after register
+            onRegister(token); // Pass the token to the handler
             navigate('/');
         } else {
             console.log('Registration failed');

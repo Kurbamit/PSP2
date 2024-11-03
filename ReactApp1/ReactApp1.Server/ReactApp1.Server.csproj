@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>8.*-*</Version>
@@ -32,8 +33,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\Domain\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Models\Models\" />
+    <Folder Include="Models\Models\Domain\" />
   </ItemGroup>
 
 </Project>

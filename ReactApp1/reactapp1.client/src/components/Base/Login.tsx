@@ -1,24 +1,38 @@
 import React, { useState } from 'react';
-import { Form, Button, Container, Row, Col } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from "../../../config.ts";
 
 interface LoginProps {
-    onLogin: () => void;
+    onLogin: (token: string) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [alertMessage, setAlertMessage] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulate login logic, e.g., API call
-        console.log('Logging in:', { email, password });
+        setAlertMessage(null); // Clear previous alert messages
 
-        // Call onLogin after successful login
-        onLogin();
-        navigate('/');
+        const response = await fetch(`${API_BASE_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const { token } = data;
+            console.log('Login successful');
+            onLogin(token);
+            navigate('/');
+        } else {
+            setAlertMessage('Login failed: ' + response.statusText);
+            console.log('Login failed');
+        }
     };
 
     return (
@@ -26,6 +40,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             <Row className="justify-content-md-center">
                 <Col md={12}>
                     <h2 className="text-center">Login</h2>
+
+                    {/* Display Bootstrap alert if there is an alert message */}
+                    {alertMessage && (
+                        <Alert variant="danger" onClose={() => setAlertMessage(null)} dismissible>
+                            <strong>Error:</strong> {alertMessage}
+                        </Alert>
+                    )}
+
                     <Form onSubmit={handleLogin}>
                         <Form.Group className="mb-3" controlId="formEmail">
                             <Form.Label>Email</Form.Label>
@@ -37,6 +59,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                                 required
                             />
                         </Form.Group>
+
                         <Form.Group className="mb-3" controlId="formPassword">
                             <Form.Label>Password</Form.Label>
                             <Form.Control
@@ -47,6 +70,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                                 required
                             />
                         </Form.Group>
+
                         <Button variant="primary" type="submit" className="w-100">
                             Login
                         </Button>
