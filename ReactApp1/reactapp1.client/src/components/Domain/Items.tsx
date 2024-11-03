@@ -3,7 +3,7 @@ import React from 'react';
 import Cookies from "js-cookie";
 
 const Items: React.FC = () => {
-    const token = Cookies.get('token');
+    const token = Cookies.get('authToken');
     return (
         <div>
             <h2>Items List</h2>

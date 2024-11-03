@@ -18,31 +18,48 @@ interface Forecast {
 
 function App() {
     const [forecasts, setForecasts] = useState<Forecast[]>();
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     useEffect(() => {
+        // Check if authToken is present in cookies
+        const token = Cookies.get('authToken');
+        if (token) {
+            setIsLoggedIn(true); // Set logged in status to true if token exists
+        }
+
         populateWeatherData();
     }, []);
+
+    const handleLogin = (token: string) => {
+        Cookies.set('authToken', token, { expires: 1 }); // Save token in cookies, expires in 7 days
+        setIsLoggedIn(true);
+    };
+
+    const handleLogout = () => {
+        Cookies.remove('authToken'); // Remove token from cookies
+        setIsLoggedIn(false);
+    };
 
     const contents = forecasts === undefined
         ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
         : <table className="table table-striped" aria-labelledby="tabelLabel">
             <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
             </thead>
             <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
+            {forecasts.map(forecast =>
+                <tr key={forecast.date}>
+                    <td>{forecast.date}</td>
+                    <td>{forecast.temperatureC}</td>
+                    <td>{forecast.temperatureF}</td>
+                    <td>{forecast.summary}</td>
+                </tr>
+            )}
             </tbody>
         </table>;
 

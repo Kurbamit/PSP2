@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 
 interface LogoutProps {
@@ -7,9 +7,11 @@ interface LogoutProps {
 
 const Logout: React.FC<LogoutProps> = ({ onLogout }) => {
     useEffect(() => {
+        // Clear the token and update the login state
         onLogout();
     }, [onLogout]);
 
+    // Redirect to the home page after logging out
     return <Navigate to="/" replace />;
 };
 
