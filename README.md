@@ -40,3 +40,6 @@ Run following commands:
 There is a `.sql` script for adding dummy data.
 The database should be empty for it to work properly.
 Run the `DummyData.sql` file in your database.
+Login with admin:
+- Email: `john.krasinski@gmail.com`
+- Password: `123`
