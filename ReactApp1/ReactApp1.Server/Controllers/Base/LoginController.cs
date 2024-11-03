@@ -48,6 +48,15 @@ namespace ReactApp1.Server.Controllers
             }
             
             var token = GenerateJwtToken(request.Email);
+            
+            Response.Cookies.Append("authToken", token, new CookieOptions
+            {
+                HttpOnly = true, // Prevent client-side access
+                Secure = true, // Set to true if using HTTPS
+                SameSite = SameSiteMode.None, // Required for cross-origin requests
+                Expires = DateTime.UtcNow.AddDays(1) // Cookie expiration
+            });
+            
             return Ok(new { message = "Login successful", token });
         }
         

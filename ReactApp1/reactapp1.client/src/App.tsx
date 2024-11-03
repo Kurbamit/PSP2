@@ -25,14 +25,14 @@ function App() {
         const token = Cookies.get('authToken');
         if (token) {
             setIsLoggedIn(true); // Set logged in status to true if token exists
+            populateWeatherData();
         }
-
-        populateWeatherData();
     }, []);
 
     const handleLogin = (token: string) => {
         Cookies.set('authToken', token, { expires: 1 }); // Save token in cookies, expires in 7 days
         setIsLoggedIn(true);
+        populateWeatherData();
     };
 
     const handleLogout = () => {
@@ -41,7 +41,10 @@ function App() {
     };
 
     const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
+        ? <div>
+            <p><em>Loading... Please refresh once the ASP.NET backend has started.</em></p>
+            <p>Error might be because You're not logged in.</p>
+        </div>
         : <table className="table table-striped" aria-labelledby="tabelLabel">
             <thead>
             <tr>
@@ -87,7 +90,14 @@ function App() {
     );
 
     async function populateWeatherData() {
-        const response = await fetch(`${API_BASE_URL}/weatherforecast`);
+        const token = Cookies.get('authToken');
+        const response = await fetch(`${API_BASE_URL}/weatherforecast`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
         const data = await response.json();
         setForecasts(data);
     }

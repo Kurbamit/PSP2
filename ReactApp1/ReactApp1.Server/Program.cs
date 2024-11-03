@@ -19,9 +19,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("https://localhost:5173") // React app's URL
+        policy.WithOrigins("https://localhost:5173") // Your frontend URL
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -35,11 +36,29 @@ builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(x =>
+}).AddJwtBearer(options =>
 {
-    x.RequireHttpsMetadata = true;
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var cookie = context.Request.Cookies["authToken"];
+            if (!string.IsNullOrEmpty(cookie))
+            {
+                context.Token = cookie;
+            }
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            context.Response.StatusCode = 401; // Unauthorized
+            return Task.CompletedTask;
+        }
+    };
+
+    options.RequireHttpsMetadata = true;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
