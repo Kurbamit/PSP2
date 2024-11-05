@@ -12,7 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace ReactApp1.Server.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/")]
     public class LoginController : ControllerBase
     {
         private readonly ILogger<RegisterController> _logger;
@@ -26,7 +26,7 @@ namespace ReactApp1.Server.Controllers
             _context = context;
         }
         
-        [HttpPost(Name = "Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Email))

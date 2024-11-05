@@ -1,5 +1,7 @@
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Models;
+using ReactApp1.Server.Models.Models.Base;
+using ReactApp1.Server.Models.Models.Domain;
 
 namespace ReactApp1.Server.Services
 {
@@ -12,12 +14,12 @@ namespace ReactApp1.Server.Services
             _itemRepository = itemRepository;
         }
 
-        public Task<IEnumerable<Item>> GetAllItems(int pageSize, int pageNumber)
+        public Task<PaginatedResult<Item>> GetAllItems(int pageSize, int pageNumber)
         {
             return _itemRepository.GetAllItemsAsync(pageSize, pageNumber);
         }
 
-        public Task<Item?> GetItemById(int itemId)
+        public Task<ItemModel?> GetItemById(int itemId)
         {
             return _itemRepository.GetItemByIdAsync(itemId);
         }
@@ -27,7 +29,7 @@ namespace ReactApp1.Server.Services
             return _itemRepository.AddItemAsync(item);
         }
 
-        public Task UpdateItem(Item item)
+        public Task UpdateItem(ItemModel item)
         {
             return _itemRepository.UpdateItemAsync(item);
         }
