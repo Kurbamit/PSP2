@@ -1,4 +1,3 @@
-// src/components/Domain/Item/ItemDetail.tsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -16,17 +15,17 @@ interface Item {
 
 const ItemDetail: React.FC = () => {
     const [item, setItem] = useState<Item | null>(null);
-    const [isEditing, setIsEditing] = useState(false); // Toggle edit mode
+    const [isEditing, setIsEditing] = useState(false);
     const [editedItem, setEditedItem] = useState<Item | null>(null); // Store edited item
     const { id } = useParams<{ id: string }>();
     const token = Cookies.get('authToken');
     const navigate = useNavigate();
+    const [error, setError] = useState('');
 
     const isNewItem = !id; // Check if it's a new item by absence of id
 
     useEffect(() => {
         if (!isNewItem) {
-            // Fetch item details only if editing an existing item
             const fetchItem = async () => {
                 try {
                     const response = await axios.get(`http://localhost:5114/api/items/${id}`, {
@@ -40,7 +39,6 @@ const ItemDetail: React.FC = () => {
             };
             fetchItem();
         } else {
-            // Initialize an empty item for new item creation
             const emptyItem: Item = {
                 name: '',
                 cost: 0,
@@ -63,6 +61,10 @@ const ItemDetail: React.FC = () => {
                 ...editedItem,
                 [name]: type === 'checkbox' ? e.target.checked : type === 'number' ? parseFloat(value) : value,
             });
+            // Clear error when user starts typing
+            if (name === 'name') {
+                setError('');
+            }
         }
     };
 
@@ -71,29 +73,57 @@ const ItemDetail: React.FC = () => {
         setIsEditing(!isEditing);
     };
 
-    // Save or create item
+    const validateForm = () => {
+        setError('');
+        const errorMessages = [];
+
+        if (editedItem) {
+            if (!editedItem.name) {
+                errorMessages.push('Name is required.');
+            }
+            if (editedItem.cost <= 0) {
+                errorMessages.push('Cost must be greater than zero.');
+            }
+            if (editedItem.tax < 0) {
+                errorMessages.push('Tax cannot be negative.');
+            }
+            if (editedItem.storage !== null && editedItem.storage < 0) {
+                errorMessages.push('Storage cannot be negative.');
+            }
+        }
+
+        if (errorMessages.length > 0) {
+            setError(errorMessages.join(' '));
+            return false;
+        }
+        return true;
+    };
+
+    const handleFormSave = async () => {
+        if (validateForm()) {
+            await handleSave();
+        }
+    };
+
     const handleSave = async () => {
         try {
             if (editedItem) {
                 if (isNewItem) {
-                    // Create a new item
                     await axios.post(`http://localhost:5114/api/items`, editedItem, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                 } else {
-                    // Update existing item
                     await axios.put(`http://localhost:5114/api/items/${editedItem.itemId}`, editedItem, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                 }
+                setIsEditing(false);
             }
-            setIsEditing(false);
         } catch (error) {
             console.error('Error saving item details:', error);
         }
     };
 
-    // Navigate back to the items list
     const handleBackToList = () => {
         navigate('/items');
     };
@@ -133,9 +163,10 @@ const ItemDetail: React.FC = () => {
                                     name="name"
                                     value={editedItem.name || ''}
                                     onChange={handleInputChange}
-                                    className="form-control"
+                                    className={`form-control ${error ? 'is-invalid' : ''}`} // Add invalid class if there's an error
                                     disabled={!isEditing}
                                 />
+                                {error && <div className="invalid-feedback">{error}</div>} {/* Show error message */}
                             </li>
                             <li className="list-group-item">
                                 <strong>Cost:</strong>{' '}
@@ -179,7 +210,7 @@ const ItemDetail: React.FC = () => {
                         <div className="mt-3">
                             {isEditing ? (
                                 <>
-                                    <button className="btn btn-success me-2" onClick={handleSave}>
+                                    <button className="btn btn-success me-2" onClick={handleFormSave}>
                                         Save
                                     </button>
                                     {!isNewItem && (
