@@ -1,9 +1,10 @@
-// src/components/Domain/Items.tsx
+// src/components/Domain/Item/Items.tsx
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { Table } from 'react-bootstrap';
-import Pagination from '../Base/Pagination';
+import Pagination from '../../Base/Pagination';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 interface Item {
@@ -14,7 +15,6 @@ interface Item {
     alcoholicBeverage: boolean;
     receiveTime: string;
     storage: string | null;
-    fullOrders: any[];
 }
 
 const Items: React.FC = () => {
@@ -24,7 +24,7 @@ const Items: React.FC = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [pageSize, setPageSize] = useState(10);
     const token = Cookies.get('authToken');
-
+    const navigate = useNavigate();
     useEffect(() => {
         const fetchItems = async () => {
             try {
@@ -43,8 +43,34 @@ const Items: React.FC = () => {
         fetchItems();
     }, [currentPage, pageSize, token]);
 
+    const handleIconClick = (itemId: number) => {
+        navigate(`/items/${itemId}`);
+    };
+
+    const handleDelete = async (itemId: number) => {
+        try {
+            const response = await axios.delete(`http://localhost:5114/api/items/${itemId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            
+            if (response.status === 204) {
+                setItems(items.filter((item) => item.itemId !== itemId));
+            }
+        } catch (error) {
+            console.error('Error deleting the item:', error);
+            alert("An error occurred while trying to delete the item.");
+        }
+    };
+
+    const handleCreateNew = () => {
+        navigate('/items/new');
+    };
+    
     return (
         <div>
+            <button className="btn btn-primary mb-3" onClick={handleCreateNew}>
+                Create New Item
+            </button>
             <h2>Items List</h2>
 
             <Table striped bordered hover>
@@ -56,6 +82,7 @@ const Items: React.FC = () => {
                     <th>Tax</th>
                     <th>Alcoholic Beverage</th>
                     <th>Receive Time</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -67,12 +94,27 @@ const Items: React.FC = () => {
                         <td>{item.tax.toFixed(2)}</td>
                         <td>{item.alcoholicBeverage ? 'Yes' : 'No'}</td>
                         <td>{new Date(item.receiveTime).toLocaleString()}</td>
+                        <td>
+                                <span
+                                    className="material-icons"
+                                    style={{cursor: 'pointer'}}
+                                    onClick={() => handleIconClick(item.itemId)}
+                                >
+                                    open_in_new
+                                </span>
+                                <span
+                                    className="material-icons"
+                                    style={{cursor: 'pointer', marginRight: '10px'}}
+                                    onClick={() => handleDelete(item.itemId)}
+                                >
+                                        delete
+                                </span>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
             </Table>
 
-            {/* Use the updated Pagination component */}
             <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}

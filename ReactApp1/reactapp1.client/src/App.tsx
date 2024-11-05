@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavigationBar from "./components/Base/Navbar.tsx";
-import Items from "./components/Domain/Items.tsx";
+import Items from "./components/Domain/Item/Items.tsx";
+import ItemDetail from "./components/Domain/Item/ItemDetail.tsx";
 import Register from "./components/Base/Register.tsx";
 import Login from "./components/Base/Login.tsx";
 import Logout from "./components/Base/Logout.tsx";
@@ -79,6 +80,8 @@ function App() {
                         </div>
                     } />
                     <Route path="/items" element={<Items />} />
+                    <Route path="/items/new" element={<ItemDetail />} />
+                    <Route path="/items/:id" element={<ItemDetail />} />
                     <Route path="/register" element={<Register onRegister={handleLogin} />} />
                     <Route path="/login" element={<Login onLogin={handleLogin} />} />
                     <Route path="/logout" element={

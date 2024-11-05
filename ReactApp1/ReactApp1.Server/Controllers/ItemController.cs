@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Models;
+using ReactApp1.Server.Models.Models.Domain;
 using ReactApp1.Server.Services;
 
 namespace ReactApp1.Server.Controllers
@@ -17,7 +18,7 @@ namespace ReactApp1.Server.Controllers
         }
         
         [HttpGet("items")]
-        public async Task<IActionResult> GetOrderItems(int pageNumber, int pageSize)
+        public async Task<IActionResult> GetItems(int pageNumber, int pageSize)
         {
             var items = await _itemService.GetAllItems(pageNumber, pageSize);
 
@@ -25,7 +26,7 @@ namespace ReactApp1.Server.Controllers
         }
         
         [HttpGet("items/{itemId}")]
-        public async Task<IActionResult> GetOrderItems(int itemId)
+        public async Task<IActionResult> GetItems(int itemId)
         {
             var item = await _itemService.GetItemById(itemId);
 
@@ -41,7 +42,7 @@ namespace ReactApp1.Server.Controllers
         }
         
         [HttpPut("items/{itemId}")]
-        public async Task<IActionResult> UpdateItem([FromBody] Item item)
+        public async Task<IActionResult> UpdateItem([FromBody] ItemModel item)
         {
             await _itemService.UpdateItem(item);
             
@@ -53,7 +54,7 @@ namespace ReactApp1.Server.Controllers
         {
             await _itemService.DeleteItem(itemId);
             
-            return Ok();
+            return NoContent();
         }
     }
 }

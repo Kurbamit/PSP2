@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Base;
+using ReactApp1.Server.Models.Models.Domain;
 
 namespace ReactApp1.Server.Data.Repositories
 {
@@ -33,9 +34,21 @@ namespace ReactApp1.Server.Data.Repositories
             };
         }
 
-        public async Task<Item?> GetItemByIdAsync(int itemId)
+        public async Task<ItemModel?> GetItemByIdAsync(int itemId)
         {
-            return await _context.Set<Item>().FindAsync(itemId);
+            var item = await _context.Items
+                .Where(f => f.ItemId == itemId)
+                .Select(f => new ItemModel()
+                {
+                    ItemId = f.ItemId,
+                    Name = f.Name,
+                    Cost = f.Cost,
+                    Tax = f.Tax,
+                    AlcoholicBeverage = f.AlcoholicBeverage,
+                    ReceiveTime = f.ReceiveTime,
+                    Storage = f.Storage == null ? null : f.Storage.Count
+                }).FirstOrDefaultAsync();
+            return item;
         }
         
         public async Task AddItemAsync(Item item)
@@ -52,13 +65,24 @@ namespace ReactApp1.Server.Data.Repositories
             }
         }
         
-        public async Task UpdateItemAsync(Item item)
+        public async Task UpdateItemAsync(ItemModel item)
         {
             try
             {
-                _context.Set<Item>().Update(item);
-                await _context.SaveChangesAsync();
+                var existingItem = await _context.Set<Item>()
+                    .Include(i => i.Storage)
+                    .FirstOrDefaultAsync(i => i.ItemId == item.ItemId);
+                
+                
+                if (existingItem == null)
+                {
+                    throw new KeyNotFoundException($"Item with ID {item.ItemId} not found.");
+                }
+                
+                item.MapUpdate(existingItem);
 
+                _context.Set<Item>().Update(existingItem);
+                await _context.SaveChangesAsync();
             }   
             catch (DbUpdateException e)
             {
