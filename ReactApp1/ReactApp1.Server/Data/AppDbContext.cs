@@ -10,6 +10,16 @@ public class AppDbContext : DbContext
     }
     
     public DbSet<TestModel> TestModels { get; set; }
+    public DbSet<Employee> Employees { get; set; }
+    public DbSet<EmployeeAddress> EmployeeAddresses { get; set; }
+    public DbSet<Establishment> Establishments { get; set; }
+    public DbSet<EstablishmentAddress> EstablishmentAddresses { get; set; }
+    public DbSet<Item> Items { get; set; }
+    public DbSet<Storage> Storages { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<FullOrder> FullOrders { get; set; }
+    public DbSet<Payment> Payments { get; set; }
+    public DbSet<GiftCard> GiftCards { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
