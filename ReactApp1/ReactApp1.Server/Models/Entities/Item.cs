@@ -13,7 +13,7 @@ public class Item
     
     [Key]
     [Column("ItemId")]
-    public int ItemId { get; set; }
+    [Required] public int ItemId { get; set; }
     
     [Column("Name")]
     [StringLength(255)]

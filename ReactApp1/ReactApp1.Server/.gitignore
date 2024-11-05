@@ -1,2 +1,5 @@
 **/bin/
 **/obj/
+
+# Ignore .idea directory (for Rider IDE settings)
+./idea
