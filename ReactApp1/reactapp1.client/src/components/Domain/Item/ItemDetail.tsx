@@ -109,9 +109,11 @@ const ItemDetail: React.FC = () => {
         try {
             if (editedItem) {
                 if (isNewItem) {
-                    await axios.post(`http://localhost:5114/api/items`, editedItem, {
+                    const response = await axios.post(`http://localhost:5114/api/items`, editedItem, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
+                    const createdItemId: number = response.data;
+                    navigate(`/items/${createdItemId}`);
                 } else {
                     await axios.put(`http://localhost:5114/api/items/${editedItem.itemId}`, editedItem, {
                         headers: { Authorization: `Bearer ${token}` },

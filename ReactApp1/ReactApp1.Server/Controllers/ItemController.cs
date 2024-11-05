@@ -17,6 +17,7 @@ namespace ReactApp1.Server.Controllers
             _itemService = itemService;
         }
         
+        #region Endpoints
         [HttpGet("items")]
         public async Task<IActionResult> GetItems(int pageNumber, int pageSize)
         {
@@ -36,9 +37,10 @@ namespace ReactApp1.Server.Controllers
         [HttpPost("items")]
         public async Task<IActionResult> CreateItem([FromBody] Item item)
         {
+            
             await _itemService.CreateNewItem(item);
             
-            return Ok();
+            return Ok(item.ItemId);
         }
         
         [HttpPut("items/{itemId}")]
@@ -56,5 +58,6 @@ namespace ReactApp1.Server.Controllers
             
             return NoContent();
         }
+        #endregion Endpoints
     }
 }
