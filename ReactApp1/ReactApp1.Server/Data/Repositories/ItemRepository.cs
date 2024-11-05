@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
+using ReactApp1.Server.Models.Models.Base;
 
 namespace ReactApp1.Server.Data.Repositories
 {
@@ -13,12 +14,23 @@ namespace ReactApp1.Server.Data.Repositories
             _context = context;
         }
         
-        public async Task<IEnumerable<Item>> GetAllItemsAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedItemsResponse<Item>> GetAllItemsAsync(int pageNumber, int pageSize)
         {
-            return await _context.Set<Item>()
+            var totalItems = await _context.Set<Item>().CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            
+            var items = await _context.Set<Item>()
                 .OrderBy(item => item.ItemId)
                 .Paginate(pageNumber, pageSize)
                 .ToListAsync();
+            
+            return new PaginatedItemsResponse<Item>
+            {
+                Items = items,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                CurrentPage = pageNumber
+            };
         }
 
         public async Task<Item?> GetItemByIdAsync(int itemId)

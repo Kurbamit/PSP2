@@ -1,5 +1,6 @@
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Models;
+using ReactApp1.Server.Models.Models.Base;
 
 namespace ReactApp1.Server.Services
 {
@@ -12,7 +13,7 @@ namespace ReactApp1.Server.Services
             _itemRepository = itemRepository;
         }
 
-        public Task<IEnumerable<Item>> GetAllItems(int pageSize, int pageNumber)
+        public Task<PaginatedItemsResponse<Item>> GetAllItems(int pageSize, int pageNumber)
         {
             return _itemRepository.GetAllItemsAsync(pageSize, pageNumber);
         }
