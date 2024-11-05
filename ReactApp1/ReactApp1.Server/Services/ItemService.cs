@@ -14,7 +14,7 @@ namespace ReactApp1.Server.Services
             _itemRepository = itemRepository;
         }
 
-        public Task<PaginatedItemsResponse<Item>> GetAllItems(int pageSize, int pageNumber)
+        public Task<PaginatedResult<Item>> GetAllItems(int pageSize, int pageNumber)
         {
             return _itemRepository.GetAllItemsAsync(pageSize, pageNumber);
         }

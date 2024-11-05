@@ -1,6 +1,6 @@
 namespace ReactApp1.Server.Models.Models.Base;
 
-public class PaginatedItemsResponse<T>
+public class PaginatedResult<T>
 {
     public IEnumerable<T> Items { get; set; }
     public int TotalPages { get; set; }

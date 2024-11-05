@@ -6,7 +6,7 @@ namespace ReactApp1.Server.Services;
 
 public interface IItemService
 {
-    Task<PaginatedItemsResponse<Item>> GetAllItems(int pageSize, int pageNumber);
+    Task<PaginatedResult<Item>> GetAllItems(int pageSize, int pageNumber);
     Task<ItemModel?> GetItemById(int itemId);
     Task CreateNewItem(Item item);
     Task UpdateItem(ItemModel item);

@@ -15,7 +15,7 @@ namespace ReactApp1.Server.Data.Repositories
             _context = context;
         }
         
-        public async Task<PaginatedItemsResponse<Item>> GetAllItemsAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedResult<Item>> GetAllItemsAsync(int pageNumber, int pageSize)
         {
             var totalItems = await _context.Set<Item>().CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
@@ -25,7 +25,7 @@ namespace ReactApp1.Server.Data.Repositories
                 .Paginate(pageNumber, pageSize)
                 .ToListAsync();
             
-            return new PaginatedItemsResponse<Item>
+            return new PaginatedResult<Item>
             {
                 Items = items,
                 TotalPages = totalPages,

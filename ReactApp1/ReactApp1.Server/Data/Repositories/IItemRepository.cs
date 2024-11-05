@@ -6,7 +6,7 @@ namespace ReactApp1.Server.Data.Repositories
 {
     public interface IItemRepository
     {
-        Task<PaginatedItemsResponse<Item>> GetAllItemsAsync(int pageNumber, int pageSize);
+        Task<PaginatedResult<Item>> GetAllItemsAsync(int pageNumber, int pageSize);
         Task<ItemModel?> GetItemByIdAsync(int itemId);
         Task AddItemAsync(Item item);
         Task UpdateItemAsync(ItemModel item);
