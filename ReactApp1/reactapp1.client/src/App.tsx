@@ -91,7 +91,7 @@ function App() {
 
     async function populateWeatherData() {
         const token = Cookies.get('authToken');
-        const response = await fetch(`${API_BASE_URL}/weatherforecast`,
+        const response = await fetch(`${API_BASE_URL}/GetWeatherForecast`,
             {
                 method: 'GET',
                 headers: {
