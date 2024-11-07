@@ -47,7 +47,7 @@ namespace ReactApp1.Server.Controllers
                 return BadRequest("Invalid username or password.");
             }
             
-            var token = GenerateJwtToken(request.Email);
+            var token = GenerateToken(request.Email, user.EmployeeId, user.EstablishmentId);
             
             Response.Cookies.Append("authToken", token, new CookieOptions
             {
@@ -60,11 +60,13 @@ namespace ReactApp1.Server.Controllers
             return Ok(new { message = "Login successful", token });
         }
         
-        private string GenerateJwtToken(string username)
+        private string GenerateToken(string email, int userId, int establishmentId)
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, username)
+                new Claim(ClaimTypes.Name, email),
+                new Claim("UserId", userId.ToString()),
+                new Claim("EstablishmentId", establishmentId.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
