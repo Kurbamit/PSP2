@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from "../../../config.ts";
+import ScriptResources from "../../assets/resources/strings.ts";
 
 interface LoginProps {
     onLogin: (token: string) => void;
@@ -26,12 +27,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         if (response.ok) {
             const data = await response.json();
             const { token } = data;
-            console.log('Login successful');
+            console.log(ScriptResources.LoginSuccessful);
             onLogin(token);
             navigate('/');
         } else {
-            setAlertMessage('Login failed: ' + response.statusText);
-            console.log('Login failed');
+            setAlertMessage(ScriptResources.LoginFailed + response.statusText);
+            console.log(ScriptResources.LoginFailed);
         }
     };
 
@@ -39,18 +40,18 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <Container className="mt-5">
             <Row className="justify-content-md-center">
                 <Col md={12}>
-                    <h2 className="text-center">Login</h2>
+                    <h2 className="text-center">{ScriptResources.Login}</h2>
 
                     {/* Display Bootstrap alert if there is an alert message */}
                     {alertMessage && (
                         <Alert variant="danger" onClose={() => setAlertMessage(null)} dismissible>
-                            <strong>Error:</strong> {alertMessage}
+                            <strong>{ScriptResources.Error}</strong> {alertMessage}
                         </Alert>
                     )}
 
                     <Form onSubmit={handleLogin}>
                         <Form.Group className="mb-3" controlId="formEmail">
-                            <Form.Label>Email</Form.Label>
+                            <Form.Label>{ScriptResources.Email}</Form.Label>
                             <Form.Control
                                 type="email"
                                 placeholder="Enter email"
@@ -61,7 +62,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formPassword">
-                            <Form.Label>Password</Form.Label>
+                            <Form.Label>{ScriptResources.Password}</Form.Label>
                             <Form.Control
                                 type="password"
                                 placeholder="Password"
@@ -72,7 +73,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                         </Form.Group>
 
                         <Button variant="primary" type="submit" className="w-100">
-                            Login
+                            {ScriptResources.Login}
                         </Button>
                     </Form>
                 </Col>

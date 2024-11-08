@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
+import ScriptResources from "../../../assets/resources/strings.ts";
 
 interface Item {
     itemId?: number; // Make itemId optional for new items
@@ -34,7 +35,7 @@ const ItemDetail: React.FC = () => {
                     setItem(response.data);
                     setEditedItem(response.data); // Initialize edited item with fetched data
                 } catch (error) {
-                    console.error('Error fetching item details:', error);
+                    console.error(ScriptResources.ErrorFetchingItems, error);
                 }
             };
             fetchItem();
@@ -79,16 +80,16 @@ const ItemDetail: React.FC = () => {
 
         if (editedItem) {
             if (!editedItem.name) {
-                errorMessages.push('Name is required.');
+                errorMessages.push(ScriptResources.NameIsRequired);
             }
             if (editedItem.cost <= 0) {
-                errorMessages.push('Cost must be greater than zero.');
+                errorMessages.push(ScriptResources.CostMustBeGreaterThanZero);
             }
             if (editedItem.tax < 0) {
-                errorMessages.push('Tax cannot be negative.');
+                errorMessages.push(ScriptResources.TaxCannotBeNegative);
             }
             if (editedItem.storage !== null && editedItem.storage < 0) {
-                errorMessages.push('Storage cannot be negative.');
+                errorMessages.push(ScriptResources.StorageCannotBeEmpty);
             }
         }
 
@@ -122,7 +123,7 @@ const ItemDetail: React.FC = () => {
                 setIsEditing(false);
             }
         } catch (error) {
-            console.error('Error saving item details:', error);
+            console.error(ScriptResources.ErrorSavingItem, error);
         }
     };
 
@@ -137,13 +138,13 @@ const ItemDetail: React.FC = () => {
                     method: 'DELETE',
                 });
                 if (!response.ok) {
-                    throw new Error('Failed to delete the item');
+                    throw new Error(ScriptResources.FailedToDeleteItem);
                 }
             }
             handleBackToList();
         } catch (error) {
-            console.error('Error deleting the item:', error);
-            alert("An error occurred while trying to delete the item.");
+            console.error(ScriptResources.ErrorDeletingItem, error);
+            alert(ScriptResources.ErrorDeletingItem);
         }
     };
 
@@ -153,13 +154,13 @@ const ItemDetail: React.FC = () => {
             {editedItem ? (
                 <div className="card">
                     <div className="card-body">
-                        <h5 className="card-title">{isNewItem ? 'New Item Information' : 'Item Information'}</h5>
+                        <h5 className="card-title">{isNewItem ? ScriptResources.NewItemInformation : ScriptResources.ItemInformation}</h5>
                         <ul className="list-group list-group-flush">
                             <li className="list-group-item">
-                                <strong>Item ID:</strong> {isNewItem ? 'N/A' : item?.itemId}
+                                <strong>{ScriptResources.ItemId}</strong> {isNewItem ? 'N/A' : item?.itemId}
                             </li>
                             <li className="list-group-item">
-                                <strong>Name:</strong>{' '}
+                                <strong>{ScriptResources.Name}</strong>{' '}
                                 <input
                                     type="text"
                                     name="name"
@@ -171,7 +172,7 @@ const ItemDetail: React.FC = () => {
                                 {error && <div className="invalid-feedback">{error}</div>} {/* Show error message */}
                             </li>
                             <li className="list-group-item">
-                                <strong>Cost:</strong>{' '}
+                                <strong>{ScriptResources.Cost}</strong>{' '}
                                 <input
                                     type="number"
                                     name="cost"
@@ -182,7 +183,7 @@ const ItemDetail: React.FC = () => {
                                 />
                             </li>
                             <li className="list-group-item">
-                                <strong>Tax:</strong>{' '}
+                                <strong>{ScriptResources.Tax}</strong>{' '}
                                 <input
                                     type="number"
                                     name="tax"
@@ -193,7 +194,7 @@ const ItemDetail: React.FC = () => {
                                 />
                             </li>
                             <li className="list-group-item">
-                                <strong>Alcoholic Beverage:</strong>{' '}
+                                <strong>{ScriptResources.AlcoholicBeverage}</strong>{' '}
                                 <input
                                     type="checkbox"
                                     name="alcoholicBeverage"
@@ -203,32 +204,32 @@ const ItemDetail: React.FC = () => {
                                 />
                             </li>
                             <li className="list-group-item">
-                                <strong>Receive Time:</strong> {new Date(editedItem.receiveTime).toLocaleString()}
+                                <strong>{ScriptResources.ReceiveTime}</strong> {new Date(editedItem.receiveTime).toLocaleString()}
                             </li>
                             <li className="list-group-item">
-                                <strong>Storage:</strong> {editedItem.storage || 'N/A'}
+                                <strong>{ScriptResources.Storage}</strong> {editedItem.storage || 'N/A'}
                             </li>
                         </ul>
                         <div className="mt-3">
                             {isEditing ? (
                                 <>
                                     <button className="btn btn-success me-2" onClick={handleFormSave}>
-                                        Save
+                                        {ScriptResources.Save}
                                     </button>
                                     {!isNewItem && (
                                         <button className="btn btn-secondary" onClick={toggleEditMode}>
-                                            Cancel
+                                            {ScriptResources.Cancel}
                                         </button>
                                     )}
                                 </>
                             ) : (
                                 <>
                                     <button className="btn btn-primary m-1" onClick={toggleEditMode}>
-                                        Edit
+                                        {ScriptResources.Edit}
                                     </button>
                                     {!isNewItem && (
                                         <button className="btn btn-danger m-1" onClick={handleDelete}>
-                                            Delete
+                                            {ScriptResources.Delete}
                                         </button>
                                     )}
                                 </>
@@ -237,11 +238,11 @@ const ItemDetail: React.FC = () => {
                     </div>
                 </div>
             ) : (
-                <div>Loading...</div>
+                <div>{ScriptResources.Loading}</div>
             )}
             {(!isEditing || isNewItem) && (
                 <button className="btn btn-secondary mt-3" onClick={handleBackToList}>
-                    Back to Items List
+                    {ScriptResources.BackToTheMainList}
                 </button>
             )}
         </div>
