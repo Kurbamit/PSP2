@@ -55,6 +55,7 @@ const Items: React.FC = () => {
             
             if (response.status === 204) {
                 setItems(items.filter((item) => item.itemId !== itemId));
+                setTotalItems(totalItems - 1);
             }
         } catch (error) {
             console.error('Error deleting the item:', error);
