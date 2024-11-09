@@ -6,6 +6,7 @@ import Cookies from 'js-cookie';
 import { Table } from 'react-bootstrap';
 import Pagination from '../../Base/Pagination';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ScriptResources from "../../../assets/resources/strings.ts";
 
 interface Item {
     itemId: number;
@@ -36,7 +37,7 @@ const Items: React.FC = () => {
                 setTotalPages(response.data.totalPages);
                 setTotalItems(response.data.totalItems);
             } catch (error) {
-                console.error('Error fetching items:', error);
+                console.error(ScriptResources.ErrorFetchingItems, error);
             }
         };
 
@@ -58,8 +59,8 @@ const Items: React.FC = () => {
                 setTotalItems(totalItems - 1);
             }
         } catch (error) {
-            console.error('Error deleting the item:', error);
-            alert("An error occurred while trying to delete the item.");
+            console.error(ScriptResources.ErrorDeletingItem, error);
+            alert(ScriptResources.ErrorDeletingItem);
         }
     };
 
@@ -70,20 +71,20 @@ const Items: React.FC = () => {
     return (
         <div>
             <button className="btn btn-primary mb-3" onClick={handleCreateNew}>
-                Create New Item
+                {ScriptResources.CreateNew}
             </button>
-            <h2>Items List</h2>
+            <h2>{ScriptResources.ItemsList}</h2>
 
             <Table striped bordered hover>
                 <thead>
                 <tr>
-                    <th>Item ID</th>
-                    <th>Name</th>
-                    <th>Cost</th>
-                    <th>Tax</th>
-                    <th>Alcoholic Beverage</th>
-                    <th>Receive Time</th>
-                    <th>Actions</th>
+                    <th>{ScriptResources.ItemId}</th>
+                    <th>{ScriptResources.Name}</th>
+                    <th>{ScriptResources.Cost}</th>
+                    <th>{ScriptResources.Tax}</th>
+                    <th>{ScriptResources.AlcoholicBeverage}</th>
+                    <th>{ScriptResources.ReceiveTime}</th>
+                    <th>{ScriptResources.Actions}</th>
                 </tr>
                 </thead>
                 <tbody>

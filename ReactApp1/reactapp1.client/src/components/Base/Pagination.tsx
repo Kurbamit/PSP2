@@ -1,6 +1,7 @@
 // src/components/Base/Pagination.tsx
 import React from 'react';
 import { Pagination as BootstrapPagination, Form } from 'react-bootstrap';
+import ScriptResources from "../../assets/resources/strings.ts";
 
 interface PaginationProps {
     currentPage: number;
@@ -33,9 +34,9 @@ const Pagination: React.FC<PaginationProps> = ({
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-3">
-                <span>Total Items: {totalItems}</span>
+                <span>{ScriptResources.TotalItems} {totalItems}</span>
                 <Form.Group controlId="pageSizeSelect">
-                    <Form.Label>Items per page:</Form.Label>
+                    <Form.Label>{ScriptResources.ItemsPerPage}</Form.Label>
                     <Form.Control
                         as="select"
                         value={pageSize}
