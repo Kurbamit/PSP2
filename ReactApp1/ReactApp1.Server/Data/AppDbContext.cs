@@ -20,6 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<FullOrder> FullOrders { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<GiftCard> GiftCards { get; set; }
+    public DbSet<Reservation> Reservations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -205,6 +206,18 @@ public class AppDbContext : DbContext
             entity.HasOne(g => g.Payment)
                 .WithMany(p => p.GiftCards)
                 .HasForeignKey(g => g.PaymentId);
+        });
+
+        modelBuilder.Entity<Reservation>(entity =>
+        {
+            entity.Property (p => p.ReservationId)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.ReceiveTime)
+            .IsRequired()
+            .ValueGeneratedOnAdd()
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
     }
 }
