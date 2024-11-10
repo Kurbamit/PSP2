@@ -76,9 +76,11 @@ builder.Services.AddSwaggerGen();
 
 // Register Repositories
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 
 // Register Services
 builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
 
 
 var app = builder.Build();
