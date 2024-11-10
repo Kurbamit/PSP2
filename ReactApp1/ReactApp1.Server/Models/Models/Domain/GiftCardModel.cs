@@ -12,7 +12,7 @@ public class GiftCardModel
 
     public DateTime ReceiveTime { get; set; }
 
-    public int PaymentId { get; set; }
+    public int? PaymentId { get; set; }
 
     public void MapUpdate(GiftCard existingGiftCard)
     {

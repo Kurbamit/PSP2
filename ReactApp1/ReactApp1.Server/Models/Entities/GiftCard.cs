@@ -24,7 +24,7 @@ public class GiftCard
     public DateTime ReceiveTime { get; set; }
     
     [Column("PaymentId")]
-    public int PaymentId { get; set; }
+    public int? PaymentId { get; set; }
     
     [ForeignKey(nameof(PaymentId))]
     public virtual Payment Payment { get; set; }
