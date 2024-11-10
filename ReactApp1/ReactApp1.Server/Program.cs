@@ -76,9 +76,11 @@ builder.Services.AddSwaggerGen();
 
 // Register Repositories
 builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 
 // Register Services
 builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IGiftCardService, GiftCardService>();
 
 
 var app = builder.Build();
