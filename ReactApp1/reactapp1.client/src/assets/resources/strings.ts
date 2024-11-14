@@ -45,6 +45,12 @@ const ScriptResources = {
     ItemsPerPage: 'Items per page:',
     TotalItems: 'Total Items:',
     DuplicateKeysError: 'Duplicate keys found in ScriptResources',
+    AddStorage: 'Add Storage',
+    DeductStorage: 'Deduct Storage',
+    AddStorageNumber: 'Add Storage Number',
+    StorageAdded: 'Enter the storage number you want to add',
+    FailedToUpdateStorage: 'Failed to update storage',
+    StorageShouldBePositive: 'Storage should be positive',
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {

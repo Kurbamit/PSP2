@@ -24,14 +24,19 @@ namespace ReactApp1.Server.Services
             return _itemRepository.GetItemByIdAsync(itemId);
         }
 
-        public Task CreateNewItem(Item item)
+        public Task CreateNewItem(Item item, int? establishmentId)
         {
-            return _itemRepository.AddItemAsync(item);
+            return _itemRepository.AddItemAsync(item, establishmentId);
         }
 
         public Task UpdateItem(ItemModel item)
         {
             return _itemRepository.UpdateItemAsync(item);
+        }
+        
+        public Task AddStorage(int itemId, int amount)
+        {
+            return _itemRepository.AddStorageAsync(itemId, amount);
         }
 
         public Task DeleteItem(int itemId)
