@@ -1,5 +1,6 @@
 using System;
 using System.Security.Claims;
+using ReactApp1.Server.Models.Enums;
 
 namespace ReactApp1.Server.Extensions
 {
@@ -49,6 +50,22 @@ namespace ReactApp1.Server.Extensions
                 return userEmail;
             }
             
+            return null;
+        }
+
+        public static TitleEnum? GetUserTitle(this System.Security.Principal.IPrincipal principal)
+        {
+            if (!principal.Identity.IsAuthenticated)
+            {
+                return null;
+            }
+            string title = (principal.Identity as ClaimsIdentity).FindFirst(f => f.Type == "Title")?.Value;
+            
+            if (!string.IsNullOrEmpty(title) && Enum.TryParse<TitleEnum>(title, out TitleEnum result))
+            {
+                return result;
+            }
+
             return null;
         }
     }
