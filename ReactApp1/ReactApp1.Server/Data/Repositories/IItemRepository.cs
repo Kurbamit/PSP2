@@ -8,8 +8,9 @@ namespace ReactApp1.Server.Data.Repositories
     {
         Task<PaginatedResult<Item>> GetAllItemsAsync(int pageNumber, int pageSize);
         Task<ItemModel?> GetItemByIdAsync(int itemId);
-        Task AddItemAsync(Item item);
+        Task AddItemAsync(Item item, int? establishmentId);
         Task UpdateItemAsync(ItemModel item);
+        Task AddStorageAsync(int itemId, int amount);
         Task DeleteItemAsync(int itemId);
     }
 }
