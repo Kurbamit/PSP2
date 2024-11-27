@@ -24,7 +24,7 @@ namespace ReactApp1.Server.Services
             return _employeeRepository.GetEmployeeByIdAsync(employeeId);
         }
 
-        public Task CreateNewEmployee(EmployeeModel employee, int? establishmentId)
+        public Task<int> CreateNewEmployee(EmployeeModel employee, int? establishmentId)
         {
             return _employeeRepository.AddEmployeeAsync(employee, establishmentId);
         }
