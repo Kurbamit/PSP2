@@ -17,6 +17,13 @@ namespace ReactApp1.Server.Controllers
         }
 
         #region Endpoints
+
+        /// <summary>
+        /// Get all reservations
+        /// </summary>
+        /// <param name="pageNumber"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
         [HttpGet("reservations")]
         public async Task<IActionResult> GetReservations(int pageNumber, int pageSize)
         {
@@ -24,6 +31,11 @@ namespace ReactApp1.Server.Controllers
             return Ok(reservations);
         }
 
+        /// <summary>
+        /// Get reservation by id
+        /// </summary>
+        /// <param name="reservationId"></param>
+        /// <returns></returns>
         [HttpGet("reservations/{reservationId}")]
         public async Task<IActionResult> GetReservations(int reservationId)
         {
@@ -31,6 +43,11 @@ namespace ReactApp1.Server.Controllers
             return Ok(reservation);
         }
 
+        /// <summary>
+        /// Create new reservation
+        /// </summary>
+        /// <param name="reservation"></param>
+        /// <returns></returns>
         [HttpPost("reservations")]
         public async Task<IActionResult> CreateReservation([FromBody] Reservation reservation)
         {
@@ -40,6 +57,11 @@ namespace ReactApp1.Server.Controllers
             return Ok(reservation.ReservationId);
         }
 
+        /// <summary>
+        /// Update existing reservation
+        /// </summary>
+        /// <param name="reservation"></param>
+        /// <returns></returns>
         [HttpPut("reservations/{reservationId}")]
         public async Task<IActionResult> UpdateReservation([FromBody] ReservationModel reservation)
         {
@@ -48,6 +70,11 @@ namespace ReactApp1.Server.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Delete reservation
+        /// </summary>
+        /// <param name="reservationId"></param>
+        /// <returns></returns>
         [HttpDelete("reservations/{reservationId}")]
         public async Task<IActionResult> DeleteReservation(int reservationId)
         {

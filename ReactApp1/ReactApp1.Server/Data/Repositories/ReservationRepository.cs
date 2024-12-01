@@ -17,8 +17,8 @@ namespace ReactApp1.Server.Data.Repositories
 
         public async Task<PaginatedResult<Reservation>> GetAllReservationsAsync(int pageNumber, int pageSize)
         {
-            var totalGiftCard = await _context.Set<Reservation>().CountAsync();
-            var totalPages = (int)Math.Ceiling(totalGiftCard / (double)pageSize);
+            var totalReservations = await _context.Set<Reservation>().CountAsync();
+            var totalPages = (int)Math.Ceiling(totalReservations / (double)pageSize);
 
             var reservations = await _context.Set<Reservation>()
                 .OrderBy(reservation => reservation.ReservationId)
@@ -29,7 +29,7 @@ namespace ReactApp1.Server.Data.Repositories
             {
                 Items = reservations,
                 TotalPages = totalPages,
-                TotalItems = totalGiftCard,
+                TotalItems = totalReservations,
                 CurrentPage = pageNumber
             };
         }
@@ -73,7 +73,7 @@ namespace ReactApp1.Server.Data.Repositories
 
                 if (existingReservation == null)
                 {
-                    throw new KeyNotFoundException($"GiftCard with ID {reservaton.ReservationID} not found.");
+                    throw new KeyNotFoundException($"Reservation with ID {reservaton.ReservationID} not found.");
                 }
                 reservaton.MapUpdate(existingReservation);
                 _context.Set<Reservation>().Update(existingReservation);
