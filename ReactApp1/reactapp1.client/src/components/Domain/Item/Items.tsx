@@ -71,6 +71,7 @@ const Items: React.FC = () => {
     return (
         <div>
             <button className="btn btn-primary mb-3" onClick={handleCreateNew}>
+                <span className="material-icons me-2" style={{verticalAlign: 'middle'}}>add</span>
                 {ScriptResources.CreateNew}
             </button>
             <h2>{ScriptResources.ItemsList}</h2>
