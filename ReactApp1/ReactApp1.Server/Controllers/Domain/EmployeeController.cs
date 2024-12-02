@@ -54,9 +54,9 @@ namespace ReactApp1.Server.Controllers.Domain
         public async Task<IActionResult> CreateEmployee([FromBody] EmployeeModel employee)
         {
             var establishmentId = User.GetUserEstablishmentId();
-            await _employeeService.CreateNewEmployee(employee, establishmentId);
+            var employeeId = await _employeeService.CreateNewEmployee(employee, establishmentId);
             
-            return Ok(employee.EmployeeId);
+            return Ok(employeeId);
         }
         
         /// <summary>
@@ -82,7 +82,7 @@ namespace ReactApp1.Server.Controllers.Domain
         {
             await _employeeService.DeleteEmployee(employeeId);
             
-            return Ok();
+            return NoContent();
         }
         
         #endregion Endpoints

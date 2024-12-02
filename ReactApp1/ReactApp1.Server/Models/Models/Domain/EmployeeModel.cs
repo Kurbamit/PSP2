@@ -89,6 +89,11 @@ namespace ReactApp1.Server.Models.Models.Domain
         /// Namo numeris
         /// </summary>
         public string? HouseNumber { get; set; }
+
+        /// <summary>
+        /// Sukūrimo/modifikavimo laikas
+        /// </summary>
+        public DateTime ReceiveTime { get; set; }
         
         public void MapUpdate(Employee existingEmployee)
         {

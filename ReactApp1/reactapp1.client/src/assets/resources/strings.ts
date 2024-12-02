@@ -51,6 +51,22 @@ const ScriptResources = {
     StorageAdded: 'Enter the storage number you want to add',
     FailedToUpdateStorage: 'Failed to update storage',
     StorageShouldBePositive: 'Storage should be positive',
+    LastName : 'Last Name:',
+    PhoneNumber: 'Phone Number:',
+    EmployeesList: 'Employees List',
+    NewEmployeeInformation: 'New Employee Information',
+    EmployeesInformation: 'Employees Information',
+    EmployeeId: 'Employee ID:',
+    PersonalCode: 'Personal Code:',
+    BirthDate: 'Birth Date:',
+    EmployeeEmail: 'Email:',
+    Country: 'Country:',
+    City: 'City:',
+    Street: 'Street:',
+    StreetNumber: 'Street Number:',
+    HouseNumber: 'House Number:',
+    InvalidEmail: 'Invalid email',
+    EmailIsRequired: 'Email is required',
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {

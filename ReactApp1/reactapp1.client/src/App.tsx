@@ -9,6 +9,8 @@ import Logout from "./components/Base/Logout.tsx";
 import './App.css';
 import { API_BASE_URL } from "../config";
 import Cookies from 'js-cookie';
+import Employees from "./components/Domain/Employee/Employees.tsx";
+import EmployeeDetail from "./components/Domain/Employee/EmployeeDetail.tsx";
 
 interface Forecast {
     date: string;
@@ -83,6 +85,9 @@ function App() {
                     <Route path="/items/new" element={<ItemDetail />} />
                     <Route path="/items/:id" element={<ItemDetail />} />
                     <Route path="/register" element={<Register onRegister={handleLogin} />} />
+                    <Route path="/employees" element={<Employees />} />
+                    <Route path="/employees/new" element={<EmployeeDetail />} />
+                    <Route path="/employees/:id" element={<EmployeeDetail />} />
                     <Route path="/login" element={<Login onLogin={handleLogin} />} />
                     <Route path="/logout" element={
                         <Logout onLogout={handleLogout} />
