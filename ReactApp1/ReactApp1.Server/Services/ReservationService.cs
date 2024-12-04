@@ -6,9 +6,9 @@ namespace ReactApp1.Server.Services
 {
     public class ReservationService : IReservationService
     {
-        private readonly ReservationRepository _reservationRepository;
+        private readonly IReservationRepository _reservationRepository;
 
-        public ReservationService(ReservationRepository reservationRepository)
+        public ReservationService(IReservationRepository reservationRepository)
         {
             _reservationRepository = reservationRepository;
         }
