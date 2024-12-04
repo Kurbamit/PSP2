@@ -67,6 +67,7 @@ const ScriptResources = {
     HouseNumber: 'House Number:',
     InvalidEmail: 'Invalid email',
     EmailIsRequired: 'Email is required',
+    Title: 'Title:',
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {
