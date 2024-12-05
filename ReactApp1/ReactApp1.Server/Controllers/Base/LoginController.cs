@@ -9,6 +9,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ReactApp1.Server.Models.Enums;
+using Serilog;
 
 namespace ReactApp1.Server.Controllers
 {
@@ -57,7 +58,6 @@ namespace ReactApp1.Server.Controllers
                 SameSite = SameSiteMode.None, // Required for cross-origin requests
                 Expires = DateTime.UtcNow.AddDays(1) // Cookie expiration
             });
-            
             return Ok(new { message = "Login successful", token });
         }
         

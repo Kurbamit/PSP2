@@ -1,0 +1,13 @@
+2024-12-04 16:39:10.118 +02:00 [WRN] The WebRootPath was not found: /Users/dominykas.cernovas/Documents/Documents - Dominykas’s Laptop - 1/PSP/PSP2/ReactApp1/ReactApp1.Server/wwwroot. Static files may be unavailable.
+2024-12-04 16:39:10.269 +02:00 [INF] Starting up the application...
+2024-12-04 16:39:10.455 +02:00 [WRN] The WebRootPath was not found: /Users/dominykas.cernovas/Documents/Documents - Dominykas’s Laptop - 1/PSP/PSP2/ReactApp1/ReactApp1.Server/wwwroot. Static files may be unavailable.
+2024-12-04 16:40:03.583 +02:00 [WRN] Failed to determine the https port for redirect.
+2024-12-04 16:40:05.836 +02:00 [INF] Login successful for cernovas50@gmail.com
+2024-12-04 16:45:40.482 +02:00 [WRN] The WebRootPath was not found: /Users/dominykas.cernovas/Documents/Documents - Dominykas’s Laptop - 1/PSP/PSP2/ReactApp1/ReactApp1.Server/wwwroot. Static files may be unavailable.
+2024-12-04 16:45:40.551 +02:00 [INF] Starting up the application...
+2024-12-04 16:45:40.736 +02:00 [WRN] The WebRootPath was not found: /Users/dominykas.cernovas/Documents/Documents - Dominykas’s Laptop - 1/PSP/PSP2/ReactApp1/ReactApp1.Server/wwwroot. Static files may be unavailable.
+2024-12-04 16:46:05.392 +02:00 [INF] Handling request: POST /api/login
+2024-12-04 16:46:05.401 +02:00 [WRN] Failed to determine the https port for redirect.
+2024-12-04 16:46:05.673 +02:00 [INF] Executing action ReactApp1.Server.Controllers.LoginController.Login (ReactApp1.Server) with arguments {"request":"ReactApp1.Server.Models.LoginRequest"}
+2024-12-04 16:46:07.377 +02:00 [INF] Finished executing action ReactApp1.Server.Controllers.LoginController.Login (ReactApp1.Server)
+2024-12-04 16:46:07.387 +02:00 [INF] Response: 200
