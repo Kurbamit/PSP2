@@ -7,6 +7,9 @@ public class FullOrderModel
     public int ItemId { get; set; }
     public int Count { get; set; }
     
+    public FullOrderModel()
+    {
+    }
     
     public FullOrderModel(int fullOrderId, int order, int itemId, int count)
     {
