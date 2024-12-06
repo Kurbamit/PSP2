@@ -3,6 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
+import { TitleEnum} from "../../../assets/Models/FrontendModels.ts";
 
 interface Employee {
     employeeId?: number; // Make employeeId optional for new items
@@ -184,6 +185,32 @@ const EmployeeDetail: React.FC = () => {
                         <div className="row"> {/* Start a new row */}
                             <div className="col-md-6"> {/* First column */}
                                 <ul className="list-group list-group-flush">
+                                    <li className="list-group-item">
+                                        <strong>{ScriptResources.Title}</strong>
+                                        <select
+                                            name="title"
+                                            value={editedItem.title || ''}
+                                            onChange={(e) =>
+                                                handleInputChange({
+                                                    target: {
+                                                        name: e.target.name,
+                                                        value: Number(e.target.value), // Convert value to number
+                                                    },
+                                                })
+                                            }
+                                            className={`form-control ${error ? 'is-invalid' : ''}`}
+                                            disabled={!isEditing}
+                                        >
+                                            {Object.keys(TitleEnum)
+                                                .filter((key) => isNaN(Number(key))) // Exclude numeric keys
+                                                .map((key) => (
+                                                    <option key={key} value={TitleEnum[key]}>
+                                                        {key} {/* Display the name */}
+                                                    </option>
+                                                ))}
+                                        </select>
+                                        {error && <div className="invalid-feedback">{error}</div>}
+                                    </li>
                                     <li className="list-group-item">
                                         <strong>{ScriptResources.PersonalCode}</strong>{' '}
                                         <input
