@@ -12,7 +12,7 @@ namespace ReactApp1.Server.Data.Repositories
         private readonly AppDbContext _context;
         private readonly ILogger<OrderRepository> _logger;
 
-        public OrderRepository(AppDbContext context, Logger<OrderRepository> logger)
+        public OrderRepository(AppDbContext context, ILogger<OrderRepository> logger)
         {
             _context = context;
             _logger = logger;

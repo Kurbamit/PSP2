@@ -8,9 +8,9 @@ namespace ReactApp1.Server.Data.Repositories
     {
         
         private readonly AppDbContext _context;
-        private readonly ILogger<OrderRepository> _logger;
+        private readonly ILogger<FullOrderRepository> _logger;
         
-        public FullOrderRepository(AppDbContext context, Logger<OrderRepository> logger)
+        public FullOrderRepository(AppDbContext context, ILogger<FullOrderRepository> logger)
         {
             _context = context;
             _logger = logger;

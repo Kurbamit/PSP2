@@ -9,10 +9,10 @@ namespace ReactApp1.Server.Services
         private readonly IOrderRepository _orderRepository;
         private readonly IItemRepository _itemRepository;
         private readonly IFullOrderRepository _fullOrderRepository;
-        private readonly ILogger<OrderRepository> _logger;
+        private readonly ILogger<OrderService> _logger;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, 
-            IFullOrderRepository fullOrderRepository, Logger<OrderRepository> logger)
+            IFullOrderRepository fullOrderRepository, ILogger<OrderService> logger)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
