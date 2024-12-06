@@ -8,8 +8,6 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using ReactApp1.Server.Models.Enums;
-using Serilog;
 
 namespace ReactApp1.Server.Controllers
 {
