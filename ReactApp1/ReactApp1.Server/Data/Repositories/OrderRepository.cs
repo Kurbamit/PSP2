@@ -26,7 +26,7 @@ namespace ReactApp1.Server.Data.Repositories
                 {
                     Status = (int)OrderStatusEnum.Open,
                     CreatedByEmployeeId = createdByEmployeeId,
-                    ReceiveTime = DateTime.Now,
+                    ReceiveTime = DateTime.UtcNow,
                     DiscountPercentage = null,
                     DiscountFixed = null,
                     PaymentId = null,
