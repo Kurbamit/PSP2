@@ -2,48 +2,77 @@ using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Domain;
 
-namespace ReactApp1.Server.Data.Repositories;
-
-public class FullOrderRepository : IFullOrderRepository
+namespace ReactApp1.Server.Data.Repositories
 {
-    
-    private readonly AppDbContext _context;
-    private readonly ILogger<OrderRepository> _logger;
-    
-    public FullOrderRepository(AppDbContext context, Logger<OrderRepository> logger)
+    public class FullOrderRepository : IFullOrderRepository
     {
-        _context = context;
-        _logger = logger;
-    }
-    
-    public async Task AddItemToOrderAsync(FullOrderModel fullOrder)
-    {
-        try
+        
+        private readonly AppDbContext _context;
+        private readonly ILogger<OrderRepository> _logger;
+        
+        public FullOrderRepository(AppDbContext context, Logger<OrderRepository> logger)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            var existingFullOrder = await _context.FullOrders.FirstOrDefaultAsync(o => o.FullOrderId == fullOrder.FullOrderId);
+            _context = context;
+            _logger = logger;
+        }
+        
+        public async Task AddItemToOrderAsync(FullOrderModel fullOrder)
+        {
+            try
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                
+                var newFullOrder = new FullOrder
+                {
+                    FullOrderId = fullOrder.FullOrderId,
+                    OrderId = fullOrder.OrderId,
+                    ItemId = fullOrder.ItemId,
+                    Count = fullOrder.Count
+                };
+                
+                await _context.Set<FullOrder>().AddAsync(newFullOrder);
+                await _context.SaveChangesAsync();
+                
+            }
+            catch (DbUpdateException e)
+            {
+                throw new DbUpdateException($"An error occurred while adding fullOrder {fullOrder.FullOrderId} record to the database.", e);
+            }
+        }
+        
+        public async Task<FullOrderModel?> GetFullOrderByIdAsync(int fullOrderId)
+        {
+            var fullOrder = await _context.FullOrders
+                .Where(f => f.FullOrderId == fullOrderId)
+                .Select(f => new FullOrderModel(f))
+                .FirstOrDefaultAsync();
+            
+            return fullOrder;
+        }
+
+        public async Task UpdateItemInOrderCountAsync(FullOrderModel fullOrder)
+        {
+            var existingFullOrder = await _context.FullOrders
+                .Where(f => f.FullOrderId == fullOrder.FullOrderId)
+                .FirstOrDefaultAsync();
 
             if (existingFullOrder == null)
             {
-                _logger.LogInformation($"Item {fullOrder.ItemId} is already associated with the order {fullOrder.OrderId}");
+                _logger.LogWarning($"Full {fullOrder.FullOrderId} not found");
                 return;
             }
             
-            var newFullOrder = new FullOrder
-            {
-                FullOrderId = fullOrder.FullOrderId,
-                OrderId = fullOrder.OrderId,
-                ItemId = fullOrder.ItemId,
-                Count = fullOrder.Count
-            };
+            // update item's quantity by adding new count to existing count
+            existingFullOrder.Count += fullOrder.Count;
             
-            await _context.Set<FullOrder>().AddAsync(newFullOrder);
             await _context.SaveChangesAsync();
-            
         }
-        catch (DbUpdateException e)
+        
+        public async Task DeleteItemFromOrderAsync(int itemId)
         {
-            throw new Exception($"An error occurred while adding fullOrder {fullOrder.FullOrderId} to the database.", e);
+            // TODO
+            await Task.CompletedTask;
         }
     }
 }
+

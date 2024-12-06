@@ -1,89 +1,91 @@
 using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
+using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
 
-namespace ReactApp1.Server.Data.Repositories;
-
-public class OrderRepository : IOrderRepository
+namespace ReactApp1.Server.Data.Repositories
 {
-    private readonly AppDbContext _context;
-    private readonly ILogger<OrderRepository> _logger;
+    public class OrderRepository : IOrderRepository
+    {
+        private readonly AppDbContext _context;
+        private readonly ILogger<OrderRepository> _logger;
 
-    public OrderRepository(AppDbContext context, Logger<OrderRepository> logger)
-    {
-        _context = context;
-        _logger = logger;
-    }
-    
-    public async Task AddOrderAsync(OrderModel order)
-    {
-        try
+        public OrderRepository(AppDbContext context, Logger<OrderRepository> logger)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            var existingOrder = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == order.OrderId);
+            _context = context;
+            _logger = logger;
+        }
 
-            if (existingOrder != null)
+        public async Task<OrderModel> AddEmptyOrderAsync(int createdByEmployeeId)
+        {
+            try
             {
-                _logger.LogInformation($"Order {order.OrderId} already exists");
-                return;
+                var emptyOrder = new Order
+                {
+                    Status = (int)OrderStatusEnum.Open,
+                    CreatedByEmployeeId = createdByEmployeeId,
+                    ReceiveTime = DateTime.Now,
+                    DiscountPercentage = null,
+                    DiscountFixed = null,
+                    PaymentId = null,
+                    Refunded = false,
+                    ReservationId = null
+                };
+
+                var orderEntity = await _context.Set<Order>().AddAsync(emptyOrder);
+                await _context.SaveChangesAsync();
+                
+                return new OrderModel(orderEntity.Entity);
             }
-
-            await CreateNewOrder();
-        }
-        catch (DbUpdateException e)
-        {
-            throw new Exception($"An error occurred while adding new order {order.OrderId} to the database.", e);
-        }
-
-        async Task CreateNewOrder()
-        {
-            var newOrder = new Order
+            catch (DbUpdateException e)
             {
-                OrderId = order.OrderId,
-                Status = order.Status,
-                CreatedByEmployeeId = order.CreatedByEmployeeId,
-                ReceiveTime = order.ReceiveTime,
-                DiscountPercentage = order.DiscountPercentage,  // Can be null
-                DiscountFixed = order.DiscountFixed,            // Can be null
-                PaymentId = order.PaymentId,                    // Can be null
-                Refunded = order.Refunded,
-                ReservationId = order.ReservationId             // Can be null
-            };
-            
-            await _context.Set<Order>().AddAsync(newOrder);
-            await _context.SaveChangesAsync();
+                throw new Exception("An error occurred while adding new order to the database.", e);
+            }
         }
-    }
 
-    public async Task<PaginatedResult<OrderModel>> GetAllOrdersAsync(int pageNumber, int pageSize)
-    {
-        var totalOrders = await _context.Set<Order>().CountAsync();
-        var totalPages = (int)Math.Ceiling(totalOrders / (double)pageSize);
-
-        var orders = await _context.Set<Order>()
-            .OrderBy(o => o.OrderId)
-            .Paginate(pageNumber, pageSize)
-            .Select(o => new OrderModel(o))
-            .ToListAsync();
-        
-        return new PaginatedResult<OrderModel>
+        public async Task<PaginatedResult<OrderModel>> GetAllOrdersAsync(int pageNumber, int pageSize)
         {
-            Items = orders,
-            TotalPages = totalPages,
-            TotalItems = totalOrders,
-            CurrentPage = pageNumber
-        };
+            var totalOrders = await _context.Set<Order>().CountAsync();
+            var totalPages = (int)Math.Ceiling(totalOrders / (double)pageSize);
+
+            var orders = await _context.Set<Order>()
+                .OrderBy(o => o.OrderId)
+                .Paginate(pageNumber, pageSize)
+                .Select(o => new OrderModel(o))
+                .ToListAsync();
+
+            return new PaginatedResult<OrderModel>
+            {
+                Items = orders,
+                TotalPages = totalPages,
+                TotalItems = totalOrders,
+                CurrentPage = pageNumber
+            };
+        }
+
+        public async Task<OrderModel?> GetOrderByIdAsync(int orderId)
+        {
+            var item = await _context.Orders
+                .Where(order => order.OrderId == orderId)
+                .Select(o => new OrderModel(o))
+                .FirstOrDefaultAsync();
+
+            return item;
+        }
+
+        public async Task<OrderModel?> AddDiscountToOrderAsync()
+        {
+            // TODO
+            return await Task.FromResult<OrderModel?>(null);
+        }
+
+        public async Task DeleteOrderAsync(int orderId)
+        {
+            // TODO
+            await Task.CompletedTask;
+        }
     }
     
-    public async Task<OrderModel?> GetOrderByIdAsync(int orderId)
-    {
-        var item = await _context.Orders
-            .Where(order => order.OrderId == orderId)
-            .Select(o => new OrderModel(o))
-            .FirstOrDefaultAsync();
-        
-        return item;
-    }
 }
