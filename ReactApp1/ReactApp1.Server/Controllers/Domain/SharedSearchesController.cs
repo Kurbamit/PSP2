@@ -33,7 +33,7 @@ namespace ReactApp1.Server.Controllers.Domain
                 {
                     Id = f.ItemId,
                     Name = f.Name == null ? "None" : f.Name
-                }).ToListAsync();
+                }).OrderBy(f => f.Name.ToLower()).ToListAsync();
             
             return Ok(result);
         }

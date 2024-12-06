@@ -222,7 +222,7 @@ const ItemDetail: React.FC = () => {
                                 <input
                                     type="number"
                                     name="cost"
-                                    value={editedItem.cost || 0}
+                                    value={editedItem.cost || ''}
                                     onChange={handleInputChange}
                                     className="form-control"
                                     disabled={!isEditing}
@@ -233,7 +233,7 @@ const ItemDetail: React.FC = () => {
                                 <input
                                     type="number"
                                     name="tax"
-                                    value={editedItem.tax || 0}
+                                    value={editedItem.tax || ''}
                                     onChange={handleInputChange}
                                     className="form-control"
                                     disabled={!isEditing}
