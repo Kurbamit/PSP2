@@ -20,12 +20,14 @@ namespace ReactApp1.Server.Services
             _logger = logger;
         }
         
-        public Task<OrderModel> OpenOrder(int? createdByEmployeeId)
+        public async Task<OrderItems> OpenOrder(int? createdByEmployeeId)
         {
             if (!createdByEmployeeId.HasValue)
                 throw new ArgumentNullException(nameof(createdByEmployeeId));
             
-            return _orderRepository.AddEmptyOrderAsync(createdByEmployeeId.Value);
+            var emptyOrder = await _orderRepository.AddEmptyOrderAsync(createdByEmployeeId.Value);
+
+            return new OrderItems(emptyOrder, null);
         }
         
         public Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize)
@@ -33,9 +35,32 @@ namespace ReactApp1.Server.Services
             return _orderRepository.GetAllOrdersAsync(pageNumber, pageSize);
         }
 
-        public Task<OrderModel?> GetOrderById(int orderId)
+        public async Task<OrderItems> GetOrderById(int orderId)
         {
-            return _orderRepository.GetOrderByIdAsync(orderId);
+            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            if (order == null)
+            {
+                _logger.LogInformation($"Order with id: {orderId} not found");
+                return new OrderItems(null, null);
+            }
+
+            var orderItems = await GetOrderItems(orderId);
+            return new OrderItems(order, orderItems);
+        }
+        
+        private async Task<List<ItemModel>> GetOrderItems(int orderId)
+        {
+            var orderItemIds = await _fullOrderRepository.GetOrderItemsAsync(orderId);
+            
+            var orderItems = new List<ItemModel>();
+            foreach (var id in orderItemIds)
+            {
+                var item = await _itemRepository.GetItemByIdAsync(id);
+                if (item != null)
+                    orderItems.Add(item);
+            }
+
+            return orderItems;
         }
         
         public async Task AddItemToOrder(FullOrderModel fullOrder)

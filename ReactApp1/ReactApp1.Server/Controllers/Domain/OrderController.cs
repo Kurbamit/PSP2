@@ -17,11 +17,19 @@ namespace ReactApp1.Server.Controllers.Domain
         }
 
         [HttpGet("orders")]
-        public async Task<IActionResult> GetAllOrders([FromQuery] int pageNumber, int pageSize)
+        public async Task<IActionResult> GetOrders([FromQuery] int pageNumber, int pageSize)
         {
             var orders = await _orderService.GetAllOrders(pageNumber, pageSize);
             
             return Ok(orders);
+        }
+        
+        [HttpGet("orders/{orderId}")]
+        public async Task<IActionResult> GetOrders(int orderId)
+        {
+            var order = await _orderService.GetOrderById(orderId);
+            
+            return Ok(order);
         }
         
         [HttpPost("orders")]

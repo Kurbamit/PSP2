@@ -39,13 +39,20 @@ namespace ReactApp1.Server.Data.Repositories
         
         public async Task<FullOrderModel?> GetFullOrderAsync(int orderId, int itemId)
         {
-            var fullOrder = await _context.FullOrders
+            return await _context.FullOrders
                 .Where(f => f.OrderId == orderId && f.ItemId == itemId)
                 .Select(f => new FullOrderModel(f))
                 .FirstOrDefaultAsync();
-            
-            return fullOrder;
         }
+
+        public async Task<List<int>> GetOrderItemsAsync(int orderId)
+        {
+            return await _context.FullOrders
+                .Where(f => f.OrderId == orderId)
+                .Select(f => f.ItemId)
+                .ToListAsync();
+        }
+        
 
         public async Task UpdateItemInOrderCountAsync(FullOrderModel fullOrder)
         {

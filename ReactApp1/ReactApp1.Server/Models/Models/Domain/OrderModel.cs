@@ -12,6 +12,10 @@ public class OrderModel
     public bool Refunded { get; set; }
     public int? ReservationId { get; set; }
 
+    public OrderModel()
+    {
+    }
+    
     public OrderModel(int orderId, int status, int createdByEmployeeId, DateTime receiveTime, 
         int? discountPercentage, decimal? discountFixed, int? paymentId, bool refunded, int? reservationId)
     {
@@ -31,5 +35,17 @@ public class OrderModel
         order.DiscountPercentage, order.DiscountFixed, order.PaymentId, order.Refunded, order.ReservationId)
     {
         
+    }
+}
+
+public class OrderItems
+{
+    public OrderModel Order { get; set; }
+    public List<ItemModel> Items { get; set; }
+
+    public OrderItems(OrderModel? order, List<ItemModel>? items)
+    {
+        Order = order ?? new OrderModel();
+        Items = items ?? new List<ItemModel>();
     }
 }
