@@ -5,7 +5,7 @@ namespace ReactApp1.Server.Data.Repositories;
 public interface IFullOrderRepository
 {
     Task AddItemToOrderAsync(FullOrderModel fullOrder);
-    Task<FullOrderModel?> GetFullOrderByIdAsync(int fullOrderId);
+    Task<FullOrderModel?> GetFullOrderAsync(int orderId, int itemId);
     Task UpdateItemInOrderCountAsync(FullOrderModel fullOrder);
     Task DeleteItemFromOrderAsync(int itemId);
 }

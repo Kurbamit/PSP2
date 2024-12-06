@@ -20,11 +20,8 @@ namespace ReactApp1.Server.Data.Repositories
         {
             try
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
-                
                 var newFullOrder = new FullOrder
                 {
-                    FullOrderId = fullOrder.FullOrderId,
                     OrderId = fullOrder.OrderId,
                     ItemId = fullOrder.ItemId,
                     Count = fullOrder.Count
@@ -36,14 +33,14 @@ namespace ReactApp1.Server.Data.Repositories
             }
             catch (DbUpdateException e)
             {
-                throw new DbUpdateException($"An error occurred while adding fullOrder {fullOrder.FullOrderId} record to the database.", e);
+                throw new DbUpdateException($"An error occurred while adding fullOrder (orderId ={fullOrder.OrderId}, itemId = {fullOrder.ItemId}) record to the database.", e);
             }
         }
         
-        public async Task<FullOrderModel?> GetFullOrderByIdAsync(int fullOrderId)
+        public async Task<FullOrderModel?> GetFullOrderAsync(int orderId, int itemId)
         {
             var fullOrder = await _context.FullOrders
-                .Where(f => f.FullOrderId == fullOrderId)
+                .Where(f => f.OrderId == orderId && f.ItemId == itemId)
                 .Select(f => new FullOrderModel(f))
                 .FirstOrDefaultAsync();
             
@@ -53,12 +50,12 @@ namespace ReactApp1.Server.Data.Repositories
         public async Task UpdateItemInOrderCountAsync(FullOrderModel fullOrder)
         {
             var existingFullOrder = await _context.FullOrders
-                .Where(f => f.FullOrderId == fullOrder.FullOrderId)
+                .Where(f => f.OrderId == fullOrder.OrderId && f.ItemId == fullOrder.ItemId)
                 .FirstOrDefaultAsync();
 
             if (existingFullOrder == null)
             {
-                _logger.LogWarning($"Full {fullOrder.FullOrderId} not found");
+                _logger.LogInformation($"No existing FullOrder found for Order {fullOrder.OrderId} and Item {fullOrder.ItemId}");
                 return;
             }
             

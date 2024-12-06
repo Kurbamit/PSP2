@@ -46,15 +46,16 @@ namespace ReactApp1.Server.Services
             if (!(await OrderExists() && await ItemIsAvailableInStorage()))
                 return;
             
-            var existingFullOrder = await _fullOrderRepository.GetFullOrderByIdAsync(fullOrder.FullOrderId);
+            var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
             
-            // If the item is already in the order (fullOrder record which links the order with the item exists in the database)
-            // update its quantity by adding new count to existing count
-            if(existingFullOrder != null)
-                await _fullOrderRepository.UpdateItemInOrderCountAsync(existingFullOrder);
-
-            // Otherwise, create a new record for it
-            await _fullOrderRepository.AddItemToOrderAsync(fullOrder);
+            var task = existingFullOrder != null
+                // If the item is already in the order (fullOrder record which links the order with the item exists in the database)
+                // update its quantity by adding new count to existing count
+                ? _fullOrderRepository.UpdateItemInOrderCountAsync(fullOrder)
+                // Otherwise, create a new record for it
+                : _fullOrderRepository.AddItemToOrderAsync(fullOrder);
+            
+            await task;
 
             async Task<bool> OrderExists()
             {
