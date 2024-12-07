@@ -21,6 +21,7 @@ export interface Order {
     paymentId: number | null;
     refunded: boolean;
     reservationId: number | null;
+    totalPrice: number | null;
 }
 
 const Orders: React.FC = () => {

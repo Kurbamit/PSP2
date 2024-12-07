@@ -7,6 +7,7 @@ import {Order} from "./Orders.tsx";
 import {getOrderStatusString, getYesNoString} from "../../../assets/Utils/utils.ts";
 import SelectDropdown from "../../Base/SelectDropdown.tsx";
 import {OrderStatusEnum} from "../../../assets/Models/FrontendModels.ts";
+import { Form } from 'react-bootstrap';
 
 interface Item {
     itemId: number;
@@ -16,6 +17,7 @@ interface Item {
     alcoholicBeverage: boolean;
     receiveTime: string;
     storage: number | null;
+    count: number | null;
 }
 
 interface FullOrder {
@@ -31,6 +33,7 @@ const OrderDetail: React.FC = () => {
     const navigate = useNavigate();
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [count, setCount] = useState(1);
 
     const fetchItem = async () => {
         try {
@@ -55,12 +58,13 @@ const OrderDetail: React.FC = () => {
             try {
                 await axios.put(
                     `http://localhost:5114/api/orders/${id}/items`,
-                    { orderId: Number(id), itemId: selectedItemId, count: 1 },
+                    { orderId: Number(id), itemId: selectedItemId, count: count },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 setShowModal(false); // Close the modal after adding the item
                 setSelectedItemId(null); // Reset the selected item
                 fetchItem(); // Refresh the order details
+                setCount(1);
             } catch (error) {
                 console.error(ScriptResources.ErrorAddingItem, error);
             }
@@ -135,13 +139,16 @@ const OrderDetail: React.FC = () => {
                                 <strong>{ScriptResources.CreatedBy}</strong>
                                 <p>{editedItem.order.createdByEmployeeName}</p>
                             </li>
+                            <li className="list-group-item">
+                                <strong>{ScriptResources.TotalPrice}</strong>
+                                <p>{editedItem.order.totalPrice ? editedItem.order.totalPrice + ' ' + ScriptResources.Eur : '-'}</p>
+                            </li>
                         </ul>
                     </div>
                 </div>
             ) : (
                 <div>{ScriptResources.Loading}</div>
             )}
-
 
 
             {/* Render Items Table */}
@@ -170,6 +177,7 @@ const OrderDetail: React.FC = () => {
                                 <th>{ScriptResources.AlcoholicBeverage}</th>
                                 <th>{ScriptResources.ReceiveTime}</th>
                                 <th>{ScriptResources.Storage}</th>
+                                <th>{ScriptResources.Count}</th>
                                 <th>{ScriptResources.Actions}</th>
                             </tr>
                             </thead>
@@ -183,6 +191,7 @@ const OrderDetail: React.FC = () => {
                                     <td>{getYesNoString(item.alcoholicBeverage)}</td>
                                     <td>{item.receiveTime}</td>
                                     <td>{item.storage ?? ScriptResources.NotAvailable}</td>
+                                    <td>{item.count ?? ' '}</td>
                                     <td>
                                 <span
                                     className="material-icons"
@@ -239,6 +248,15 @@ const OrderDetail: React.FC = () => {
                                         }
                                     }}
                                 />
+                                <Form.Group className="mb-3" controlId="item-count">
+                                    <Form.Label>{ScriptResources.SelectCount}</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        value={count}
+                                        onChange={(e) => setCount(Number(e.target.value))}
+                                        min="1"
+                                    />
+                                </Form.Group>
                             </div>
                             <div className="modal-footer">
                                 <button className="btn btn-secondary" onClick={() => setShowModal(false)}>

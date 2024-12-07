@@ -92,6 +92,10 @@ const ScriptResources = {
     Close: 'Close',
     ErrorClosingOrder: 'Error closing order:',
     NoItems: 'No items',
+    TotalPrice: 'Total Price:',
+    Eur: 'EUR',
+    Count: 'Count:',
+    SelectCount: 'Select count',
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {
