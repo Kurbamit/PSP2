@@ -127,6 +127,19 @@ namespace ReactApp1.Server.Data.Repositories
             }
         }
         
+        public async Task<StorageModel?> GetItemStorageAsync(int itemId)
+        {
+
+            var storage = await _context.Storages
+                .Where(f => f.ItemId == itemId)
+                .FirstOrDefaultAsync();
+
+            return storage != null
+                ? new StorageModel(storage)
+                : null;
+        }
+
+        
         public async Task DeleteItemAsync(int itemId)
         {
             try
