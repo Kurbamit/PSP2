@@ -45,11 +45,11 @@ namespace ReactApp1.Server.Data.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<List<int>> GetOrderItemsAsync(int orderId)
+        public async Task<List<FullOrderModel>> GetOrderItemsAsync(int orderId)
         {
             return await _context.FullOrders
                 .Where(f => f.OrderId == orderId)
-                .Select(f => f.ItemId)
+                .Select(f => new FullOrderModel(f))
                 .ToListAsync();
         }
         

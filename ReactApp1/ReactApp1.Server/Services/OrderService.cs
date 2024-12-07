@@ -60,19 +60,24 @@ namespace ReactApp1.Server.Services
                 order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
 
             var orderItems = await GetOrderItems(orderId);
+            
             return new OrderItems(order, orderItems);
         }
         
         private async Task<List<ItemModel>> GetOrderItems(int orderId)
         {
-            var orderItemIds = await _fullOrderRepository.GetOrderItemsAsync(orderId);
+            var fullOrders = await _fullOrderRepository.GetOrderItemsAsync(orderId);
             
             var orderItems = new List<ItemModel>();
-            foreach (var id in orderItemIds)
+            foreach (var fullOrder in fullOrders)
             {
-                var item = await _itemRepository.GetItemByIdAsync(id);
-                if (item != null)
-                    orderItems.Add(item);
+                var item = await _itemRepository.GetItemByIdAsync(fullOrder.ItemId);
+                
+                if(item == null)
+                    continue;
+                
+                item.Count = fullOrder.Count;
+                orderItems.Add(item);
             }
 
             return orderItems;
