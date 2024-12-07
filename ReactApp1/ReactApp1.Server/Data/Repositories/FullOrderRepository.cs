@@ -72,10 +72,24 @@ namespace ReactApp1.Server.Data.Repositories
             await _context.SaveChangesAsync();
         }
         
-        public async Task DeleteItemFromOrderAsync(int itemId)
+        public async Task DeleteItemFromOrderAsync(FullOrderModel fullOrder)
         {
-            // TODO
-            await Task.CompletedTask;
+            var existingFullOrder = await _context.FullOrders
+                .Where(f => f.OrderId == fullOrder.OrderId && f.ItemId == fullOrder.ItemId)
+                .FirstOrDefaultAsync();
+            
+            if(existingFullOrder == null)
+                throw new InvalidOperationException($"The specified item {fullOrder.ItemId} is not linked to the given order {fullOrder.OrderId}");
+
+            try
+            {
+                _context.FullOrders.Remove(existingFullOrder);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                throw new DbUpdateException($"An error occurred while deleting fullOrder (orderId = {fullOrder.OrderId}, itemId = {fullOrder.ItemId}) record to the database.", e);
+            }
         }
     }
 }

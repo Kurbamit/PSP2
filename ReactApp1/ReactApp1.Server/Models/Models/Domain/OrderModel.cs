@@ -11,6 +11,7 @@ public class OrderModel
     public int? PaymentId { get; set; }
     public bool Refunded { get; set; }
     public int? ReservationId { get; set; }
+    public string? CreatedByEmployeeName { get; set; }
 
     public OrderModel()
     {
