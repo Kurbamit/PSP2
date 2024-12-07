@@ -1,4 +1,5 @@
 using ReactApp1.Server.Data.Repositories;
+using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
 
@@ -68,10 +69,12 @@ namespace ReactApp1.Server.Services
             // Before adding an item to an order, check if:
             // 1. The order exists
             // 2. The item exists and there is enough stock in storage
-            if (!(await OrderExists() && await ItemIsAvailableInStorage()))
+            if (!(await OrderExistsAndStatusIsOpen(fullOrder.OrderId, "AddItemToOrder") && await ItemIsAvailableInStorage()))
                 return;
             
             var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
+            
+            // TODO: Remove the reserved quantity of items from storage
             
             var task = existingFullOrder != null
                 // If the item is already in the order (fullOrder record which links the order with the item exists in the database)
@@ -81,18 +84,6 @@ namespace ReactApp1.Server.Services
                 : _fullOrderRepository.AddItemToOrderAsync(fullOrder);
             
             await task;
-
-            async Task<bool> OrderExists()
-            {
-                var order = await _orderRepository.GetOrderByIdAsync(fullOrder.OrderId);
-                if (order == null)
-                {
-                    _logger.LogInformation($"Failed to add item {fullOrder.ItemId} to order {fullOrder.ItemId}: Order not found");
-                    return false;
-                }
-                
-                return true;
-            }
 
             async Task<bool> ItemIsAvailableInStorage()
             {
@@ -113,25 +104,56 @@ namespace ReactApp1.Server.Services
             }
         }
         
-        public Task RemoveItemFromOrder(int itemId)
+        public async Task RemoveItemFromOrder(FullOrderModel fullOrder)
         {
-            // TODO
-            // _fullOrderRepository.DeleteItemFromOrderAsync(itemId);
-            return Task.CompletedTask;
+            var oderExistsAndStatusIsOpen = await OrderExistsAndStatusIsOpen(fullOrder.OrderId, "RemoveItemFromOrder");
+            if (!oderExistsAndStatusIsOpen)
+                return;
+            
+            var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
+            if (existingFullOrder == null)
+            {
+                _logger.LogInformation($"The specified item {fullOrder.ItemId} is not linked to the given order {fullOrder.OrderId}");
+                return;
+            }
+            
+            // TODO: Add reserved quantity of items back to storage
+            
+            await _fullOrderRepository.DeleteItemFromOrderAsync(existingFullOrder);
+        }
+        
+        public async Task UpdateOrder(OrderModel order)
+        {
+            if (!await OrderExistsAndStatusIsOpen(order.OrderId, "UpdateOrder"))
+                return;
+            
+            await _orderRepository.UpdateOrderAsync(order);
         }
 
-        public Task<OrderModel?> AddDiscountToOrderAsync()
+        public async Task CloseOrder(int orderId)
         {
-            // TODO:
-            // return _orderRepository.AddDiscountToOrderAsync();
-            return Task.FromResult<OrderModel?>(null);
+            if(!await OrderExistsAndStatusIsOpen(orderId, "CloseOrder"))
+                return;
+            
+            await _orderRepository.DeleteOrderAsync(orderId);
         }
-
-        public Task CloseOrder(int orderId)
+        
+        private async Task<bool> OrderExistsAndStatusIsOpen(int orderId, string? operation = null)
         {
-            // TODO
-            // _orderRepository.DeleteOrderAsync(orderId);
-            return Task.CompletedTask;
+            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            if (order == null)
+            {
+                _logger.LogInformation($"Operation '{operation}' failed: Order {orderId} not found");
+                return false;
+            }
+
+            if (order.Status != (int)OrderStatusEnum.Open)
+            {
+                _logger.LogInformation($"Operation '{operation}' failed: Order status is {order.Status.ToString()}");
+                return false;
+            }
+                
+            return true;
         }
     }
 }

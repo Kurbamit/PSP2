@@ -48,6 +48,32 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok();
         }
+        
+        // This endpoint can also be used to apply a discount
+        [HttpPut("orders/{orderId}")]
+        public async Task<IActionResult> UpdateOrder([FromBody] OrderModel order)
+        {
+            await _orderService.UpdateOrder(order);
+
+            return Ok();
+        }
+        
+        [HttpDelete("orders/{orderId}/items")]
+        public async Task<IActionResult> RemoveItemFromOrder([FromBody] FullOrderModel order)
+        {
+            await _orderService.RemoveItemFromOrder(order);
+
+            return Ok();
+        }
+        
+        [HttpDelete("orders/{orderId}")]
+        public async Task<IActionResult> CloseOrder(int orderId)
+        {
+            await _orderService.CloseOrder(orderId);
+
+            return Ok();
+        }
+        
     }
 }
 

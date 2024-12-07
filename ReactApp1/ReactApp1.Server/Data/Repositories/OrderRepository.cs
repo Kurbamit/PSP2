@@ -1,3 +1,4 @@
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
@@ -34,7 +35,7 @@ namespace ReactApp1.Server.Data.Repositories
                     ReservationId = null
                 };
 
-                var orderEntity = await _context.Set<Order>().AddAsync(emptyOrder);
+                var orderEntity = await _context.Orders.AddAsync(emptyOrder);
                 await _context.SaveChangesAsync();
                 
                 return new OrderModel(orderEntity.Entity);
@@ -47,10 +48,10 @@ namespace ReactApp1.Server.Data.Repositories
 
         public async Task<PaginatedResult<OrderModel>> GetAllOrdersAsync(int pageNumber, int pageSize)
         {
-            var totalOrders = await _context.Set<Order>().CountAsync();
+            var totalOrders = await _context.Orders.CountAsync();
             var totalPages = (int)Math.Ceiling(totalOrders / (double)pageSize);
 
-            var orders = await _context.Set<Order>()
+            var orders = await _context.Orders
                 .OrderBy(o => o.OrderId)
                 .Paginate(pageNumber, pageSize)
                 .Select(o => new OrderModel(o))
@@ -67,25 +68,61 @@ namespace ReactApp1.Server.Data.Repositories
 
         public async Task<OrderModel?> GetOrderByIdAsync(int orderId)
         {
-            var item = await _context.Orders
+            var order = await _context.Orders
                 .Where(order => order.OrderId == orderId)
                 .Select(o => new OrderModel(o))
                 .FirstOrDefaultAsync();
 
-            return item;
+            return order;
         }
-
-        public async Task<OrderModel?> AddDiscountToOrderAsync()
-        {
-            // TODO
-            return await Task.FromResult<OrderModel?>(null);
-        }
-
         public async Task DeleteOrderAsync(int orderId)
         {
-            // TODO
-            await Task.CompletedTask;
+            var existingOrder = await _context.Orders
+                .Where(order => order.OrderId == orderId)
+                .FirstOrDefaultAsync();
+            
+            if(existingOrder == null)
+                throw new InvalidOperationException($"The specified order {orderId} does not exist");
+
+            try
+            {
+                _context.Orders.Remove(existingOrder);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbException e)
+            {
+                throw new DbUpdateException($"An error occurred while deleting order (orderId = {orderId} record to the database.", e);
+            }
+        }
+
+        public async Task UpdateOrderAsync(OrderModel order)
+        {
+            var existingOrder = await _context.Orders
+                .Where(o => o.OrderId == order.OrderId)
+                .FirstOrDefaultAsync();
+            
+            if(existingOrder == null)
+                throw new InvalidOperationException($"The specified order {order.OrderId} does not exist");
+            
+            try
+            {
+                _context.Orders.Update(new Order
+                {
+                    Status = order.Status,
+                    CreatedByEmployeeId = order.CreatedByEmployeeId,
+                    ReceiveTime = order.ReceiveTime,
+                    DiscountPercentage = order.DiscountPercentage,
+                    DiscountFixed = order.DiscountFixed,
+                    PaymentId = order.PaymentId,
+                    Refunded = order.Refunded,
+                    ReservationId = order.ReservationId
+                });
+                await _context.SaveChangesAsync();
+            }   
+            catch (DbUpdateException e)
+            {
+                throw new DbUpdateException($"An error occurred while updating order (orderId = {order.OrderId}) record in the database.", e);
+            }
         }
     }
-    
 }
