@@ -12,6 +12,7 @@ import Cookies from 'js-cookie';
 import Employees from "./components/Domain/Employee/Employees.tsx";
 import EmployeeDetail from "./components/Domain/Employee/EmployeeDetail.tsx";
 import SelectDropdown from "./components/Base/SelectDropdown.tsx";
+import Orders from "./components/Domain/Order/Orders.tsx";
 
 interface Forecast {
     date: string;
@@ -99,6 +100,7 @@ function App() {
                             {contents}
                         </div>
                     } />
+                    <Route path="/orders" element={<Orders />} />
                     <Route path="/items" element={<Items />} />
                     <Route path="/items/new" element={<ItemDetail />} />
                     <Route path="/items/:id" element={<ItemDetail />} />
