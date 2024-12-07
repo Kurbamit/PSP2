@@ -75,6 +75,8 @@ namespace ReactApp1.Server.Data.Repositories
 
             return order;
         }
+        
+        // This method is not in use now, but may be needed for order deletion in the future
         public async Task DeleteOrderAsync(int orderId)
         {
             var existingOrder = await _context.Orders
@@ -104,24 +106,28 @@ namespace ReactApp1.Server.Data.Repositories
             if(existingOrder == null)
                 throw new InvalidOperationException($"The specified order {order.OrderId} does not exist");
             
+            UpdateExistingOrderFields();
+            
             try
             {
-                _context.Orders.Update(new Order
-                {
-                    Status = order.Status,
-                    CreatedByEmployeeId = order.CreatedByEmployeeId,
-                    ReceiveTime = order.ReceiveTime,
-                    DiscountPercentage = order.DiscountPercentage,
-                    DiscountFixed = order.DiscountFixed,
-                    PaymentId = order.PaymentId,
-                    Refunded = order.Refunded,
-                    ReservationId = order.ReservationId
-                });
+                _context.Orders.Update(existingOrder);
                 await _context.SaveChangesAsync();
             }   
             catch (DbUpdateException e)
             {
                 throw new DbUpdateException($"An error occurred while updating order (orderId = {order.OrderId}) record in the database.", e);
+            }
+            
+            void UpdateExistingOrderFields()
+            {
+                existingOrder.Status = order.Status;
+                existingOrder.CreatedByEmployeeId = order.CreatedByEmployeeId;
+                existingOrder.ReceiveTime = order.ReceiveTime;
+                existingOrder.DiscountPercentage = order.DiscountPercentage;
+                existingOrder.DiscountFixed = order.DiscountFixed;
+                existingOrder.PaymentId = order.PaymentId;
+                existingOrder.Refunded = order.Refunded;
+                existingOrder.ReservationId = order.ReservationId;
             }
         }
     }

@@ -58,6 +58,14 @@ namespace ReactApp1.Server.Controllers.Domain
             return Ok();
         }
         
+        [HttpPut("orders/{orderId}/close")]
+        public async Task<IActionResult> CloseOrder(int orderId)
+        {
+            await _orderService.CloseOrder(orderId);
+
+            return Ok();
+        }
+        
         [HttpDelete("orders/{orderId}/items")]
         public async Task<IActionResult> RemoveItemFromOrder([FromBody] FullOrderModel order)
         {
@@ -66,13 +74,6 @@ namespace ReactApp1.Server.Controllers.Domain
             return Ok();
         }
         
-        [HttpDelete("orders/{orderId}")]
-        public async Task<IActionResult> CloseOrder(int orderId)
-        {
-            await _orderService.CloseOrder(orderId);
-
-            return Ok();
-        }
         
     }
 }

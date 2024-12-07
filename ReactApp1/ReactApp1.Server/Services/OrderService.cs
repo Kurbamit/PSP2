@@ -69,7 +69,8 @@ namespace ReactApp1.Server.Services
             // Before adding an item to an order, check if:
             // 1. The order exists
             // 2. The item exists and there is enough stock in storage
-            if (!(await OrderExistsAndStatusIsOpen(fullOrder.OrderId, "AddItemToOrder") && await ItemIsAvailableInStorage()))
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(fullOrder.OrderId, "AddItemToOrder");
+            if (existingOrderWithOpenStatus == null && await ItemIsAvailableInStorage())
                 return;
             
             var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
@@ -106,8 +107,8 @@ namespace ReactApp1.Server.Services
         
         public async Task RemoveItemFromOrder(FullOrderModel fullOrder)
         {
-            var oderExistsAndStatusIsOpen = await OrderExistsAndStatusIsOpen(fullOrder.OrderId, "RemoveItemFromOrder");
-            if (!oderExistsAndStatusIsOpen)
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(fullOrder.OrderId, "RemoveItemFromOrder");
+            if (existingOrderWithOpenStatus == null)
                 return;
             
             var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
@@ -124,7 +125,8 @@ namespace ReactApp1.Server.Services
         
         public async Task UpdateOrder(OrderModel order)
         {
-            if (!await OrderExistsAndStatusIsOpen(order.OrderId, "UpdateOrder"))
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(order.OrderId, "UpdateOrder");
+            if (existingOrderWithOpenStatus == null)
                 return;
             
             await _orderRepository.UpdateOrderAsync(order);
@@ -132,28 +134,31 @@ namespace ReactApp1.Server.Services
 
         public async Task CloseOrder(int orderId)
         {
-            if(!await OrderExistsAndStatusIsOpen(orderId, "CloseOrder"))
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(orderId, "CloseOrder");
+            if(existingOrderWithOpenStatus == null)
                 return;
+
+            existingOrderWithOpenStatus.Status = (int)OrderStatusEnum.Closed;
             
-            await _orderRepository.DeleteOrderAsync(orderId);
+            await _orderRepository.UpdateOrderAsync(existingOrderWithOpenStatus);
         }
         
-        private async Task<bool> OrderExistsAndStatusIsOpen(int orderId, string? operation = null)
+        private async Task<OrderModel?> GetOrderIfExistsAndStatusIsOpen(int orderId, string? operation = null)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
             {
                 _logger.LogInformation($"Operation '{operation}' failed: Order {orderId} not found");
-                return false;
+                return null;
             }
 
             if (order.Status != (int)OrderStatusEnum.Open)
             {
                 _logger.LogInformation($"Operation '{operation}' failed: Order status is {order.Status.ToString()}");
-                return false;
+                return null;
             }
                 
-            return true;
+            return order;
         }
     }
 }
