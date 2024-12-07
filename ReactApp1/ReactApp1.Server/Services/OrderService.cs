@@ -120,7 +120,17 @@ namespace ReactApp1.Server.Services
             
             // TODO: Add reserved quantity of items back to storage
             
-            await _fullOrderRepository.DeleteItemFromOrderAsync(existingFullOrder);
+            if (fullOrder.Count < existingFullOrder.Count)
+            {
+                // If the count of item to remove is smaller, update the quantity, but don't remove the item from the order
+                fullOrder.Count = -fullOrder.Count;
+                _logger.LogInformation($"Updating item count {fullOrder.Count}");
+                await _fullOrderRepository.UpdateItemInOrderCountAsync(fullOrder);
+                return;
+
+            }
+            // Otherwise, delete the item from the order
+            await  _fullOrderRepository.DeleteItemFromOrderAsync(fullOrder);
         }
         
         public async Task UpdateOrder(OrderModel order)
