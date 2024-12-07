@@ -1,6 +1,4 @@
 // src/resources/strings.js
-import {OrderStatusEnum} from "../Models/FrontendModels.ts";
-
 const ScriptResources = {
     Cancel: 'Cancel',
     Save: 'Save',
@@ -77,6 +75,21 @@ const ScriptResources = {
     OrderStatusEnum_Open: 'Open',
     OrderStatusEnum_Closed: 'Closed',
     OrderStatusEnum_Cancelled: 'Cancelled',
+    OrderInformation: 'Order Information',
+    Order: 'Order',
+    NotAvailable: 'Not available',
+    DiscountPercentage: 'Discount Percentage:',
+    DiscountFixed: 'Discount Fixed:',
+    Refunded: 'Refunded:',
+    No: 'No',
+    Yes: 'Yes',
+    CreatedBy: 'Created By:',
+    ErrorAddingItem: 'Error adding item:',
+    AddItem: 'Add Item',
+    AddNewItem: 'Add New Item',
+    Add: 'Add',
+    Checkout: 'Checkout',
+    Close: 'Close',
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {

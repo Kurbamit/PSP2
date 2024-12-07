@@ -8,11 +8,13 @@ import Pagination from '../../Base/Pagination';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ScriptResources from "../../../assets/resources/strings.ts";
 import { OrderStatusEnum} from "../../../assets/Models/FrontendModels.ts";
+import { getOrderStatusString } from "../../../assets/Utils/utils.ts";
 
-interface Order {
+export interface Order {
     orderId: number;
     status: OrderStatusEnum;
     createdByEmployeeId: number;
+    createdByEmployeeName: string;
     receiveTime: string;
     discountPercentage: number | null;
     discountFixed: number | null;
@@ -52,7 +54,7 @@ const Orders: React.FC = () => {
     }, [currentPage, pageSize, token]);
 
     const handleIconClick = (orderId: number) => {
-        navigate(`/items/${orderId}`);
+        navigate(`/orders/${orderId}`);
     };
 
     const handleDelete = async (orderId: number) => {
@@ -91,17 +93,6 @@ const Orders: React.FC = () => {
             console.error(ScriptResources.ErrorDeletingItem, error);
             alert(ScriptResources.Error);
         }
-    };
-
-    const getOrderStatusString = (status: OrderStatusEnum): string => {
-        const statusMap: Record<OrderStatusEnum, string> = {
-            [OrderStatusEnum.None]: ScriptResources.OrderStatusEnum_None,
-            [OrderStatusEnum.Open]: ScriptResources.OrderStatusEnum_Open,
-            [OrderStatusEnum.Closed]: ScriptResources.OrderStatusEnum_Closed,
-            [OrderStatusEnum.Cancelled]: ScriptResources.OrderStatusEnum_Cancelled
-        };
-
-        return statusMap[status] || "Unknown";
     };
 
     return (
