@@ -1,4 +1,5 @@
 using ReactApp1.Server.Data.Repositories;
+using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
 
@@ -9,14 +10,16 @@ namespace ReactApp1.Server.Services
         private readonly IOrderRepository _orderRepository;
         private readonly IItemRepository _itemRepository;
         private readonly IFullOrderRepository _fullOrderRepository;
+        private readonly IEmployeeRepository _employeeRepository;
         private readonly ILogger<OrderService> _logger;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, 
-            IFullOrderRepository fullOrderRepository, ILogger<OrderService> logger)
+            IFullOrderRepository fullOrderRepository, IEmployeeRepository employeeRepository, ILogger<OrderService> logger)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
             _fullOrderRepository = fullOrderRepository;
+            _employeeRepository = employeeRepository;
             _logger = logger;
         }
         
@@ -30,9 +33,17 @@ namespace ReactApp1.Server.Services
             return new OrderItems(emptyOrder, null);
         }
         
-        public Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize)
+        public async Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize)
         {
-            return _orderRepository.GetAllOrdersAsync(pageNumber, pageSize);
+            var orders = await _orderRepository.GetAllOrdersAsync(pageNumber, pageSize);
+            foreach (var order in orders.Items)
+            {
+                var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
+                if(employee != null)
+                    order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
+            }
+            
+            return orders;
         }
 
         public async Task<OrderItems> GetOrderById(int orderId)
@@ -43,6 +54,10 @@ namespace ReactApp1.Server.Services
                 _logger.LogInformation($"Order with id: {orderId} not found");
                 return new OrderItems(null, null);
             }
+            
+            var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
+            if(employee != null)
+                order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
 
             var orderItems = await GetOrderItems(orderId);
             return new OrderItems(order, orderItems);
@@ -68,10 +83,13 @@ namespace ReactApp1.Server.Services
             // Before adding an item to an order, check if:
             // 1. The order exists
             // 2. The item exists and there is enough stock in storage
-            if (!(await OrderExists() && await ItemIsAvailableInStorage()))
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(fullOrder.OrderId, "AddItemToOrder");
+            if (existingOrderWithOpenStatus == null && await ItemIsAvailableInStorage())
                 return;
             
             var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
+            
+            // TODO: Remove the reserved quantity of items from storage
             
             var task = existingFullOrder != null
                 // If the item is already in the order (fullOrder record which links the order with the item exists in the database)
@@ -81,18 +99,6 @@ namespace ReactApp1.Server.Services
                 : _fullOrderRepository.AddItemToOrderAsync(fullOrder);
             
             await task;
-
-            async Task<bool> OrderExists()
-            {
-                var order = await _orderRepository.GetOrderByIdAsync(fullOrder.OrderId);
-                if (order == null)
-                {
-                    _logger.LogInformation($"Failed to add item {fullOrder.ItemId} to order {fullOrder.ItemId}: Order not found");
-                    return false;
-                }
-                
-                return true;
-            }
 
             async Task<bool> ItemIsAvailableInStorage()
             {
@@ -113,25 +119,70 @@ namespace ReactApp1.Server.Services
             }
         }
         
-        public Task RemoveItemFromOrder(int itemId)
+        public async Task RemoveItemFromOrder(FullOrderModel fullOrder)
         {
-            // TODO
-            // _fullOrderRepository.DeleteItemFromOrderAsync(itemId);
-            return Task.CompletedTask;
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(fullOrder.OrderId, "RemoveItemFromOrder");
+            if (existingOrderWithOpenStatus == null)
+                return;
+            
+            var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
+            if (existingFullOrder == null)
+            {
+                _logger.LogInformation($"The specified item {fullOrder.ItemId} is not linked to the given order {fullOrder.OrderId}");
+                return;
+            }
+            
+            // TODO: Add reserved quantity of items back to storage
+            
+            if (fullOrder.Count < existingFullOrder.Count)
+            {
+                // If the count of item to remove is smaller, update the quantity, but don't remove the item from the order
+                fullOrder.Count = -fullOrder.Count;
+                _logger.LogInformation($"Updating item count {fullOrder.Count}");
+                await _fullOrderRepository.UpdateItemInOrderCountAsync(fullOrder);
+                return;
+
+            }
+            // Otherwise, delete the item from the order
+            await  _fullOrderRepository.DeleteItemFromOrderAsync(fullOrder);
+        }
+        
+        public async Task UpdateOrder(OrderModel order)
+        {
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(order.OrderId, "UpdateOrder");
+            if (existingOrderWithOpenStatus == null)
+                return;
+            
+            await _orderRepository.UpdateOrderAsync(order);
         }
 
-        public Task<OrderModel?> AddDiscountToOrderAsync()
+        public async Task CloseOrder(int orderId)
         {
-            // TODO:
-            // return _orderRepository.AddDiscountToOrderAsync();
-            return Task.FromResult<OrderModel?>(null);
-        }
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(orderId, "CloseOrder");
+            if(existingOrderWithOpenStatus == null)
+                return;
 
-        public Task CloseOrder(int orderId)
+            existingOrderWithOpenStatus.Status = (int)OrderStatusEnum.Closed;
+            
+            await _orderRepository.UpdateOrderAsync(existingOrderWithOpenStatus);
+        }
+        
+        private async Task<OrderModel?> GetOrderIfExistsAndStatusIsOpen(int orderId, string? operation = null)
         {
-            // TODO
-            // _orderRepository.DeleteOrderAsync(orderId);
-            return Task.CompletedTask;
+            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            if (order == null)
+            {
+                _logger.LogInformation($"Operation '{operation}' failed: Order {orderId} not found");
+                return null;
+            }
+
+            if (order.Status != (int)OrderStatusEnum.Open)
+            {
+                _logger.LogInformation($"Operation '{operation}' failed: Order status is {order.Status.ToString()}");
+                return null;
+            }
+                
+            return order;
         }
     }
 }

@@ -8,6 +8,6 @@ public interface IOrderRepository
     Task<OrderModel> AddEmptyOrderAsync(int createdByEmployeeId);
     Task<PaginatedResult<OrderModel>> GetAllOrdersAsync(int pageNumber, int pageSize);
     Task<OrderModel?> GetOrderByIdAsync(int orderId);
-    Task<OrderModel?> AddDiscountToOrderAsync();
+    Task UpdateOrderAsync(OrderModel order);
     Task DeleteOrderAsync(int orderId);
 }

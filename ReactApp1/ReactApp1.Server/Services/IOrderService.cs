@@ -9,7 +9,7 @@ public interface IOrderService
     Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize);
     Task<OrderItems> GetOrderById(int orderId);
     Task AddItemToOrder(FullOrderModel fullOrder);
-    Task RemoveItemFromOrder(int itemId);
-    Task<OrderModel?> AddDiscountToOrderAsync();
+    Task UpdateOrder(OrderModel order);
+    Task RemoveItemFromOrder(FullOrderModel fullOrder);
     Task CloseOrder(int orderId);
 }
