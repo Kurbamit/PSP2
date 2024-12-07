@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Extensions;
-using ReactApp1.Server.Data;
-using ReactApp1.Server.Models.Models.Base;
+using ReactApp1.Server.Services;
 
 namespace ReactApp1.Server.Controllers.Domain
 {
@@ -10,13 +8,13 @@ namespace ReactApp1.Server.Controllers.Domain
     [Route("api/")]
     public class SharedSearchesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly ISharedSearchesService _sharedSearchesService;
         
-        public SharedSearchesController(AppDbContext context)
+        public SharedSearchesController(ISharedSearchesService sharedSearchesService)
         {
-            _context = context;
+            _sharedSearchesService = sharedSearchesService;
         }
-
+        
         [HttpGet("AllItems")]
         public async Task<IActionResult> AllItems([FromQuery] string? search)
         {
@@ -26,14 +24,8 @@ namespace ReactApp1.Server.Controllers.Domain
             {
                 return BadRequest("Establishment not found.");
             }
-
-            var result = await _context.Items
-                .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
-                .Select(f => new SharedItem()
-                {
-                    Id = f.ItemId,
-                    Name = f.Name == null ? "None" : f.Name
-                }).OrderBy(f => f.Name.ToLower()).ToListAsync();
+            
+            var result = await _sharedSearchesService.GetAllItems(establishmentId.Value, search);
             
             return Ok(result);
         }
