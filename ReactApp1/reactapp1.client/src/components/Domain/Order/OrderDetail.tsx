@@ -259,7 +259,7 @@ const OrderDetail: React.FC = () => {
                                 </Form.Group>
                             </div>
                             <div className="modal-footer">
-                                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                                <button className="btn btn-secondary" onClick={() => {setShowModal(false); setCount(1)}}>
                                     {ScriptResources.Cancel}
                                 </button>
                                 <button className="btn btn-primary" onClick={handleAddItem}>

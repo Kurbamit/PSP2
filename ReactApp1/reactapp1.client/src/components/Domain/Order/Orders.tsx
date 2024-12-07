@@ -110,15 +110,18 @@ const Orders: React.FC = () => {
                     <th>{ScriptResources.OrderId}</th>
                     <th>{ScriptResources.Status}</th>
                     <th>{ScriptResources.ReceiveTime}</th>
+                    <th>{ScriptResources.CreatedBy}</th>
                     <th>{ScriptResources.Actions}</th>
                 </tr>
                 </thead>
                 <tbody>
                 {orders.map((order) => (
-                    <tr key={order.orderId}>
+                    <tr key={order.orderId}
+                        onDoubleClick={() => handleIconClick(order.orderId)}>
                         <td>{order.orderId}</td>
                         <td>{getOrderStatusString(order.status)}</td>
                         <td>{new Date(order.receiveTime).toLocaleString()}</td>
+                        <td>{order.createdByEmployeeName}</td>
                         <td>
                                 <span
                                     className="material-icons"

@@ -89,7 +89,8 @@ const Items: React.FC = () => {
                 </thead>
                 <tbody>
                 {items.map((item) => (
-                    <tr key={item.employeeId}>
+                    <tr key={item.employeeId}
+                        onDoubleClick={() => handleIconClick(item.employeeId)}>
                         <td>{item.firstName}</td>
                         <td>{item.lastName}</td>
                         <td>{item.email}</td>
