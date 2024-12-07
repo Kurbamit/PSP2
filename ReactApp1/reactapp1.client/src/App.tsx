@@ -12,6 +12,8 @@ import Cookies from 'js-cookie';
 import Employees from "./components/Domain/Employee/Employees.tsx";
 import EmployeeDetail from "./components/Domain/Employee/EmployeeDetail.tsx";
 import SelectDropdown from "./components/Base/SelectDropdown.tsx";
+import Orders from "./components/Domain/Order/Orders.tsx";
+import OrderDetail from "./components/Domain/Order/OrderDetail.tsx";
 
 interface Forecast {
     date: string;
@@ -23,14 +25,6 @@ interface Forecast {
 function App() {
     const [forecasts, setForecasts] = useState<Forecast[]>();
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-
-    const handleSelect = (item: { id: number; name: string } | null) => {
-        if (item) {
-            console.log("Selected item:", item);
-        } else {
-            console.log("No item selected.");
-        }
-    };
 
     useEffect(() => {
         // Check if authToken is present in cookies
@@ -99,6 +93,8 @@ function App() {
                             {contents}
                         </div>
                     } />
+                    <Route path="/orders" element={<Orders />} />
+                    <Route path="/orders/:id" element={<OrderDetail />} />
                     <Route path="/items" element={<Items />} />
                     <Route path="/items/new" element={<ItemDetail />} />
                     <Route path="/items/:id" element={<ItemDetail />} />
