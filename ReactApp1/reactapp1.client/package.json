@@ -15,7 +15,9 @@
     "js-cookie": "^3.0.5",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.5",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-select": "^5.8.3",
+    "react-select2-wrapper": "^1.0.4-beta6"
   },
   "devDependencies": {
     "@eslint/js": "^9.11.1",
