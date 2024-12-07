@@ -84,7 +84,11 @@ namespace ReactApp1.Server.Services
             // 1. The order exists
             // 2. The item exists and there is enough stock in storage
             var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(fullOrder.OrderId, "AddItemToOrder");
-            if (existingOrderWithOpenStatus == null && await ItemIsAvailableInStorage())
+            if (existingOrderWithOpenStatus == null) 
+                return;
+
+            var itemIsAvailableInStorage = await ItemIsAvailableInStorage();
+            if (!itemIsAvailableInStorage)
                 return;
             
             var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
