@@ -11,6 +11,7 @@ namespace ReactApp1.Server.Data.Repositories
         Task AddItemAsync(Item item, int? establishmentId);
         Task UpdateItemAsync(ItemModel item);
         Task AddStorageAsync(int itemId, int amount);
+        Task<StorageModel?> GetItemStorageAsync(int itemId);
         Task DeleteItemAsync(int itemId);
     }
 }

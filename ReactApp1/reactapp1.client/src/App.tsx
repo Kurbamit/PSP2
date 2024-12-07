@@ -11,6 +11,7 @@ import { API_BASE_URL } from "../config";
 import Cookies from 'js-cookie';
 import Employees from "./components/Domain/Employee/Employees.tsx";
 import EmployeeDetail from "./components/Domain/Employee/EmployeeDetail.tsx";
+import SelectDropdown from "./components/Base/SelectDropdown.tsx";
 
 interface Forecast {
     date: string;
@@ -22,6 +23,14 @@ interface Forecast {
 function App() {
     const [forecasts, setForecasts] = useState<Forecast[]>();
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+    const handleSelect = (item: { id: number; name: string } | null) => {
+        if (item) {
+            console.log("Selected item:", item);
+        } else {
+            console.log("No item selected.");
+        }
+    };
 
     useEffect(() => {
         // Check if authToken is present in cookies
@@ -48,31 +57,40 @@ function App() {
             <p><em>Loading... Please refresh once the ASP.NET backend has started.</em></p>
             <p>Error might be because You're not logged in.</p>
         </div>
-        : <table className="table table-striped" aria-labelledby="tabelLabel">
-            <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-            </thead>
-            <tbody>
-            {forecasts.map(forecast =>
-                <tr key={forecast.date}>
-                    <td>{forecast.date}</td>
-                    <td>{forecast.temperatureC}</td>
-                    <td>{forecast.temperatureF}</td>
-                    <td>{forecast.summary}</td>
+        : <>
+            <div>
+                <h1>Example Page</h1>
+                <SelectDropdown
+                    endpoint="/AllItems"
+                    onSelect={(item) => console.log("Selected item:", item)}
+                />
+            </div>
+            <table className="table table-striped" aria-labelledby="tabelLabel">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
                 </tr>
-            )}
-            </tbody>
-        </table>;
+                </thead>
+                <tbody>
+                {forecasts.map(forecast =>
+                    <tr key={forecast.date}>
+                        <td>{forecast.date}</td>
+                        <td>{forecast.temperatureC}</td>
+                        <td>{forecast.temperatureF}</td>
+                        <td>{forecast.summary}</td>
+                    </tr>
+                )}
+                </tbody>
+            </table>
+        </>;
 
     return (
         <Router>
-            <NavigationBar isLoggedIn={isLoggedIn} />
-            <div style={{ marginTop: '4rem', padding: '1rem' }}>
+            <NavigationBar isLoggedIn={isLoggedIn}/>
+            <div style={{marginTop: '4rem', padding: '1rem' }}>
                 <Routes>
                     <Route path="/" element={
                         <div>
