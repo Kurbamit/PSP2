@@ -60,8 +60,10 @@ namespace ReactApp1.Server.Services
                 order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
 
             var orderItems = await GetOrderItems(orderId);
+
+            var orderWithTotalPrice = CalculateTotalPriceForOrder(order, orderItems);
             
-            return new OrderItems(order, orderItems);
+            return new OrderItems(orderWithTotalPrice, orderItems);
         }
         
         private async Task<List<ItemModel>> GetOrderItems(int orderId)
@@ -81,6 +83,25 @@ namespace ReactApp1.Server.Services
             }
 
             return orderItems;
+        }
+
+        private OrderModel CalculateTotalPriceForOrder(OrderModel order, List<ItemModel> orderItems)
+        {
+            decimal totalPrice = 0;
+            foreach (var item in orderItems)
+            {
+                decimal itemCost = item.Cost ?? 0;
+                decimal itemCount = item.Count ?? 0;
+
+                
+                totalPrice += itemCost * itemCount;
+            }
+            
+            // TODO: Apply discount and taxes to the total price
+            
+            order.TotalPrice = totalPrice;
+
+            return order;
         }
         
         public async Task AddItemToOrder(FullOrderModel fullOrder)
