@@ -90,6 +90,8 @@ const ScriptResources = {
     Add: 'Add',
     Checkout: 'Checkout',
     Close: 'Close',
+    ErrorClosingOrder: 'Error closing order:',
+    NoItems: 'No items',
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {

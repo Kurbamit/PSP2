@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useParams, useNavigate } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
 import {Order} from "./Orders.tsx";
-import { getOrderStatusString, getYesNoString } from "../../../assets/Utils/utils.ts";
+import {getOrderStatusString, getYesNoString} from "../../../assets/Utils/utils.ts";
 import SelectDropdown from "../../Base/SelectDropdown.tsx";
+import {OrderStatusEnum} from "../../../assets/Models/FrontendModels.ts";
 
 interface Item {
     itemId: number;
@@ -80,6 +81,21 @@ const OrderDetail: React.FC = () => {
         }
     };
     
+    const handleClose = async () => {
+        if (id) {
+            try {
+                await axios.put(
+                    `http://localhost:5114/api/orders/${id}/close`,
+                    { orderId: Number(id) },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                navigate('/orders');
+            } catch (error) {
+                console.error(ScriptResources.ErrorClosingOrder, error);
+            }
+        }
+    }
+    
     const handleBackToList = () => {
         navigate('/orders');
     };
@@ -126,66 +142,79 @@ const OrderDetail: React.FC = () => {
                 <div>{ScriptResources.Loading}</div>
             )}
 
-            
-            
+
+
             {/* Render Items Table */}
-            {editedItem && editedItem.items.length > 0 && (
+            {editedItem && (
                 <div className="mt-4">
                     <h3>{ScriptResources.Items}</h3>
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-                            {ScriptResources.AddItem}
-                        </button>
-                    </div>
-                    <table className="table table-striped table-bordered">
-                        <thead>
-                        <tr>
-                            <th>{ScriptResources.ItemId}</th>
-                            <th>{ScriptResources.Name}</th>
-                            <th>{ScriptResources.Cost}</th>
-                            <th>{ScriptResources.Tax}</th>
-                            <th>{ScriptResources.AlcoholicBeverage}</th>
-                            <th>{ScriptResources.ReceiveTime}</th>
-                            <th>{ScriptResources.Storage}</th>
-                            <th>{ScriptResources.Actions}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {editedItem.items.map((item) => (
-                            <tr key={item.itemId}>
-                                <td>{item.itemId}</td>
-                                <td>{item.name}</td>
-                                <td>{item.cost}</td>
-                                <td>{item.tax}</td>
-                                <td>{getYesNoString(item.alcoholicBeverage)}</td>
-                                <td>{item.receiveTime}</td>
-                                <td>{item.storage ?? ScriptResources.NotAvailable}</td>
-                                <td>
-                                    <span
-                                        className="material-icons"
-                                        style={{cursor: 'pointer', marginRight: '10px'}}
-                                        onClick={() => handleDelete(item.itemId)}
-                                    >
-                                        delete
-                                </span>
-                                </td>
+
+                    {/* Show AddItem button */}
+                    {order?.order.status === OrderStatusEnum.Open && (
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+                                {ScriptResources.AddItem}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Render table only if there are items */}
+                    {editedItem.items.length > 0 ? (
+                        <table className="table table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>{ScriptResources.ItemId}</th>
+                                <th>{ScriptResources.Name}</th>
+                                <th>{ScriptResources.Cost}</th>
+                                <th>{ScriptResources.Tax}</th>
+                                <th>{ScriptResources.AlcoholicBeverage}</th>
+                                <th>{ScriptResources.ReceiveTime}</th>
+                                <th>{ScriptResources.Storage}</th>
+                                <th>{ScriptResources.Actions}</th>
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            {editedItem.items.map((item) => (
+                                <tr key={item.itemId}>
+                                    <td>{item.itemId}</td>
+                                    <td>{item.name}</td>
+                                    <td>{item.cost}</td>
+                                    <td>{item.tax}</td>
+                                    <td>{getYesNoString(item.alcoholicBeverage)}</td>
+                                    <td>{item.receiveTime}</td>
+                                    <td>{item.storage ?? ScriptResources.NotAvailable}</td>
+                                    <td>
+                                <span
+                                    className="material-icons"
+                                    style={{ cursor: 'pointer', marginRight: '10px' }}
+                                    onClick={() => handleDelete(item.itemId)}
+                                >
+                                    delete
+                                </span>
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        // Show empty table message when there are no items
+                        <p>{ScriptResources.NoItems}</p>
+                    )}
                 </div>
             )}
 
             <div className="mt-3">
                 {/*TODO: Checkout and Close order buttons*/}
-                <div className="d-flex mb-3">
-                    <button className="btn btn-primary me-2" onClick={() => setShowModal(true)}>
-                        {ScriptResources.Checkout}
-                    </button>
-                    <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-                        {ScriptResources.Close}
-                    </button>
-                </div>
+                {order?.order.status === OrderStatusEnum.Open && (
+                    <div className="d-flex mb-3">
+                        <button className="btn btn-primary me-2" onClick={() => setShowModal(true)}>
+                            {ScriptResources.Checkout}
+                        </button>
+                        <button className="btn btn-primary" onClick={() => handleClose()}>
+                            {ScriptResources.Close}
+                        </button>
+                    </div>
+                )}
                 
                 <button className="btn btn-secondary" onClick={handleBackToList}>
                     {ScriptResources.BackToTheMainList}
