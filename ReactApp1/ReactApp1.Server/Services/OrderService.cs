@@ -10,14 +10,16 @@ namespace ReactApp1.Server.Services
         private readonly IOrderRepository _orderRepository;
         private readonly IItemRepository _itemRepository;
         private readonly IFullOrderRepository _fullOrderRepository;
+        private readonly IEmployeeRepository _employeeRepository;
         private readonly ILogger<OrderService> _logger;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, 
-            IFullOrderRepository fullOrderRepository, ILogger<OrderService> logger)
+            IFullOrderRepository fullOrderRepository, IEmployeeRepository employeeRepository, ILogger<OrderService> logger)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
             _fullOrderRepository = fullOrderRepository;
+            _employeeRepository = employeeRepository;
             _logger = logger;
         }
         
@@ -31,9 +33,17 @@ namespace ReactApp1.Server.Services
             return new OrderItems(emptyOrder, null);
         }
         
-        public Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize)
+        public async Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize)
         {
-            return _orderRepository.GetAllOrdersAsync(pageNumber, pageSize);
+            var orders = await _orderRepository.GetAllOrdersAsync(pageNumber, pageSize);
+            foreach (var order in orders.Items)
+            {
+                var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
+                if(employee != null)
+                    order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
+            }
+            
+            return orders;
         }
 
         public async Task<OrderItems> GetOrderById(int orderId)
@@ -44,6 +54,10 @@ namespace ReactApp1.Server.Services
                 _logger.LogInformation($"Order with id: {orderId} not found");
                 return new OrderItems(null, null);
             }
+            
+            var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
+            if(employee != null)
+                order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
 
             var orderItems = await GetOrderItems(orderId);
             return new OrderItems(order, orderItems);
