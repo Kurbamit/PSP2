@@ -60,22 +60,48 @@ namespace ReactApp1.Server.Services
                 order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
 
             var orderItems = await GetOrderItems(orderId);
-            return new OrderItems(order, orderItems);
+
+            var orderWithTotalPrice = CalculateTotalPriceForOrder(order, orderItems);
+            
+            return new OrderItems(orderWithTotalPrice, orderItems);
         }
         
         private async Task<List<ItemModel>> GetOrderItems(int orderId)
         {
-            var orderItemIds = await _fullOrderRepository.GetOrderItemsAsync(orderId);
+            var fullOrders = await _fullOrderRepository.GetOrderItemsAsync(orderId);
             
             var orderItems = new List<ItemModel>();
-            foreach (var id in orderItemIds)
+            foreach (var fullOrder in fullOrders)
             {
-                var item = await _itemRepository.GetItemByIdAsync(id);
-                if (item != null)
-                    orderItems.Add(item);
+                var item = await _itemRepository.GetItemByIdAsync(fullOrder.ItemId);
+                
+                if(item == null)
+                    continue;
+                
+                item.Count = fullOrder.Count;
+                orderItems.Add(item);
             }
 
             return orderItems;
+        }
+
+        private OrderModel CalculateTotalPriceForOrder(OrderModel order, List<ItemModel> orderItems)
+        {
+            decimal totalPrice = 0;
+            foreach (var item in orderItems)
+            {
+                decimal itemCost = item.Cost ?? 0;
+                decimal itemCount = item.Count ?? 0;
+
+                
+                totalPrice += itemCost * itemCount;
+            }
+            
+            // TODO: Apply discount and taxes to the total price
+            
+            order.TotalPrice = totalPrice;
+
+            return order;
         }
         
         public async Task AddItemToOrder(FullOrderModel fullOrder)
@@ -84,12 +110,17 @@ namespace ReactApp1.Server.Services
             // 1. The order exists
             // 2. The item exists and there is enough stock in storage
             var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(fullOrder.OrderId, "AddItemToOrder");
-            if (existingOrderWithOpenStatus == null && await ItemIsAvailableInStorage())
+            if (existingOrderWithOpenStatus == null) 
+                return;
+
+            var itemIsAvailableInStorage = await ItemIsAvailableInStorage();
+            if (!itemIsAvailableInStorage)
                 return;
             
             var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
             
-            // TODO: Remove the reserved quantity of items from storage
+            // Reduce reserved item count in storage
+            await _itemRepository.AddStorageAsync(fullOrder.ItemId, -fullOrder.Count);
             
             var task = existingFullOrder != null
                 // If the item is already in the order (fullOrder record which links the order with the item exists in the database)
@@ -132,7 +163,10 @@ namespace ReactApp1.Server.Services
                 return;
             }
             
-            // TODO: Add reserved quantity of items back to storage
+            // Ensure we don't return more items to storage than were originally reserved, this check handles that
+            var itemsToRemoveCount =  Math.Min(fullOrder.Count, existingFullOrder.Count);
+            
+            await _itemRepository.AddStorageAsync(fullOrder.ItemId, itemsToRemoveCount);
             
             if (fullOrder.Count < existingFullOrder.Count)
             {

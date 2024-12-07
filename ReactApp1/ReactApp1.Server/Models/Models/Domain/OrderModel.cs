@@ -12,6 +12,7 @@ public class OrderModel
     public bool Refunded { get; set; }
     public int? ReservationId { get; set; }
     public string? CreatedByEmployeeName { get; set; }
+    public decimal? TotalPrice { get; set; }
 
     public OrderModel()
     {
