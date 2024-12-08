@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ReactApp1.Server.Exceptions.ItemExceptions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Domain;
 
@@ -62,8 +63,8 @@ namespace ReactApp1.Server.Data.Repositories
 
             if (existingFullOrder == null)
             {
-                _logger.LogInformation($"No existing FullOrder found for Order {fullOrder.OrderId} and Item {fullOrder.ItemId}");
-                return;
+                _logger.LogError($"Item {fullOrder.ItemId} was not found in order {fullOrder.OrderId}");
+                throw new ItemNotFoundInOrderException(fullOrder.OrderId, fullOrder.ItemId);
             }
             
             // update item's quantity by adding new count to existing count
@@ -77,9 +78,12 @@ namespace ReactApp1.Server.Data.Repositories
             var existingFullOrder = await _context.FullOrders
                 .Where(f => f.OrderId == fullOrder.OrderId && f.ItemId == fullOrder.ItemId)
                 .FirstOrDefaultAsync();
-            
-            if(existingFullOrder == null)
-                throw new InvalidOperationException($"The specified item {fullOrder.ItemId} is not linked to the given order {fullOrder.OrderId}");
+
+            if (existingFullOrder == null)
+            {
+                _logger.LogError($"Item {fullOrder.ItemId} was not found in order {fullOrder.OrderId}");
+                throw new ItemNotFoundInOrderException(fullOrder.OrderId, fullOrder.ItemId);
+            }
 
             try
             {

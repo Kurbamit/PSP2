@@ -1,4 +1,7 @@
 using ReactApp1.Server.Data.Repositories;
+using ReactApp1.Server.Exceptions.ItemExceptions;
+using ReactApp1.Server.Exceptions.OrderExceptions;
+using ReactApp1.Server.Exceptions.StorageExceptions;
 using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
@@ -26,7 +29,10 @@ namespace ReactApp1.Server.Services
         public async Task<OrderItems> OpenOrder(int? createdByEmployeeId)
         {
             if (!createdByEmployeeId.HasValue)
-                throw new ArgumentNullException(nameof(createdByEmployeeId));
+            {
+                _logger.LogError("Failed to open order: invalid or expired access token");
+                throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
+            }
             
             var emptyOrder = await _orderRepository.AddEmptyOrderAsync(createdByEmployeeId.Value);
 
@@ -136,14 +142,14 @@ namespace ReactApp1.Server.Services
                 var storage = await _itemRepository.GetItemStorageAsync(fullOrder.ItemId);
                 if (storage == null)
                 {
-                    _logger.LogInformation($"Failed to add item {fullOrder.ItemId} to order {fullOrder.OrderId}: Item not found in storage");
-                    return false;
+                    _logger.LogError($"Failed to add item {fullOrder.ItemId} to order {fullOrder.OrderId}: Item not found in storage");
+                    throw new ItemNotFoundException(fullOrder.ItemId);
                 }
                 
                 if (storage.Count < fullOrder.Count)
                 {
-                    _logger.LogInformation($"Not enough stock for item {fullOrder.ItemId}. Requested: {fullOrder.Count}, Available: {storage.Count} for order {fullOrder.OrderId}");
-                    return false;
+                    _logger.LogError($"Not enough stock for item {fullOrder.ItemId}. Requested: {fullOrder.Count}, Available: {storage.Count} for order {fullOrder.OrderId}");
+                    throw new StockExhaustedException(fullOrder.ItemId, storage.Count);
                 }
 
                 return true;
@@ -159,8 +165,8 @@ namespace ReactApp1.Server.Services
             var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
             if (existingFullOrder == null)
             {
-                _logger.LogInformation($"The specified item {fullOrder.ItemId} is not linked to the given order {fullOrder.OrderId}");
-                return;
+                _logger.LogError($"The specified item {fullOrder.ItemId} is not linked to the given order {fullOrder.OrderId}");
+                throw new ItemNotFoundInOrderException(fullOrder.ItemId, fullOrder.OrderId);
             }
             
             // Ensure we don't return more items to storage than were originally reserved, this check handles that
@@ -185,7 +191,7 @@ namespace ReactApp1.Server.Services
         {
             var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(order.OrderId, "UpdateOrder");
             if (existingOrderWithOpenStatus == null)
-                return;
+                throw new OrderNotFoundException(order.OrderId);
             
             await _orderRepository.UpdateOrderAsync(order);
         }
@@ -206,14 +212,14 @@ namespace ReactApp1.Server.Services
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
             {
-                _logger.LogInformation($"Operation '{operation}' failed: Order {orderId} not found");
-                return null;
+                _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
+                throw new OrderNotFoundException(orderId);
             }
 
             if (order.Status != (int)OrderStatusEnum.Open)
             {
-                _logger.LogInformation($"Operation '{operation}' failed: Order status is {order.Status.ToString()}");
-                return null;
+                _logger.LogError($"Operation '{operation}' failed: Order status is {order.Status.ToString()}");
+                throw new OrderStatusConflictException(order.Status.ToString());
             }
                 
             return order;
