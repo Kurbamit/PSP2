@@ -73,8 +73,6 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok();
         }
-        
-        
     }
 }
 

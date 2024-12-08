@@ -12,6 +12,7 @@ namespace ReactApp1.Server.Middlewares
         private static readonly Dictionary<Type, int> ExceptionStatusCodeMap = new()
         {
             { typeof(ArgumentNullException), StatusCodes.Status400BadRequest },
+            { typeof(UnauthorizedAccessException), StatusCodes.Status401Unauthorized },
             // Add more built-in exceptions as needed
         };
         

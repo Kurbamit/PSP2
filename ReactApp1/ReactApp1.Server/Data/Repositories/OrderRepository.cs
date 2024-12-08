@@ -1,5 +1,6 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
+using ReactApp1.Server.Exceptions.OrderExceptions;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
@@ -104,7 +105,7 @@ namespace ReactApp1.Server.Data.Repositories
                 .FirstOrDefaultAsync();
             
             if(existingOrder == null)
-                throw new InvalidOperationException($"The specified order {order.OrderId} does not exist");
+                throw new OrderNotFoundException(order.OrderId);
             
             UpdateExistingOrderFields();
             
