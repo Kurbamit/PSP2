@@ -22,6 +22,7 @@ Requirements:
 1. Clone repo
 2. Open reactapp1.client folder
 3. Run ```npm install```
+   1. There could be a problem running `npm install`. Then try running `npm install --legacy-peer-deps`.
 4. Create postgreSql database with these parameters:
    1. name: ```postgres```
    2. password: ```1234```
