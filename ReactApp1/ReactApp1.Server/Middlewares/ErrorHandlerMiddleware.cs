@@ -9,6 +9,12 @@ namespace ReactApp1.Server.Middlewares
         private readonly RequestDelegate _next;
         private readonly ILogger<ErrorHandlerMiddleware> _logger;
         
+        private static readonly Dictionary<Type, int> ExceptionStatusCodeMap = new()
+        {
+            { typeof(ArgumentNullException), StatusCodes.Status400BadRequest },
+            // Add more built-in exceptions as needed
+        };
+        
         public ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger)
         {
             _next = next;
@@ -29,7 +35,9 @@ namespace ReactApp1.Server.Middlewares
                 response.StatusCode = error switch
                 {
                     BaseException e => (int)e.StatusCode,
-                    _ => StatusCodes.Status500InternalServerError,
+                    _ => ExceptionStatusCodeMap.TryGetValue(error.GetType(), out var statusCode)
+                            ? statusCode
+                            : StatusCodes.Status500InternalServerError
                 };
                 
                 var problemDetails = new ProblemDetails
