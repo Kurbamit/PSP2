@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ReactApp1.Server.Exceptions;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Base;
@@ -51,27 +52,36 @@ namespace ReactApp1.Server.Data.Repositories
             return item;
         }
         
-        public async Task AddItemAsync(Item item, int? establishmentId)
+        public async Task<int> AddItemAsync(ItemModel item, int establishmentId, int userId)
         {
-            if (!establishmentId.HasValue)
-            {
-                throw new ArgumentNullException(nameof(establishmentId));
-            }
             try
             {
                 using var transaction = await _context.Database.BeginTransactionAsync();
-                await _context.Set<Item>().AddAsync(item);
+                var newItem = new Item()
+                {
+                    Name = item.Name,
+                    Cost = item.Cost,
+                    Tax = item.Tax,
+                    AlcoholicBeverage = item.AlcoholicBeverage,
+                    ReceiveTime = DateTime.UtcNow,
+                    EstablishmentId = establishmentId,
+                    CreatedByEmployeeId = userId
+                };
+                
+                await _context.Items.AddAsync(newItem);
                 await _context.SaveChangesAsync();
                 
                 var storage = new Storage()
                 {
-                    ItemId = item.ItemId,
+                    ItemId = newItem.ItemId,
                     Count = 0,
-                    EstablishmentId = establishmentId.Value
+                    EstablishmentId = establishmentId
                 };
                 await _context.Set<Storage>().AddAsync(storage);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                return newItem.ItemId;
             }   
             catch (DbUpdateException e)
             {

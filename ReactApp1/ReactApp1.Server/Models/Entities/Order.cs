@@ -40,11 +40,17 @@ public class Order
     [Column("ReservationId")]
     public int? ReservationId { get; set; }
     
+    [Column("EstablishmentId")]
+    public int? EstablishmentId { get; set; }
+    
     [ForeignKey(nameof(CreatedByEmployeeId))]
     public virtual Employee CreatedByEmployee { get; set; }
     
     [ForeignKey(nameof(ReservationId))]
     public virtual Reservation Reservation { get; set; }
+    
+    [ForeignKey(nameof(EstablishmentId))]
+    public virtual Establishment Establishment { get; set; }
     
     public virtual ICollection<FullOrder> FullOrders { get; set; }
     

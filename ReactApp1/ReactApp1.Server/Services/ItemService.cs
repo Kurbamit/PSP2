@@ -8,10 +8,12 @@ namespace ReactApp1.Server.Services
     public class ItemService : IItemService
     {
         private readonly IItemRepository _itemRepository;
+        private readonly ILogger<ItemService> _logger;
 
-        public ItemService(IItemRepository itemRepository)
+        public ItemService(IItemRepository itemRepository, ILogger<ItemService> logger)
         {
             _itemRepository = itemRepository;
+            _logger = logger;
         }
 
         public Task<PaginatedResult<Item>> GetAllItems(int pageSize, int pageNumber)
@@ -24,9 +26,15 @@ namespace ReactApp1.Server.Services
             return _itemRepository.GetItemByIdAsync(itemId);
         }
 
-        public Task CreateNewItem(Item item, int? establishmentId)
+        public Task<int> CreateNewItem(ItemModel item, int? establishmentId, int? userId)
         {
-            return _itemRepository.AddItemAsync(item, establishmentId);
+            if (!userId.HasValue || !establishmentId.HasValue)
+            {
+                _logger.LogError("Failed to open order: invalid or expired access token");
+                throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
+            }
+            
+            return _itemRepository.AddItemAsync(item, establishmentId.Value, userId.Value);
         }
 
         public Task UpdateItem(ItemModel item)

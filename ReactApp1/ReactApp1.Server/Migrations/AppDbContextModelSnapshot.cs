@@ -282,7 +282,7 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ExpirationDate");
 
-                    b.Property<int>("PaymentId")
+                    b.Property<int?>("PaymentId")
                         .HasColumnType("integer")
                         .HasColumnName("PaymentId");
 
@@ -316,6 +316,14 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("Cost");
 
+                    b.Property<int?>("CreatedByEmployeeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedByEmployeeId");
+
+                    b.Property<int?>("EstablishmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("EstablishmentId");
+
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
@@ -332,6 +340,10 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("Tax");
 
                     b.HasKey("ItemId");
+
+                    b.HasIndex("CreatedByEmployeeId");
+
+                    b.HasIndex("EstablishmentId");
 
                     b.ToTable("Item");
                 });
@@ -356,6 +368,10 @@ namespace ReactApp1.Server.Migrations
                     b.Property<int?>("DiscountPercentage")
                         .HasColumnType("integer")
                         .HasColumnName("DiscountPercentage");
+
+                    b.Property<int?>("EstablishmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("EstablishmentId");
 
                     b.Property<int?>("PaymentId")
                         .HasColumnType("integer")
@@ -382,6 +398,8 @@ namespace ReactApp1.Server.Migrations
                     b.HasKey("OrderId");
 
                     b.HasIndex("CreatedByEmployeeId");
+
+                    b.HasIndex("EstablishmentId");
 
                     b.HasIndex("ReservationId")
                         .IsUnique();
@@ -594,11 +612,24 @@ namespace ReactApp1.Server.Migrations
                 {
                     b.HasOne("ReactApp1.Server.Models.Payment", "Payment")
                         .WithMany("GiftCards")
-                        .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PaymentId");
 
                     b.Navigation("Payment");
+                });
+
+            modelBuilder.Entity("ReactApp1.Server.Models.Item", b =>
+                {
+                    b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
+                        .WithMany("Items")
+                        .HasForeignKey("CreatedByEmployeeId");
+
+                    b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
+                        .WithMany("Items")
+                        .HasForeignKey("EstablishmentId");
+
+                    b.Navigation("CreatedByEmployee");
+
+                    b.Navigation("Establishment");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Order", b =>
@@ -609,11 +640,17 @@ namespace ReactApp1.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
+                        .WithMany("Orders")
+                        .HasForeignKey("EstablishmentId");
+
                     b.HasOne("ReactApp1.Server.Models.Reservation", "Reservation")
                         .WithOne("Order")
                         .HasForeignKey("ReactApp1.Server.Models.Order", "ReservationId");
 
                     b.Navigation("CreatedByEmployee");
+
+                    b.Navigation("Establishment");
 
                     b.Navigation("Reservation");
                 });
@@ -653,6 +690,8 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("EmployeeAddress")
                         .IsRequired();
 
+                    b.Navigation("Items");
+
                     b.Navigation("Orders");
                 });
 
@@ -661,6 +700,10 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("Employees");
 
                     b.Navigation("EstablishmentAddress");
+
+                    b.Navigation("Items");
+
+                    b.Navigation("Orders");
 
                     b.Navigation("Storages");
                 });
