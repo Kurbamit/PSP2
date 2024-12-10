@@ -5,14 +5,20 @@ using ReactApp1.Server.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ReactApp1.Server.Filters;
+using ReactApp1.Server.Middlewares;
 using ReactApp1.Server.Models.Models.Base;
-
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
 
 // Add services to the container.
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Host.UseSerilog();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -69,6 +75,11 @@ builder.Services.AddAuthentication(x =>
     };
 });
 
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<LogActionFilter>();
+});
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -79,12 +90,19 @@ builder.Services.AddScoped<IItemRepository, ItemRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IEstablishmentRepository, EstablishmentRepository>();
+builder.Services.AddScoped<ISharedSearchesRepository, SharedSearchesRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IFullOrderRepository, FullOrderRepository>();
+builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 
 // Register Services
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
+builder.Services.AddScoped<ISharedSearchesService, SharedSearchesService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IGiftCardService, GiftCardService>();
 
 
 var app = builder.Build();
@@ -98,6 +116,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
@@ -110,4 +130,16 @@ app.MapControllers();
 
 app.MapFallbackToFile("/index.html");
 
-app.Run();
+try
+{
+    Log.Information("Starting up the application...");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application failed to start");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

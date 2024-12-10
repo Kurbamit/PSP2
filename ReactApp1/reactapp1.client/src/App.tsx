@@ -9,6 +9,11 @@ import Logout from "./components/Base/Logout.tsx";
 import './App.css';
 import { API_BASE_URL } from "../config";
 import Cookies from 'js-cookie';
+import Employees from "./components/Domain/Employee/Employees.tsx";
+import EmployeeDetail from "./components/Domain/Employee/EmployeeDetail.tsx";
+import SelectDropdown from "./components/Base/SelectDropdown.tsx";
+import Orders from "./components/Domain/Order/Orders.tsx";
+import OrderDetail from "./components/Domain/Order/OrderDetail.tsx";
 
 interface Forecast {
     date: string;
@@ -46,31 +51,40 @@ function App() {
             <p><em>Loading... Please refresh once the ASP.NET backend has started.</em></p>
             <p>Error might be because You're not logged in.</p>
         </div>
-        : <table className="table table-striped" aria-labelledby="tabelLabel">
-            <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-            </thead>
-            <tbody>
-            {forecasts.map(forecast =>
-                <tr key={forecast.date}>
-                    <td>{forecast.date}</td>
-                    <td>{forecast.temperatureC}</td>
-                    <td>{forecast.temperatureF}</td>
-                    <td>{forecast.summary}</td>
+        : <>
+            <div>
+                <h1>Example Page</h1>
+                <SelectDropdown
+                    endpoint="/AllItems"
+                    onSelect={(item) => console.log("Selected item:", item)}
+                />
+            </div>
+            <table className="table table-striped" aria-labelledby="tabelLabel">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
                 </tr>
-            )}
-            </tbody>
-        </table>;
+                </thead>
+                <tbody>
+                {forecasts.map(forecast =>
+                    <tr key={forecast.date}>
+                        <td>{forecast.date}</td>
+                        <td>{forecast.temperatureC}</td>
+                        <td>{forecast.temperatureF}</td>
+                        <td>{forecast.summary}</td>
+                    </tr>
+                )}
+                </tbody>
+            </table>
+        </>;
 
     return (
         <Router>
-            <NavigationBar isLoggedIn={isLoggedIn} />
-            <div style={{ marginTop: '4rem', padding: '1rem' }}>
+            <NavigationBar isLoggedIn={isLoggedIn}/>
+            <div style={{marginTop: '4rem', padding: '1rem' }}>
                 <Routes>
                     <Route path="/" element={
                         <div>
@@ -79,10 +93,15 @@ function App() {
                             {contents}
                         </div>
                     } />
+                    <Route path="/orders" element={<Orders />} />
+                    <Route path="/orders/:id" element={<OrderDetail />} />
                     <Route path="/items" element={<Items />} />
                     <Route path="/items/new" element={<ItemDetail />} />
                     <Route path="/items/:id" element={<ItemDetail />} />
                     <Route path="/register" element={<Register onRegister={handleLogin} />} />
+                    <Route path="/employees" element={<Employees />} />
+                    <Route path="/employees/new" element={<EmployeeDetail />} />
+                    <Route path="/employees/:id" element={<EmployeeDetail />} />
                     <Route path="/login" element={<Login onLogin={handleLogin} />} />
                     <Route path="/logout" element={
                         <Logout onLogout={handleLogout} />

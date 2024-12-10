@@ -33,6 +33,8 @@ public class ItemModel
     public DateTime ReceiveTime { get; set; }
 
     public  int? Storage { get; set; }
+    
+    public int? Count { get; set; }
 
     public void MapUpdate(Item existingItem)
     {

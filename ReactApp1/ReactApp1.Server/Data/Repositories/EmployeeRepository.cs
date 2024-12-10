@@ -53,13 +53,14 @@ namespace ReactApp1.Server.Data.Repositories
                     City = f.EmployeeAddress.City,
                     Street = f.EmployeeAddress.Street,
                     StreetNumber = f.EmployeeAddress.StreetNumber,
-                    HouseNumber = f.EmployeeAddress.HouseNumber
+                    HouseNumber = f.EmployeeAddress.HouseNumber,
+                    ReceiveTime = f.ReceiveTime
                 }).FirstOrDefaultAsync();
             
             return employee;
         }
         
-        public async Task AddEmployeeAsync(EmployeeModel employee, int? establishmentId)
+        public async Task<int> AddEmployeeAsync(EmployeeModel employee, int? establishmentId)
         {
             if (!establishmentId.HasValue)
             {
@@ -102,6 +103,8 @@ namespace ReactApp1.Server.Data.Repositories
                 await _context.SaveChangesAsync();
                 
                 await transaction.CommitAsync();
+                
+                return newEmployee.EmployeeId;
             }
             catch (DbUpdateException e)
             {
