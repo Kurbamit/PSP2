@@ -106,6 +106,8 @@ const ScriptResources = {
     NoPayments: 'No payments',
     Pay: 'Pay',
     ErrorPayment: 'Error making payment',
+    TotalPaid: 'Total paid',
+    TotalLeftToPay: 'Total left to pay',
 
 };
 

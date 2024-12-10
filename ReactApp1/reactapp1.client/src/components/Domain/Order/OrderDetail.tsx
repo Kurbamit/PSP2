@@ -28,7 +28,7 @@ interface FullOrder {
 
 interface Payment {
     type: number;
-    amount: number;
+    value: number;
 }
 
 enum PaymentMethodEnum {
@@ -135,7 +135,7 @@ const OrderDetail: React.FC = () => {
     };
 
     const handlePayPayment = async () => {
-        if (id && paymentValue > 0) {
+        if (id && paymentValue > 0 && paymentValue <= order.order.leftToPay) {
             try {
                 await axios.put(
                     `http://localhost:5114/api/orders/${id}/pay`,
@@ -331,6 +331,10 @@ const OrderDetail: React.FC = () => {
             {order?.order.status === OrderStatusEnum.Closed && (
                 <div className="mt-4">
                     <h3>{ScriptResources.Payments}</h3>
+                    <div>
+                        <p><strong>{ScriptResources.TotalPaid}</strong> {order.order.totalPaid} {ScriptResources.Eur}</p>
+                        <p><strong>{ScriptResources.TotalLeftToPay}</strong> {order.order.leftToPay} {ScriptResources.Eur}</p>
+                    </div>
                     {order.payments.length > 0 ? (
                         <table className="table table-striped table-bordered">
                             <thead>
@@ -354,6 +358,7 @@ const OrderDetail: React.FC = () => {
                     <button className="btn btn-primary mt-3" onClick={() => setShowPaymentModal(true)}>
                         {ScriptResources.AddPayment}
                     </button>
+
                 </div>
             )}
 
@@ -364,6 +369,10 @@ const OrderDetail: React.FC = () => {
                         <div className="modal-header">
                             <h5 className="modal-title">{ScriptResources.AddPayment}</h5>
                             <button className="btn-close" onClick={() => setShowPaymentModal(false)}></button>
+                        </div>
+                        <div>
+                                <p><strong>{ScriptResources.TotalPaid}</strong> {order.order.totalPaid} {ScriptResources.Eur}</p>
+                                <p><strong>{ScriptResources.TotalLeftToPay}</strong> {order.order.leftToPay} {ScriptResources.Eur}</p>
                         </div>
                         <div className="modal-body">
                             <Form.Group className="mb-3" controlId="payment-method">
@@ -388,7 +397,10 @@ const OrderDetail: React.FC = () => {
                             <button className="btn btn-secondary" onClick={() => setShowPaymentModal(false)}>
                                 {ScriptResources.Cancel}
                             </button>
-                            <button className="btn btn-primary" onClick={handlePayPayment}>
+                                <button className="btn btn-primary"
+                                    onClick={handlePayPayment}
+                                    disabled={paymentValue > order.order.leftToPay || paymentValue <= 0}
+                                >
                                 {ScriptResources.Pay}
                             </button>
                         </div>

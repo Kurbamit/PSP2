@@ -15,6 +15,8 @@ public class OrderModel
     public int? ReservationId { get; set; }
     public string? CreatedByEmployeeName { get; set; }
     public decimal? TotalPrice { get; set; }
+    public decimal? TotalPaid { get; set; }
+    public decimal? LeftToPay { get; set; }
 
     public OrderModel()
     {

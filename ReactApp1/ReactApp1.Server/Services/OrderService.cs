@@ -74,8 +74,10 @@ namespace ReactApp1.Server.Services
             var orderWithTotalPrice = CalculateTotalPriceForOrder(order, orderItems);
 
             var orderPayments = await GetOrderPayments(orderId);
-            
-            return new OrderItemsPayments(orderWithTotalPrice, orderItems, orderPayments);
+
+            var orderWithTotalPaidAndLeftToPay = CalculateTotalPaidAndLeftToPayForOrder(orderWithTotalPrice, orderPayments);
+
+            return new OrderItemsPayments(orderWithTotalPaidAndLeftToPay, orderItems, orderPayments);
         }
         
         private async Task<List<ItemModel>> GetOrderItems(int orderId)
@@ -120,7 +122,16 @@ namespace ReactApp1.Server.Services
 
             return order;
         }
-        
+        private OrderModel CalculateTotalPaidAndLeftToPayForOrder(OrderModel order, List<PaymentModel> orderPayments)
+        {
+            decimal totalPaid = orderPayments.Sum(payment => payment.Value);
+
+            order.TotalPaid = totalPaid;
+            order.LeftToPay = order.TotalPrice - order.TotalPaid;
+
+            return order;
+        }
+
         public async Task AddItemToOrder(FullOrderModel fullOrder)
         {
             // Before adding an item to an order, check if:
