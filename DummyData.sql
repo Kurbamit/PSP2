@@ -61,3 +61,7 @@ VALUES
     ('2026-02-14', 80.0, 'VALENTINE2026N', CURRENT_TIMESTAMP, NULL),
     ('2026-03-17', 65.0, 'STPATRICKS2026O', CURRENT_TIMESTAMP, NULL);
 
+
+INSERT INTO public."Reservation" ("ReceiveTime", "StartTime", "EndTime", "CreatedByEmployeeId", "CustomerPhoneNumber")
+VALUES
+    (CURRENT_TIMESTAMP, '2024-12-10 18:00:00', '2024-12-10 20:00:00', 1, '+37047298312'),

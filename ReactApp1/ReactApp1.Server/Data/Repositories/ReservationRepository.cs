@@ -44,8 +44,8 @@ namespace ReactApp1.Server.Data.Repositories
                     ReceiveTime = f.ReceiveTime,
                     StartTime = f.StartTime.Value,
                     EndTime = f.EndTime.Value,
-                    CustomerCount = f.CustomerCount.Value,
-                    ReservedSpot = f.ReservedSpot
+                    CreatedByEmployeeId = f.CreatedByEmployeeId,
+                    CustomerPhoneNumber = f.CustomerPhoneNumber
                 }).FirstOrDefaultAsync();
             return reservation;
         }

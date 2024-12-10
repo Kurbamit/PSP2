@@ -42,6 +42,7 @@ namespace ReactApp1.Server.Data.Repositories
                 .Select(f => new EmployeeModel()
                 {
                     EmployeeId = f.EmployeeId,
+                    EstablishmentId = f.EstablishmentId,
                     Title = (TitleEnum)f.Title,
                     PersonalCode = f.PersonalCode,
                     FirstName = f.FirstName,

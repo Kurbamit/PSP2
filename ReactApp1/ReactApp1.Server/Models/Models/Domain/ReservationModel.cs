@@ -23,21 +23,26 @@ public class ReservationModel
     public DateTime EndTime { get; set; }
 
     /// <summary>
-    /// Uzsakovu kiekis
+    /// Identifikatorius darbuotojo, kuris sukure rezervacija
     /// </summary>
-    public int CustomerCount { get; set; }
+    public int CreatedByEmployeeId { get; set; }
 
     /// <summary>
-    /// Uzrezervuota vieta
+    /// Kliento telefono numeris
     /// </summary>
-    public string? ReservedSpot { get; set; }
+    public string CustomerPhoneNumber { get; set; }
+
+    /// <summary>
+    /// Identifikatorius serviso, kuriame vyks rezervacija
+    /// </summary>
+    public int EstablishmentId { get; set; }
 
     public void MapUpdate(Reservation existingReservation)
     {
         existingReservation.ReceiveTime = ReceiveTime;
         existingReservation.StartTime = StartTime;
         existingReservation.EndTime = EndTime;
-        existingReservation.CustomerCount = CustomerCount;
-        existingReservation.ReservedSpot = ReservedSpot;
+        existingReservation.CreatedByEmployeeId = CreatedByEmployeeId;
+        existingReservation.CustomerPhoneNumber = CustomerPhoneNumber;
     }
 }
