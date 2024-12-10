@@ -3,3 +3,4 @@
 3. Pridėjome endpoint'us susijusius su `storage` manipuliavimu. Iš pradžių sukuriamas meniu punktas `items` ir tik tuomet galima pridėti ar atimti jų skaičių inventoriuje.
 4. Pridėti endpoint'ai susiję su `reservation` manipuliavimu. Juos galima kurti, redaguoti ir panašiai.
 5. Pridėjome `giftCards` endpoint'us, kad būtų galima juos kurti, redaguoti ir panašiai.
+6. Pridėti endpoint'ai susiję su `establishment` manipuliavimu. Juos galima kurti, redaguoti ir panašiai.
