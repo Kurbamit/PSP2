@@ -449,8 +449,10 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("EndTime");
 
                     b.Property<DateTime>("ReceiveTime")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ReceiveTime");
+                        .HasColumnName("ReceiveTime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("ReservedSpot")
                         .HasMaxLength(255)

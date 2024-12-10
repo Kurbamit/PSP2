@@ -3,6 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
+import {Button, Modal} from "react-bootstrap";
 
 interface Item {
     itemId?: number; // Make itemId optional for new items
@@ -22,6 +23,10 @@ const ItemDetail: React.FC = () => {
     const token = Cookies.get('authToken');
     const navigate = useNavigate();
     const [error, setError] = useState('');
+    const [modalError, setModalError] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [storageValue, setStorageValue] = useState<number | ''>('');
+    const [modalMode, setModalMode] = useState<'add' | 'deduct'>('add');
 
     const isNewItem = !id; // Check if it's a new item by absence of id
 
@@ -131,6 +136,47 @@ const ItemDetail: React.FC = () => {
         navigate('/items');
     };
 
+    const handleSaveStorage = async () => {
+        if (typeof storageValue === 'number' && storageValue < 0) {
+            setModalError('Storage value cannot be negative');
+            return;
+        }
+        if (editedItem && storageValue !== '') {
+            try {
+                const endpoint =
+                    modalMode === 'add'
+                        ? `http://localhost:5114/api/items/${editedItem.itemId}/add-storage?amount=${storageValue}`
+                        : `http://localhost:5114/api/items/${editedItem.itemId}/deduct-storage?amount=${storageValue}`;
+
+                await axios.put(endpoint, {}, { headers: { Authorization: `Bearer ${token}` } });
+
+                setEditedItem({
+                    ...editedItem,
+                    storage:
+                        modalMode === 'add'
+                            ? (editedItem.storage || 0) + (typeof storageValue === 'number' ? storageValue : 0)
+                            : (editedItem.storage || 0) - (typeof storageValue === 'number' ? storageValue : 0),
+                });
+
+                setShowModal(false);
+                setStorageValue('');
+            } catch (error) {
+                console.error(ScriptResources.Error, error);
+                alert(ScriptResources.FailedToUpdateStorage);
+            }
+        }
+    };
+
+    const openAddStorageModal = () => {
+        setModalMode('add');
+        setShowModal(true);
+    };
+
+    const openDeductStorageModal = () => {
+        setModalMode('deduct');
+        setShowModal(true);
+    };
+
     const handleDelete = async () => {
         try {
             if (item?.itemId){
@@ -176,7 +222,7 @@ const ItemDetail: React.FC = () => {
                                 <input
                                     type="number"
                                     name="cost"
-                                    value={editedItem.cost || 0}
+                                    value={editedItem.cost || ''}
                                     onChange={handleInputChange}
                                     className="form-control"
                                     disabled={!isEditing}
@@ -187,7 +233,7 @@ const ItemDetail: React.FC = () => {
                                 <input
                                     type="number"
                                     name="tax"
-                                    value={editedItem.tax || 0}
+                                    value={editedItem.tax || ''}
                                     onChange={handleInputChange}
                                     className="form-control"
                                     disabled={!isEditing}
@@ -224,14 +270,27 @@ const ItemDetail: React.FC = () => {
                                 </>
                             ) : (
                                 <>
-                                    <button className="btn btn-primary m-1" onClick={toggleEditMode}>
-                                        {ScriptResources.Edit}
-                                    </button>
-                                    {!isNewItem && (
-                                        <button className="btn btn-danger m-1" onClick={handleDelete}>
-                                            {ScriptResources.Delete}
+                                    <div className="d-flex mb-2">
+                                        <button className="btn btn-primary m-1" onClick={toggleEditMode}>
+                                            {ScriptResources.Edit}
                                         </button>
-                                    )}
+                                        {!isNewItem && (
+                                            <button className="btn btn-danger m-1" onClick={handleDelete}>
+                                                {ScriptResources.Delete}
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="d-flex mb-2">
+                                        <button className="btn btn-info m-1" onClick={openAddStorageModal}>
+                                            <span className="material-icons me-2" style={{ verticalAlign: 'middle' }}>add</span>
+                                            {ScriptResources.AddStorage}
+                                        </button>
+                                        <button className="btn btn-warning m-1" onClick={openDeductStorageModal}>
+                                            <span className="material-icons me-2" style={{ verticalAlign: 'middle' }}>remove</span>
+                                            {ScriptResources.DeductStorage}
+                                        </button>
+                                    </div>
                                 </>
                             )}
                         </div>
@@ -245,6 +304,30 @@ const ItemDetail: React.FC = () => {
                     {ScriptResources.BackToTheMainList}
                 </button>
             )}
+
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{ScriptResources.AddStorageNumber}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <input
+                        type="number"
+                        value={storageValue}
+                        onChange={(e) => setStorageValue(e.target.value === '' ? '' : parseInt(e.target.value))}
+                        className="form-control"
+                        placeholder={ScriptResources.StorageAdded}
+                    />
+                    {modalError && <div style={{ color: 'red', marginTop: '10px' }}>{modalError}</div>}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                        {ScriptResources.Cancel}
+                    </Button>
+                    <Button variant="primary" onClick={handleSaveStorage}>
+                        {ScriptResources.Save}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

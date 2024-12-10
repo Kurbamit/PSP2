@@ -51,13 +51,27 @@ namespace ReactApp1.Server.Data.Repositories
             return item;
         }
         
-        public async Task AddItemAsync(Item item)
+        public async Task AddItemAsync(Item item, int? establishmentId)
         {
+            if (!establishmentId.HasValue)
+            {
+                throw new ArgumentNullException(nameof(establishmentId));
+            }
             try
             {
+                using var transaction = await _context.Database.BeginTransactionAsync();
                 await _context.Set<Item>().AddAsync(item);
                 await _context.SaveChangesAsync();
-
+                
+                var storage = new Storage()
+                {
+                    ItemId = item.ItemId,
+                    Count = 0,
+                    EstablishmentId = establishmentId.Value
+                };
+                await _context.Set<Storage>().AddAsync(storage);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }   
             catch (DbUpdateException e)
             {
@@ -89,6 +103,42 @@ namespace ReactApp1.Server.Data.Repositories
                 throw new Exception($"An error occurred while updating the item: {item.ItemId}.", e);
             }
         }
+
+        public async Task AddStorageAsync(int itemId, int amount)
+        {
+            try
+            {
+                var storage = await _context.Storages
+                    .Where(f => f.ItemId == itemId)
+                    .FirstOrDefaultAsync();
+
+                if (storage == null)
+                {
+                    throw new KeyNotFoundException($"Storage with item ID {itemId} not found.");
+                }
+
+                storage.Count += amount;
+
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                throw new Exception($"An error occurred while updating storage with the item: {itemId}.", e);
+            }
+        }
+        
+        public async Task<StorageModel?> GetItemStorageAsync(int itemId)
+        {
+
+            var storage = await _context.Storages
+                .Where(f => f.ItemId == itemId)
+                .FirstOrDefaultAsync();
+
+            return storage != null
+                ? new StorageModel(storage)
+                : null;
+        }
+
         
         public async Task DeleteItemAsync(int itemId)
         {

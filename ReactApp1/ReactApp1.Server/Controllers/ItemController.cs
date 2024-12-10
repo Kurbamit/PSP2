@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ReactApp1.Server.Data.Repositories;
+using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Domain;
 using ReactApp1.Server.Services;
@@ -37,8 +38,8 @@ namespace ReactApp1.Server.Controllers
         [HttpPost("items")]
         public async Task<IActionResult> CreateItem([FromBody] Item item)
         {
-            
-            await _itemService.CreateNewItem(item);
+            var establishmentId = User.GetUserEstablishmentId();
+            await _itemService.CreateNewItem(item, establishmentId);
             
             return Ok(item.ItemId);
         }
@@ -48,6 +49,30 @@ namespace ReactApp1.Server.Controllers
         {
             await _itemService.UpdateItem(item);
             
+            return Ok();
+        }
+
+        [HttpPut("items/{itemId}/add-storage")]
+        public async Task<IActionResult> AddStorage(int itemId, [FromQuery] int amount)
+        {
+            if (amount <= 0)
+            {
+                return BadRequest("Amount must be greater than 0");
+            }
+            await _itemService.AddStorage(itemId, amount);
+
+            return Ok();
+        }
+        
+        [HttpPut("items/{itemId}/deduct-storage")]
+        public async Task<IActionResult> DeductStorage(int itemId, [FromQuery] int amount)
+        {
+            if (amount <= 0)
+            {
+                return BadRequest("Amount must be greater than 0");
+            }
+            await _itemService.AddStorage(itemId, -amount);
+
             return Ok();
         }
         

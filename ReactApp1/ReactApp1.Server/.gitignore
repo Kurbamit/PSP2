@@ -3,3 +3,4 @@
 
 # Ignore .idea directory (for Rider IDE settings)
 ./idea
+Logs/

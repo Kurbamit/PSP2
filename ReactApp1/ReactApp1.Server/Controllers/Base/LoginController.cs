@@ -15,11 +15,11 @@ namespace ReactApp1.Server.Controllers
     [Route("api/")]
     public class LoginController : ControllerBase
     {
-        private readonly ILogger<RegisterController> _logger;
+        private readonly ILogger<LoginController> _logger;
         private readonly JwtSettings _jwtSettings;
         private readonly AppDbContext _context;
 
-        public LoginController(ILogger<RegisterController> logger, IOptions<JwtSettings> jwtSettings, AppDbContext context)
+        public LoginController(ILogger<LoginController> logger, IOptions<JwtSettings> jwtSettings, AppDbContext context)
         {
             _logger = logger;
             _jwtSettings = jwtSettings.Value;
@@ -47,7 +47,7 @@ namespace ReactApp1.Server.Controllers
                 return BadRequest("Invalid username or password.");
             }
             
-            var token = GenerateToken(request.Email, user.EmployeeId, user.EstablishmentId);
+            var token = GenerateToken(request.Email, user.EmployeeId, user.EstablishmentId, user.Title);
             
             Response.Cookies.Append("authToken", token, new CookieOptions
             {
@@ -56,17 +56,17 @@ namespace ReactApp1.Server.Controllers
                 SameSite = SameSiteMode.None, // Required for cross-origin requests
                 Expires = DateTime.UtcNow.AddDays(1) // Cookie expiration
             });
-            
             return Ok(new { message = "Login successful", token });
         }
         
-        private string GenerateToken(string email, int userId, int establishmentId)
+        private string GenerateToken(string email, int userId, int establishmentId, int title)
         {
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, email),
                 new Claim("UserId", userId.ToString()),
-                new Claim("EstablishmentId", establishmentId.ToString())
+                new Claim("EstablishmentId", establishmentId.ToString()),
+                new Claim("Title", title.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
