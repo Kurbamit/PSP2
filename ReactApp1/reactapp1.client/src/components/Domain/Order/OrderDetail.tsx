@@ -99,7 +99,22 @@ const OrderDetail: React.FC = () => {
             }
         }
     }
-    
+
+    const handleCancel = async () => {
+        if (id) {
+            try {
+                await axios.put(
+                    `http://localhost:5114/api/orders/${id}/cancel`,
+                    { orderId: Number(id) },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                navigate('/orders');
+            } catch (error) {
+                console.error(ScriptResources.ErrorCancellingOrder, error);
+            }
+        }
+    }
+
     const handleBackToList = () => {
         navigate('/orders');
     };
@@ -213,14 +228,13 @@ const OrderDetail: React.FC = () => {
             )}
 
             <div className="mt-3">
-                {/*TODO: Checkout and Close order buttons*/}
                 {order?.order.status === OrderStatusEnum.Open && (
                     <div className="d-flex mb-3">
-                        <button className="btn btn-primary me-2" onClick={() => setShowModal(true)}>
+                        <button className="btn btn-primary me-2" onClick={() => handleClose()}>
                             {ScriptResources.Checkout}
                         </button>
-                        <button className="btn btn-primary" onClick={() => handleClose()}>
-                            {ScriptResources.Close}
+                        <button className="btn btn-primary" onClick={() => handleCancel()}>
+                            {ScriptResources.Cancel}
                         </button>
                     </div>
                 )}

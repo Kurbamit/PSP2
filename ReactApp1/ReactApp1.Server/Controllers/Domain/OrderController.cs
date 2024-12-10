@@ -65,7 +65,16 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok();
         }
-        
+
+        [HttpPut("orders/{orderId}/cancel")]
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            await _orderService.CancelOrder(orderId);
+
+            return Ok();
+        }
+
+
         [HttpDelete("orders/{orderId}/items")]
         public async Task<IActionResult> RemoveItemFromOrder([FromBody] FullOrderModel order)
         {

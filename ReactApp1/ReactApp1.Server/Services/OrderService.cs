@@ -2,6 +2,7 @@ using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Exceptions.ItemExceptions;
 using ReactApp1.Server.Exceptions.OrderExceptions;
 using ReactApp1.Server.Exceptions.StorageExceptions;
+using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
@@ -223,6 +224,27 @@ namespace ReactApp1.Server.Services
             }
                 
             return order;
+        }
+        public async Task CancelOrder(int orderId)
+        {
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(orderId, "CloseOrder");
+            if (existingOrderWithOpenStatus == null)
+                return;
+
+            existingOrderWithOpenStatus.Status = (int)OrderStatusEnum.Cancelled;
+
+            //Add items back to storage
+
+            var orderItems = await GetOrderItems(orderId);
+            foreach (var item in orderItems)
+            {
+                int itemCount = item.Count ?? 0;
+                await _itemRepository.AddStorageAsync(item.ItemId, itemCount);
+            }
+
+            // TODO refund if payments made
+
+            await _orderRepository.UpdateOrderAsync(existingOrderWithOpenStatus);
         }
     }
 }

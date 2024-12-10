@@ -12,4 +12,5 @@ public interface IOrderService
     Task UpdateOrder(OrderModel order);
     Task RemoveItemFromOrder(FullOrderModel fullOrder);
     Task CloseOrder(int orderId);
+    Task CancelOrder(int orderId);
 }
