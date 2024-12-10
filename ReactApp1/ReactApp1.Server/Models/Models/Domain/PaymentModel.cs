@@ -26,4 +26,5 @@ public class PaymentModel
         existingPayment.ReceiveTime = this.ReceiveTime;
         existingPayment.GiftCardId = this.GiftCardId;
     }
+
 }

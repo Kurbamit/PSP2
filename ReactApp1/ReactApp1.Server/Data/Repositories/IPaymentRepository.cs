@@ -10,7 +10,7 @@ namespace ReactApp1.Server.Data.Repositories
         Task<PaymentModel?> GetPaymentByIdAsync(int paymentId);
         Task<List<PaymentModel?>> GetPaymentsByOrderIdAsync(int orderId);
 
-        Task AddPaymentAsync(Payment payment);
+        Task AddPaymentAsync(PaymentModel payment);
         Task UpdatePaymentAsync(PaymentModel payment);
         Task DeletePaymentAsync(int paymentId);
     }

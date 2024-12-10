@@ -10,7 +10,7 @@ public interface IPaymentService
     Task<PaymentModel?> GetPaymentById(int paymentId);
     Task<List<PaymentModel?>> GetPaymentsByOrderId(int orderId);
 
-    Task CreateNewPayment(Payment payment);
+    Task CreateNewPayment(PaymentModel payment);
     Task UpdatePayment(PaymentModel payment);
     Task DeletePayment(int paymentId);
 }

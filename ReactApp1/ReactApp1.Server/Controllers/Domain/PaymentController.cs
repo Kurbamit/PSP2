@@ -44,7 +44,7 @@ namespace ReactApp1.Server.Controllers.Domain
         }
 
         [HttpPost("payments")]
-        public async Task<IActionResult> CreatePayment([FromBody] Payment payment)
+        public async Task<IActionResult> CreatePayment([FromBody] PaymentModel payment)
         {
             await _paymentService.CreateNewPayment(payment);
             

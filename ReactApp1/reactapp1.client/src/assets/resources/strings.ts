@@ -97,7 +97,7 @@ const ScriptResources = {
     Count: 'Count:',
     SelectCount: 'Select count',
     AddPayment: 'Add payment',
-    PaymentMethod: 'Payment method',
+    PaymentType: 'Payment type',
     Cash: 'Cash',
     GiftCard: 'Giftcard',
     Card: 'Card',
@@ -105,6 +105,7 @@ const ScriptResources = {
     Payments: 'Payments',
     NoPayments: 'No payments',
     Pay: 'Pay',
+    ErrorPayment: 'Error making payment',
 
 };
 

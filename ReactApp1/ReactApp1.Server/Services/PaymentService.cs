@@ -28,7 +28,7 @@ namespace ReactApp1.Server.Services
             return _paymentRepository.GetPaymentsByOrderIdAsync(orderId);
         }
 
-        public Task CreateNewPayment(Payment payment)
+        public Task CreateNewPayment(PaymentModel payment)
         {
             return _paymentRepository.AddPaymentAsync(payment);
         }

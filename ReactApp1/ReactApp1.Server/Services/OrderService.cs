@@ -98,8 +98,8 @@ namespace ReactApp1.Server.Services
         }
         private async Task<List<PaymentModel>> GetOrderPayments(int orderId)
         {
-        
-            return null;
+            var payments = await _paymentRepository.GetPaymentsByOrderIdAsync(orderId);
+            return payments;
         }
 
         private OrderModel CalculateTotalPriceForOrder(OrderModel order, List<ItemModel> orderItems)
@@ -235,6 +235,23 @@ namespace ReactApp1.Server.Services
                 
             return order;
         }
+        private async Task<OrderModel?> GetOrderIfExistsAndStatusIsClosed(int orderId, string? operation = null)
+        {
+            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            if (order == null)
+            {
+                _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
+                throw new OrderNotFoundException(orderId);
+            }
+
+            if (order.Status != (int)OrderStatusEnum.Closed)
+            {
+                _logger.LogError($"Operation '{operation}' failed: Order status is {order.Status.ToString()}");
+                throw new OrderStatusConflictException(order.Status.ToString());
+            }
+
+            return order;
+        }
         public async Task CancelOrder(int orderId)
         {
             var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(orderId, "CancelOrder");
@@ -255,6 +272,17 @@ namespace ReactApp1.Server.Services
             // TODO refund if payments made
 
             await _orderRepository.UpdateOrderAsync(existingOrderWithOpenStatus);
+        }
+        public async Task PayOrder(PaymentModel payment)
+        {
+            var existingOrderWithClosedStatus = await GetOrderIfExistsAndStatusIsClosed(payment.OrderId, "PayOrder");
+            if (existingOrderWithClosedStatus == null)
+                return;
+
+            await _paymentRepository.AddPaymentAsync(payment);
+
+
+            await _orderRepository.UpdateOrderAsync(existingOrderWithClosedStatus);
         }
     }
 }

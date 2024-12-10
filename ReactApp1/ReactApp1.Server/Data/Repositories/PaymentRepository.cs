@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
+using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
 
@@ -50,7 +51,7 @@ namespace ReactApp1.Server.Data.Repositories
 
             return payment;
         }
-        public async Task<PaymentModel?> GetPaymentsByOrderIdAsync(int orderId)
+        public async Task<List<PaymentModel?>> GetPaymentsByOrderIdAsync(int orderId)
         {
             var payments = await _context.Payments
                 .Where(p => p.OrderId == orderId)
@@ -66,11 +67,20 @@ namespace ReactApp1.Server.Data.Repositories
 
             return payments;
         }
-        public async Task AddPaymentAsync(Payment payment)
+        public async Task AddPaymentAsync(PaymentModel payment)
         {
+            var newPayment = new Payment
+            {
+                OrderId = payment.OrderId,
+                Type = payment.Type,
+                Value = payment.Value,
+                ReceiveTime = payment.ReceiveTime,
+                GiftCardId = payment.GiftCardId,
+            };
+
             try
             {
-                await _context.Set<Payment>().AddAsync(payment);
+                await _context.Set<Payment>().AddAsync(newPayment);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateException e)

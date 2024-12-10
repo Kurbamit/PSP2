@@ -13,4 +13,5 @@ public interface IOrderService
     Task RemoveItemFromOrder(FullOrderModel fullOrder);
     Task CloseOrder(int orderId);
     Task CancelOrder(int orderId);
+    Task PayOrder(PaymentModel payment);
 }
