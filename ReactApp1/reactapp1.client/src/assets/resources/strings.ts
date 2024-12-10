@@ -75,6 +75,7 @@ const ScriptResources = {
     OrderStatusEnum_Open: 'Open',
     OrderStatusEnum_Closed: 'Closed',
     OrderStatusEnum_Cancelled: 'Cancelled',
+    OrderStatusEnum_Completed: 'Completed',
     OrderInformation: 'Order Information',
     Order: 'Order',
     NotAvailable: 'Not available',
@@ -108,6 +109,7 @@ const ScriptResources = {
     ErrorPayment: 'Error making payment',
     TotalPaid: 'Total paid',
     TotalLeftToPay: 'Total left to pay',
+    GiftCardCode: 'Giftcard code'
 
 };
 

@@ -1,3 +1,4 @@
+using Azure;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Exceptions.ItemExceptions;
 using ReactApp1.Server.Exceptions.OrderExceptions;
@@ -16,17 +17,19 @@ namespace ReactApp1.Server.Services
         private readonly IFullOrderRepository _fullOrderRepository;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IPaymentRepository _paymentRepository;
+        private readonly IGiftCardRepository _giftcardRepository;
         private readonly ILogger<OrderService> _logger;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, 
             IFullOrderRepository fullOrderRepository, IEmployeeRepository employeeRepository, ILogger<OrderService> logger,
-            IPaymentRepository paymentRepository)
+            IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
             _fullOrderRepository = fullOrderRepository;
             _employeeRepository = employeeRepository;
             _paymentRepository = paymentRepository;
+            _giftcardRepository = giftcardRepository;
             _logger = logger;
         }
         
@@ -231,7 +234,7 @@ namespace ReactApp1.Server.Services
         
         private async Task<OrderModel?> GetOrderIfExistsAndStatusIsOpen(int orderId, string? operation = null)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            var order = (await GetOrderById(orderId)).Order;
             if (order == null)
             {
                 _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
@@ -248,7 +251,7 @@ namespace ReactApp1.Server.Services
         }
         private async Task<OrderModel?> GetOrderIfExistsAndStatusIsClosed(int orderId, string? operation = null)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            var order = (await GetOrderById(orderId)).Order;
             if (order == null)
             {
                 _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
@@ -290,10 +293,21 @@ namespace ReactApp1.Server.Services
             if (existingOrderWithClosedStatus == null)
                 return;
 
+            if(payment.Type == (int)PaymentTypeEnum.GiftCard)
+            {
+
+            } 
+            else if(payment.Type == (int)PaymentTypeEnum.Card)
+            {
+                // TODO stripe
+            }
+            if (existingOrderWithClosedStatus.LeftToPay == payment.Value)
+            {
+                existingOrderWithClosedStatus.Status = (int)OrderStatusEnum.Completed;
+                await _orderRepository.UpdateOrderAsync(existingOrderWithClosedStatus);
+            }
+
             await _paymentRepository.AddPaymentAsync(payment);
-
-
-            await _orderRepository.UpdateOrderAsync(existingOrderWithClosedStatus);
         }
     }
 }

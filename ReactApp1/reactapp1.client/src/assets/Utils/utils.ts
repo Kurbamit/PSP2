@@ -6,6 +6,7 @@ export function getOrderStatusString(status: OrderStatusEnum): string {
         [OrderStatusEnum.None]: ScriptResources.OrderStatusEnum_None,
         [OrderStatusEnum.Open]: ScriptResources.OrderStatusEnum_Open,
         [OrderStatusEnum.Closed]: ScriptResources.OrderStatusEnum_Closed,
+        [OrderStatusEnum.Completed]: ScriptResources.OrderStatusEnum_Completed,
         [OrderStatusEnum.Cancelled]: ScriptResources.OrderStatusEnum_Cancelled
     };
 

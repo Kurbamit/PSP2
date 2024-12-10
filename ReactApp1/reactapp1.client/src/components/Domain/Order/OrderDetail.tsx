@@ -49,6 +49,7 @@ const OrderDetail: React.FC = () => {
     const [count, setCount] = useState(1);
     const [paymentValue, setPaymentValue] = useState<number>(0);
     const [paymentType, setPaymentType] = useState<PaymentMethodEnum>(PaymentMethodEnum.Cash);
+    const [giftCardCode, setGiftCardCode] = useState<string>('');
 
     const fetchItem = async () => {
         try {
@@ -382,13 +383,28 @@ const OrderDetail: React.FC = () => {
                                         <option value={PaymentMethodEnum.GiftCard}>{ScriptResources.GiftCard}</option>
                                         <option value={PaymentMethodEnum.Card}>{ScriptResources.Card}</option>
                                     </Form.Select>
-                            </Form.Group>
+                             </Form.Group>
+                            {paymentType === PaymentMethodEnum.GiftCard && (
+                                <Form.Group className="mb-3" controlId="giftcard-code">
+                                    <Form.Label>{ScriptResources.GiftCardCode}</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={giftCardCode}
+                                        onChange={(e) => setGiftCardCode(e.target.value)}
+                                    />
+                                </Form.Group>
+                            )}
                             <Form.Group className="mb-3" controlId="payment-amount">
                                 <Form.Label>{ScriptResources.Amount}</Form.Label>
                                 <Form.Control
                                     type="number"
                                     value={paymentValue}
-                                    onChange={(e) => setPaymentValue(Number(e.target.value))}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (/^\d*\.?\d{0,2}$/.test(value)) {
+                                            setPaymentValue(parseFloat(value));
+                                        }
+                                    }}
                                     min="0"
                                 />
                             </Form.Group>
