@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ReactApp1.Server.Models;
 
-[Table("Table")]
+[Table("Payment")]
 public class Payment
 {
     public Payment()
