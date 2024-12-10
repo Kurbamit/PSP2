@@ -293,14 +293,32 @@ namespace ReactApp1.Server.Services
             if (existingOrderWithClosedStatus == null)
                 return;
 
-            if(payment.Type == (int)PaymentTypeEnum.GiftCard)
+            _logger.LogError($"{payment.Type} {payment.GiftCardCode}");
+
+            if (payment.Type == (int)PaymentTypeEnum.GiftCard)
             {
+                GiftCardModel? giftcard = await _giftcardRepository.GetGiftCardByCodeAsync(payment.GiftCardCode);
+                if(giftcard == null)
+                {
+                    throw new InvalidOperationException("Gift card code is invalid or expired.");
+                }
+
+                if(giftcard.Amount < payment.Value)
+                {
+                    throw new InvalidOperationException("Not enough funds.");
+                }
+
+                giftcard.Amount -= payment.Value;
+                payment.GiftCardId = giftcard.GiftCardId;
+
+                await _giftcardRepository.UpdateGiftCardAsync(giftcard);
 
             } 
             else if(payment.Type == (int)PaymentTypeEnum.Card)
             {
                 // TODO stripe
             }
+
             if (existingOrderWithClosedStatus.LeftToPay == payment.Value)
             {
                 existingOrderWithClosedStatus.Status = (int)OrderStatusEnum.Completed;

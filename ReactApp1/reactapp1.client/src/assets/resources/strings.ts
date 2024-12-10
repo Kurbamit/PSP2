@@ -109,7 +109,11 @@ const ScriptResources = {
     ErrorPayment: 'Error making payment',
     TotalPaid: 'Total paid',
     TotalLeftToPay: 'Total left to pay',
-    GiftCardCode: 'Giftcard code'
+    GiftCardCode: 'Giftcard code',
+    PaymentNone: 'None',
+    PaymentCash: 'Cash',
+    PaymentGiftcard: 'Giftcard',
+    PaymentCard: 'Card',
 
 };
 

@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 import {useNavigate, useParams} from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
 import {Order} from "./Orders.tsx";
-import {getOrderStatusString, getYesNoString} from "../../../assets/Utils/utils.ts";
+import { getOrderStatusString, getYesNoString, getPaymentTypeString } from "../../../assets/Utils/utils.ts";
 import SelectDropdown from "../../Base/SelectDropdown.tsx";
 import {OrderStatusEnum} from "../../../assets/Models/FrontendModels.ts";
 import { Form } from 'react-bootstrap';
@@ -144,7 +144,7 @@ const OrderDetail: React.FC = () => {
                         orderId: Number(id),
                         type: paymentType,
                         value: paymentValue,
-                        giftCardId: 0,
+                        giftCardCode: giftCardCode,
                     },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -155,6 +155,7 @@ const OrderDetail: React.FC = () => {
                 fetchItem(); 
             } catch (error) {
                 console.error(ScriptResources.ErrorPayment, error);
+                alert(error.response?.data?.error || "An error occurred during payment.");
             }
         }
     };
@@ -329,7 +330,7 @@ const OrderDetail: React.FC = () => {
                 </div>
             )}
 
-            {order?.order.status === OrderStatusEnum.Closed && (
+            {(order?.order.status === OrderStatusEnum.Closed || order?.order.status === OrderStatusEnum.Completed) && (
                 <div className="mt-4">
                     <h3>{ScriptResources.Payments}</h3>
                     <div>
@@ -347,7 +348,7 @@ const OrderDetail: React.FC = () => {
                             <tbody>
                                 {order.payments.map((payment, index) => (
                                     <tr key={index}>
-                                        <td>{payment.type}</td>
+                                        <td>{getPaymentTypeString(payment.type)}</td>
                                         <td>{payment.value} {ScriptResources.Eur}</td>
                                     </tr>
                                 ))}
@@ -356,9 +357,11 @@ const OrderDetail: React.FC = () => {
                     ) : (
                         <p>{ScriptResources.NoPayments}</p>
                     )}
-                    <button className="btn btn-primary mt-3" onClick={() => setShowPaymentModal(true)}>
-                        {ScriptResources.AddPayment}
-                    </button>
+                    {order?.order.status === OrderStatusEnum.Closed && (
+                        <button className="btn btn-primary mt-3" onClick={() => setShowPaymentModal(true)}>
+                            {ScriptResources.AddPayment}
+                        </button>
+                    )}
 
                 </div>
             )}
@@ -401,7 +404,7 @@ const OrderDetail: React.FC = () => {
                                     value={paymentValue}
                                     onChange={(e) => {
                                         let value = e.target.value;
-                                        if (/^\d*\.?\d{0,2}$/.test(value)) {
+                                        if (/^\d*\.?\d{0,2}$/.test(value)) { // limit to 2 decimal places
                                             setPaymentValue(parseFloat(value));
                                         }
                                     }}

@@ -17,6 +17,8 @@ public class PaymentModel
 
     public int GiftCardId { get; set; }
 
+    public string GiftCardCode { get; set; }
+
 
     public void MapUpdate(Payment existingPayment)
     {
