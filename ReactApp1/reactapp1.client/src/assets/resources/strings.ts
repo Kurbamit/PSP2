@@ -96,6 +96,16 @@ const ScriptResources = {
     Eur: 'EUR',
     Count: 'Count:',
     SelectCount: 'Select count',
+    AddPayment: 'Add payment',
+    PaymentMethod: 'Payment method',
+    Cash: 'Cash',
+    GiftCard: 'Giftcard',
+    Card: 'Card',
+    Amount: 'Amount',
+    Payments: 'Payments',
+    NoPayments: 'No payments',
+    Pay: 'Pay',
+
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {

@@ -227,7 +227,7 @@ namespace ReactApp1.Server.Services
         }
         public async Task CancelOrder(int orderId)
         {
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(orderId, "CloseOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(orderId, "CancelOrder");
             if (existingOrderWithOpenStatus == null)
                 return;
 
