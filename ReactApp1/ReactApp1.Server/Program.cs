@@ -94,6 +94,7 @@ builder.Services.AddScoped<ISharedSearchesRepository, SharedSearchesRepository>(
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IFullOrderRepository, FullOrderRepository>();
 builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 // Register Services
 builder.Services.AddScoped<IItemService, ItemService>();
@@ -103,6 +104,7 @@ builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
 builder.Services.AddScoped<ISharedSearchesService, SharedSearchesService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IGiftCardService, GiftCardService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 
 var app = builder.Build();

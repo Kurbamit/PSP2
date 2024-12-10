@@ -15,19 +15,22 @@ namespace ReactApp1.Server.Services
         private readonly IItemRepository _itemRepository;
         private readonly IFullOrderRepository _fullOrderRepository;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IPaymentRepository _paymentRepository;
         private readonly ILogger<OrderService> _logger;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, 
-            IFullOrderRepository fullOrderRepository, IEmployeeRepository employeeRepository, ILogger<OrderService> logger)
+            IFullOrderRepository fullOrderRepository, IEmployeeRepository employeeRepository, ILogger<OrderService> logger,
+            IPaymentRepository paymentRepository)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
             _fullOrderRepository = fullOrderRepository;
             _employeeRepository = employeeRepository;
+            _paymentRepository = paymentRepository;
             _logger = logger;
         }
         
-        public async Task<OrderItems> OpenOrder(int? createdByEmployeeId)
+        public async Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId)
         {
             if (!createdByEmployeeId.HasValue)
             {
@@ -37,7 +40,7 @@ namespace ReactApp1.Server.Services
             
             var emptyOrder = await _orderRepository.AddEmptyOrderAsync(createdByEmployeeId.Value);
 
-            return new OrderItems(emptyOrder, null);
+            return new OrderItemsPayments(emptyOrder, null, null);
         }
         
         public async Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize)
@@ -53,13 +56,13 @@ namespace ReactApp1.Server.Services
             return orders;
         }
 
-        public async Task<OrderItems> GetOrderById(int orderId)
+        public async Task<OrderItemsPayments> GetOrderById(int orderId)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
             {
                 _logger.LogInformation($"Order with id: {orderId} not found");
-                return new OrderItems(null, null);
+                return new OrderItemsPayments(null, null, null);
             }
             
             var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
@@ -69,8 +72,10 @@ namespace ReactApp1.Server.Services
             var orderItems = await GetOrderItems(orderId);
 
             var orderWithTotalPrice = CalculateTotalPriceForOrder(order, orderItems);
+
+            var orderPayments = await GetOrderPayments(orderId);
             
-            return new OrderItems(orderWithTotalPrice, orderItems);
+            return new OrderItemsPayments(orderWithTotalPrice, orderItems, orderPayments);
         }
         
         private async Task<List<ItemModel>> GetOrderItems(int orderId)
@@ -90,6 +95,11 @@ namespace ReactApp1.Server.Services
             }
 
             return orderItems;
+        }
+        private async Task<List<PaymentModel>> GetOrderPayments(int orderId)
+        {
+        
+            return null;
         }
 
         private OrderModel CalculateTotalPriceForOrder(OrderModel order, List<ItemModel> orderItems)

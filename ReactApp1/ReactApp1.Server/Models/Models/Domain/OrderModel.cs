@@ -46,14 +46,16 @@ public class OrderModel
     }
 }
 
-public class OrderItems
+public class OrderItemsPayments
 {
     public OrderModel Order { get; set; }
     public List<ItemModel> Items { get; set; }
+    public List<PaymentModel> Payments { get; set; }
 
-    public OrderItems(OrderModel? order, List<ItemModel>? items)
+    public OrderItemsPayments(OrderModel? order, List<ItemModel>? items, List<PaymentModel> payments)
     {
         Order = order ?? new OrderModel();
         Items = items ?? new List<ItemModel>();
+        Payments = payments ?? new List<PaymentModel>();
     }
 }
