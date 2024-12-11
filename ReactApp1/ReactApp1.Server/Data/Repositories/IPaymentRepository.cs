@@ -1,6 +1,7 @@
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
+using Stripe;
 
 namespace ReactApp1.Server.Data.Repositories
 {
@@ -13,5 +14,7 @@ namespace ReactApp1.Server.Data.Repositories
         Task AddPaymentAsync(PaymentModel payment);
         Task UpdatePaymentAsync(PaymentModel payment);
         Task DeletePaymentAsync(int paymentId);
+        Task<PaymentIntent> CreatePaymentIntentAsync(decimal amount, string currency);
+
     }
 }

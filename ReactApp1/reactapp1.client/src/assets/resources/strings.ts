@@ -114,6 +114,7 @@ const ScriptResources = {
     PaymentCash: 'Cash',
     PaymentGiftcard: 'Giftcard',
     PaymentCard: 'Card',
+    Currency: 'eur',
 
 };
 

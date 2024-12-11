@@ -8,7 +8,9 @@ import { getOrderStatusString, getYesNoString, getPaymentTypeString } from "../.
 import SelectDropdown from "../../Base/SelectDropdown.tsx";
 import {OrderStatusEnum} from "../../../assets/Models/FrontendModels.ts";
 import { Form } from 'react-bootstrap';
-
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import StripePayment from "../../Base/Stripe.tsx"; 
 interface Item {
     itemId: number;
     name: string;
@@ -50,6 +52,7 @@ const OrderDetail: React.FC = () => {
     const [paymentValue, setPaymentValue] = useState<number>(0);
     const [paymentType, setPaymentType] = useState<PaymentMethodEnum>(PaymentMethodEnum.Cash);
     const [giftCardCode, setGiftCardCode] = useState<string>('');
+    const stripePromise = loadStripe('pk_test_51QUk2yJ37W5f2NTslpQJKoAg1uGzZWe7oJfoWAJqJW6APPYsOudx08XfcFBI9dbRXdmPPE1RvbUZo4eT5LQ12bLd00lNgxiIsW');
 
     const fetchItem = async () => {
         try {
@@ -130,7 +133,6 @@ const OrderDetail: React.FC = () => {
             }
         }
     }
-
     const handlePaymentTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setPaymentType(Number(e.target.value) as PaymentMethodEnum);
     };
@@ -148,11 +150,11 @@ const OrderDetail: React.FC = () => {
                     },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
- 
+
                 setShowPaymentModal(false);
                 setPaymentType(PaymentMethodEnum.Cash);
                 setPaymentValue(0);
-                fetchItem(); 
+                fetchItem();
             } catch (error) {
                 console.error(ScriptResources.ErrorPayment, error);
                 alert(error.response?.data?.error || "An error occurred during payment.");
@@ -365,69 +367,81 @@ const OrderDetail: React.FC = () => {
 
                 </div>
             )}
-
             {showPaymentModal && (
-            <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">{ScriptResources.AddPayment}</h5>
-                            <button className="btn-close" onClick={() => setShowPaymentModal(false)}></button>
-                        </div>
-                        <div>
+                <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">{ScriptResources.AddPayment}</h5>
+                                <button className="btn-close" onClick={() => setShowPaymentModal(false)}></button>
+                            </div>
+                            <div>
                                 <p><strong>{ScriptResources.TotalPaid}</strong> {order.order.totalPaid} {ScriptResources.Eur}</p>
                                 <p><strong>{ScriptResources.TotalLeftToPay}</strong> {order.order.leftToPay} {ScriptResources.Eur}</p>
-                        </div>
-                        <div className="modal-body">
-                            <Form.Group className="mb-3" controlId="payment-method">
+                            </div>
+                            <div className="modal-body">
+                                <Form.Group className="mb-3" controlId="payment-method">
                                     <Form.Label>{ScriptResources.PaymentType}</Form.Label>
                                     <Form.Select value={paymentType} onChange={handlePaymentTypeChange}>
                                         <option value={PaymentMethodEnum.Cash}>{ScriptResources.Cash}</option>
                                         <option value={PaymentMethodEnum.GiftCard}>{ScriptResources.GiftCard}</option>
                                         <option value={PaymentMethodEnum.Card}>{ScriptResources.Card}</option>
                                     </Form.Select>
-                             </Form.Group>
-                            {paymentType === PaymentMethodEnum.GiftCard && (
-                                <Form.Group className="mb-3" controlId="giftcard-code">
-                                    <Form.Label>{ScriptResources.GiftCardCode}</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={giftCardCode}
-                                        onChange={(e) => setGiftCardCode(e.target.value)}
-                                    />
                                 </Form.Group>
+                                {paymentType === PaymentMethodEnum.GiftCard && (
+                                    <Form.Group className="mb-3" controlId="giftcard-code">
+                                        <Form.Label>{ScriptResources.GiftCardCode}</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={giftCardCode}
+                                            onChange={(e) => setGiftCardCode(e.target.value)}
+                                        />
+                                    </Form.Group>
+                                )}
+                                {paymentType == PaymentMethodEnum.Card && (
+                                    <Elements stripe={stripePromise}>
+                                        <StripePayment
+                                            order={order.order}
+                                            token={token}
+                                            paymentValue={paymentValue}
+                                            setPaymentValue={setPaymentValue}
+                                            handlePayPayment={handlePayPayment} />
+                                    </Elements>
+                                )}
+                                {paymentType != PaymentMethodEnum.Card && (
+                                    <Form.Group className="mb-3" controlId="payment-amount">
+                                        <Form.Label>{ScriptResources.Amount}</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            value={paymentValue}
+                                            onChange={(e) => {
+                                                let value = e.target.value;
+                                                if (/^\d*\.?\d{0,2}$/.test(value)) { // limit to 2 decimal places
+                                                    setPaymentValue(parseFloat(value));
+                                                }
+                                            }}
+                                            min="0"
+                                        />
+                                    </Form.Group>
+                                )}
+                            </div>
+                            {paymentType != PaymentMethodEnum.Card && (
+                                 <div className="modal-footer">
+                                    <button className="btn btn-secondary" onClick={() => setShowPaymentModal(false)}>
+                                        {ScriptResources.Cancel}
+                                    </button>
+                                    <button className="btn btn-primary"
+                                        onClick={handlePayPayment}
+                                        disabled={paymentValue > order.order.leftToPay || paymentValue <= 0}
+                                    >
+                                        {ScriptResources.Pay}
+                                    </button>
+                                </div>
                             )}
-                            <Form.Group className="mb-3" controlId="payment-amount">
-                                <Form.Label>{ScriptResources.Amount}</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    value={paymentValue}
-                                    onChange={(e) => {
-                                        let value = e.target.value;
-                                        if (/^\d*\.?\d{0,2}$/.test(value)) { // limit to 2 decimal places
-                                            setPaymentValue(parseFloat(value));
-                                        }
-                                    }}
-                                    min="0"
-                                />
-                            </Form.Group>
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn btn-secondary" onClick={() => setShowPaymentModal(false)}>
-                                {ScriptResources.Cancel}
-                            </button>
-                                <button className="btn btn-primary"
-                                    onClick={handlePayPayment}
-                                    disabled={paymentValue > order.order.leftToPay || paymentValue <= 0}
-                                >
-                                {ScriptResources.Pay}
-                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
             )}
-
         </div>
     );
 };

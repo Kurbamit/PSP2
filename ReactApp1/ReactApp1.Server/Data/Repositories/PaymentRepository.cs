@@ -4,6 +4,7 @@ using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
+using Stripe;
 
 namespace ReactApp1.Server.Data.Repositories
 {
@@ -128,5 +129,25 @@ namespace ReactApp1.Server.Data.Repositories
                 throw new Exception($"An error occurred while deleting the payment {paymentId} from the database.", e);
             }
         }
+        public async Task<PaymentIntent> CreatePaymentIntentAsync(decimal amount, string currency)
+        {
+            StripeConfiguration.ApiKey = "sk_test_51QUk2yJ37W5f2NTsZ7NhBFoswfTBo6Bw39BjvxByuY4VopIvVoDenzgFjYptV96a4OiSETcbGJX0g6NkJilU8n4c003P1SMJyP";
+            
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = (long) (amount * 100), // convert to cents
+                Currency = currency,
+                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                {
+                    Enabled = true,
+                },
+            };
+
+            var service = new PaymentIntentService();
+            var paymentIntent = await service.CreateAsync(options);
+
+            return paymentIntent;
+        }
+
     }
 }

@@ -2,6 +2,7 @@ using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
+using Stripe;
 
 namespace ReactApp1.Server.Services
 {
@@ -41,6 +42,10 @@ namespace ReactApp1.Server.Services
         public Task DeletePayment(int paymentId)
         {
             return _paymentRepository.DeletePaymentAsync(paymentId);
+        }
+        public Task<PaymentIntent> CreatePaymentIntent(decimal amount, string currency)
+        {
+            return _paymentRepository.CreatePaymentIntentAsync(amount, currency);
         }
     }
 }

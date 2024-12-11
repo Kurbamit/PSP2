@@ -293,17 +293,15 @@ namespace ReactApp1.Server.Services
             if (existingOrderWithClosedStatus == null)
                 return;
 
-            _logger.LogError($"{payment.Type} {payment.GiftCardCode}");
-
             if (payment.Type == (int)PaymentTypeEnum.GiftCard)
             {
                 GiftCardModel? giftcard = await _giftcardRepository.GetGiftCardByCodeAsync(payment.GiftCardCode);
-                if(giftcard == null)
+                if (giftcard == null || giftcard.ExpirationDate < DateTime.Now)
                 {
                     throw new InvalidOperationException("Gift card code is invalid or expired.");
                 }
 
-                if(giftcard.Amount < payment.Value)
+                if (giftcard.Amount < payment.Value)
                 {
                     throw new InvalidOperationException("Not enough funds.");
                 }
@@ -314,9 +312,9 @@ namespace ReactApp1.Server.Services
                 await _giftcardRepository.UpdateGiftCardAsync(giftcard);
 
             } 
-            else if(payment.Type == (int)PaymentTypeEnum.Card)
+            else if (payment.Type == (int)PaymentTypeEnum.Card)
             {
-                // TODO stripe
+                // TODO save payment id
             }
 
             if (existingOrderWithClosedStatus.LeftToPay == payment.Value)
