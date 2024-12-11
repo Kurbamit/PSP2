@@ -18,7 +18,7 @@ namespace ReactApp1.Server.Services
         {
             if (!establishmentId.HasValue)
             {
-                _logger.LogError("Failed to open order: invalid or expired access token");
+                _logger.LogError("Failed to fetch all items: invalid or expired access token");
                 throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
             }
 
