@@ -6,7 +6,7 @@ public interface IReservationService
 {
     Task<PaginatedResult<Reservation>> GetAllReservations(int pageSize, int pageNumber);
     Task<ReservationModel?> GetReservationById(int reservationId);
-    Task CreateNewReservation(Reservation reservation);
+    Task<Reservation> CreateNewReservation(ReservationModel reservation, int? createdByEmployeeId);
     Task UpdateReservation(ReservationModel reservation);
     Task DeleteReservation(int reservationId);
 }

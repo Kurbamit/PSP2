@@ -15,6 +15,7 @@ import SelectDropdown from "./components/Base/SelectDropdown.tsx";
 import Orders from "./components/Domain/Order/Orders.tsx";
 import OrderDetail from "./components/Domain/Order/OrderDetail.tsx";
 import Reservations from './components/Domain/Reservation/Reservations.tsx';
+import ReservationDetail from './components/Domain/Reservation/ReservationDetail.tsx';
 
 interface Forecast {
     date: string;
@@ -97,6 +98,8 @@ function App() {
                     <Route path="/orders" element={<Orders />} />
                     <Route path="/orders/:id" element={<OrderDetail />} />
                     <Route path="/reservations" element={<Reservations />} />
+                    <Route path="/reservations/new" element={<ReservationDetail /> } />
+                    <Route path="/reservations/:id" element={<ReservationDetail /> } />
                     <Route path="/items" element={<Items />} />
                     <Route path="/items/new" element={<ItemDetail />} />
                     <Route path="/items/:id" element={<ItemDetail />} />

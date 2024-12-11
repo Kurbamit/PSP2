@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
+using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -50,12 +51,23 @@ namespace ReactApp1.Server.Data.Repositories
             return reservation;
         }
 
-        public async Task AddReservationAsync(Reservation reservation)
+        public async Task<Reservation> AddReservationAsync(ReservationModel reservation)
         {
             try
             {
-                await _context.Set<Reservation>().AddAsync(reservation);
+                var newReservation = new Reservation
+                {
+                    ReceiveTime = reservation.ReceiveTime,
+                    StartTime = reservation.StartTime,
+                    EndTime = reservation.EndTime,
+                    CreatedByEmployeeId = reservation.CreatedByEmployeeId,
+                    CustomerPhoneNumber = reservation.CustomerPhoneNumber
+                };
+
+                var reservationEntity = await _context.Reservations.AddAsync(newReservation);
                 await _context.SaveChangesAsync();
+
+                return reservationEntity.Entity;
             }
             catch (DbUpdateException e)
             {

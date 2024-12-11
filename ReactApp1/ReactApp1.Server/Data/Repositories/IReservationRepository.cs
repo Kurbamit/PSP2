@@ -7,7 +7,7 @@ namespace ReactApp1.Server.Data.Repositories
     {
         Task<PaginatedResult<Reservation>> GetAllReservationsAsync(int pageNumber, int pageSize);
         Task<ReservationModel?> GetReservationByIdAsync(int reservationId);
-        Task AddReservationAsync(Reservation reservation);
+        Task<Reservation> AddReservationAsync(ReservationModel reservation);
         Task UpdateReservationAsync(ReservationModel reservation);
         Task DeleteReservationAsync(int reservationId);
     }

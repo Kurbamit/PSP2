@@ -15,6 +15,7 @@ interface Reservation {
     createdByEmployeeId: number;
     customerPhoneNumber: string;
     establishmentId?: number;
+    createdByEmployeeName?: string;
 }
 
 const Reservations: React.FC = () => {
@@ -34,7 +35,7 @@ const Reservations: React.FC = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                const reservationsWithEstablishmentId = await Promise.all(
+                const reservationsWithEmployeeNames = await Promise.all(
                     response.data.items.map(async (reservation: Reservation) => {
                         try {
                             const employeeResponse = await axios.get(
@@ -42,15 +43,16 @@ const Reservations: React.FC = () => {
                                 { headers: { Authorization: `Bearer ${token}` } }
                             );
                             const employee = employeeResponse.data;
-                            return { ...reservation, establishmentId: employee.establishmentId };
+                            const employeeName = `${employee.firstName} ${employee.lastName}`;
+                            return { ...reservation, createdByEmployeeName: employeeName, establishmentId: employee.establishmentId };
                         } catch (employeeError) {
                             console.error(ScriptResources.ErrorFetchingEmployeeDetailsForReservation, reservation.reservationId, employeeError);
-                            return { ...reservation, establishmentId: null };
+                            return { ...reservation, createdByEmployeeName: ScriptResources.UnknownEmployee, establishmentId: null };
                         }
                     })
                 );
 
-                setReservations(reservationsWithEstablishmentId);
+                setReservations(reservationsWithEmployeeNames);
                 setTotalPages(response.data.totalPages);
                 setTotalItems(response.data.totalItems);
             } catch (error) {
@@ -99,7 +101,7 @@ const Reservations: React.FC = () => {
                         <th>{ScriptResources.ReceiveTime}</th>
                         <th>{ScriptResources.StartTime}</th>
                         <th>{ScriptResources.EndTime}</th>
-                        <th>{ScriptResources.CreatedByEmployeeId}</th>
+                        <th>{ScriptResources.CreatedByEmployee}</th>
                         <th>{ScriptResources.CustomerPhoneNumber}</th>
                         <th>{ScriptResources.EstablishmentId}</th>
                         <th>{ScriptResources.Actions}</th>
@@ -112,7 +114,7 @@ const Reservations: React.FC = () => {
                             <td>{reservation.receiveTime}</td>
                             <td>{reservation.startTime || ScriptResources.NotAvailable}</td>
                             <td>{reservation.endTime || ScriptResources.NotAvailable}</td>
-                            <td>{reservation.createdByEmployeeId}</td>
+                            <td>{reservation.createdByEmployeeName || ScriptResources.UnknownEmployee}</td>
                             <td>{reservation.customerPhoneNumber || ScriptResources.NotAvailable}</td>
                             <td>{reservation.establishmentId || ScriptResources.NotAvailable}</td>
                             <td style={{ display: 'flex', justifyContent: 'space-around' }}>

@@ -7,10 +7,12 @@ namespace ReactApp1.Server.Services
     public class ReservationService : IReservationService
     {
         private readonly IReservationRepository _reservationRepository;
+        private readonly ILogger<OrderService> _logger;
 
-        public ReservationService(IReservationRepository reservationRepository)
+        public ReservationService(IReservationRepository reservationRepository, ILogger<OrderService> logger)
         {
             _reservationRepository = reservationRepository;
+            _logger = logger;
         }
 
         public Task<PaginatedResult<Reservation>> GetAllReservations(int pageSize, int pageNumber)
@@ -23,8 +25,16 @@ namespace ReactApp1.Server.Services
             return _reservationRepository.GetReservationByIdAsync(reservationId);
         }
 
-        public Task CreateNewReservation(Reservation reservation)
+        public Task<Reservation> CreateNewReservation(ReservationModel reservation, int? createdByEmployeeId)
         {
+            if (!createdByEmployeeId.HasValue)
+            {
+                _logger.LogError("Failed to open order: invalid or expired access token");
+                throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
+            }
+
+            reservation.CreatedByEmployeeId = createdByEmployeeId.Value;
+
             return _reservationRepository.AddReservationAsync(reservation);
         }
 
