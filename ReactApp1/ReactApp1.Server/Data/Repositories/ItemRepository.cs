@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Exceptions;
+using ReactApp1.Server.Exceptions.ItemExceptions;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Base;
@@ -154,6 +155,14 @@ namespace ReactApp1.Server.Data.Repositories
         {
             try
             {
+                var isItemInUse = await _context.FullOrders
+                    .AnyAsync(f => f.ItemId == itemId);
+
+                if (isItemInUse)
+                {
+                    throw new ItemInUseException(itemId);
+                }
+                
                 _context.Set<Item>().Remove(new Item
                 {
                     ItemId = itemId 

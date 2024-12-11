@@ -190,7 +190,6 @@ const ItemDetail: React.FC = () => {
             handleBackToList();
         } catch (error) {
             console.error(ScriptResources.ErrorDeletingItem, error);
-            alert(ScriptResources.ErrorDeletingItem);
         }
     };
 
