@@ -107,6 +107,11 @@ namespace ReactApp1.Server.Data.Repositories
             
             if(existingOrder == null)
                 throw new OrderNotFoundException(order.OrderId);
+
+            if (existingOrder.Status != (int)OrderStatusEnum.Open)
+            {
+                throw new OrderStatusConflictException(existingOrder.Status.ToString());
+            }
             
             UpdateExistingOrderFields();
             
