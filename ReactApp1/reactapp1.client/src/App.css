@@ -17,3 +17,21 @@ th, td {
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
+/* GlobalAlert.css */
+.alert {
+    position: fixed;
+    top: 0;                  /* Position the alert at the top */
+    left: 0;                 /* Align it to the left */
+    right: 0;                /* Align it to the right */
+    margin: 0;               /* Remove any margins */
+    z-index: 9999;           /* Ensure it's above other content */
+    width: 100%;             /* Make it span the full width */
+    padding: 10px;           /* Add some padding */
+    opacity: 1;              /* Ensure it's fully visible */
+    transition: opacity 0.3s ease; /* Optional: smooth transition for showing/hiding */
+}
+
+.alert.show {
+    opacity: 1;
+}
