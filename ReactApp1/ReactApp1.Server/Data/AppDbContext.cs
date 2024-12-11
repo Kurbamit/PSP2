@@ -97,6 +97,14 @@ public class AppDbContext : DbContext
                 .WithOne(e => e.Establishment)
                 .HasForeignKey(e => e.EstablishmentId)
                 .IsRequired();
+
+            entity.HasMany(e => e.Items)
+                .WithOne(e => e.Establishment)
+                .HasForeignKey(e => e.EstablishmentId);
+
+            entity.HasMany(e => e.Orders)
+                .WithOne(e => e.Establishment)
+                .HasForeignKey(e => e.EstablishmentId);
             
             entity.Property(e => e.ReceiveTime)
                 .IsRequired()
@@ -134,6 +142,10 @@ public class AppDbContext : DbContext
             entity.HasMany(e => e.Orders) // One Employee has many Orders
                 .WithOne(o => o.CreatedByEmployee) // Each Order has one Employee
                 .HasForeignKey(o => o.CreatedByEmployeeId);
+
+            entity.HasMany(e => e.Items)
+                .WithOne(i => i.CreatedByEmployee)
+                .HasForeignKey(i => i.CreatedByEmployeeId);
         });
         
         modelBuilder.Entity<EmployeeAddress>(entity =>

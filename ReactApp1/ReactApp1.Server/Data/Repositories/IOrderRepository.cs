@@ -5,7 +5,7 @@ namespace ReactApp1.Server.Data.Repositories;
 
 public interface IOrderRepository
 {
-    Task<OrderModel> AddEmptyOrderAsync(int createdByEmployeeId);
+    Task<OrderModel> AddEmptyOrderAsync(int createdByEmployeeId, int establishmentId);
     Task<PaginatedResult<OrderModel>> GetAllOrdersAsync(int pageNumber, int pageSize);
     Task<OrderModel?> GetOrderByIdAsync(int orderId);
     Task UpdateOrderAsync(OrderModel order);

@@ -36,7 +36,8 @@ namespace ReactApp1.Server.Controllers.Domain
         public async Task<IActionResult> OpenOrder()
         {
             var userId = User.GetUserId();
-            var emptyOrder = await _orderService.OpenOrder(userId);
+            var establishmentId = User.GetUserEstablishmentId();
+            var emptyOrder = await _orderService.OpenOrder(userId, establishmentId);
             
             return Ok(emptyOrder);
         }

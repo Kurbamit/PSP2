@@ -20,7 +20,7 @@ namespace ReactApp1.Server.Data.Repositories
             _logger = logger;
         }
 
-        public async Task<OrderModel> AddEmptyOrderAsync(int createdByEmployeeId)
+        public async Task<OrderModel> AddEmptyOrderAsync(int createdByEmployeeId, int establishmentId)
         {
             try
             {
@@ -33,7 +33,8 @@ namespace ReactApp1.Server.Data.Repositories
                     DiscountFixed = null,
                     PaymentId = null,
                     Refunded = false,
-                    ReservationId = null
+                    ReservationId = null,
+                    EstablishmentId = establishmentId
                 };
 
                 var orderEntity = await _context.Orders.AddAsync(emptyOrder);
