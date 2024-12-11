@@ -33,7 +33,7 @@ namespace ReactApp1.Server.Services
             _logger = logger;
         }
         
-        public async Task<OrderItems> OpenOrder(int? createdByEmployeeId, int? establishmentId)
+        public async Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId, int? establishmentId)
         {
             if (!createdByEmployeeId.HasValue || !establishmentId.HasValue)
             {

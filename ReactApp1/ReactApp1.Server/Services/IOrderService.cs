@@ -5,7 +5,7 @@ namespace ReactApp1.Server.Services;
 
 public interface IOrderService
 {
-    Task<OrderItems> OpenOrder(int? createdByEmployeeId, int? establishmentId);
+    Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId, int? establishmentId);
     Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize);
     Task<OrderItemsPayments> GetOrderById(int orderId);
     Task AddItemToOrder(FullOrderModel fullOrder);

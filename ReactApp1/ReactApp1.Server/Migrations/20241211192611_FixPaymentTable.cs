@@ -5,7 +5,7 @@
 namespace ReactApp1.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class RenamePaymentTableFromTableToPayment : Migration
+    public partial class FixPaymentTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,6 +22,14 @@ namespace ReactApp1.Server.Migrations
                 name: "PK_Table",
                 table: "Table");
 
+            migrationBuilder.DropColumn(
+                name: "TipFixed",
+                table: "Table");
+
+            migrationBuilder.DropColumn(
+                name: "TipPercentage",
+                table: "Table");
+
             migrationBuilder.RenameTable(
                 name: "Table",
                 newName: "Payment");
@@ -31,10 +39,35 @@ namespace ReactApp1.Server.Migrations
                 table: "Payment",
                 newName: "IX_Payment_OrderId");
 
+            migrationBuilder.AddColumn<decimal>(
+                name: "TipFixed",
+                table: "Order",
+                type: "numeric",
+                nullable: true);
+
+            migrationBuilder.AddColumn<int>(
+                name: "TipPercentage",
+                table: "Order",
+                type: "integer",
+                nullable: true);
+
+            migrationBuilder.AddColumn<decimal>(
+                name: "Amount",
+                table: "Payment",
+                type: "numeric",
+                nullable: false,
+                defaultValue: 0m);
+
             migrationBuilder.AddPrimaryKey(
                 name: "PK_Payment",
                 table: "Payment",
                 column: "PaymentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_GiftCard_Code",
+                table: "GiftCard",
+                column: "Code",
+                unique: true);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_GiftCard_Payment_PaymentId",
@@ -63,8 +96,24 @@ namespace ReactApp1.Server.Migrations
                 name: "FK_Payment_Order_OrderId",
                 table: "Payment");
 
+            migrationBuilder.DropIndex(
+                name: "IX_GiftCard_Code",
+                table: "GiftCard");
+
             migrationBuilder.DropPrimaryKey(
                 name: "PK_Payment",
+                table: "Payment");
+
+            migrationBuilder.DropColumn(
+                name: "TipFixed",
+                table: "Order");
+
+            migrationBuilder.DropColumn(
+                name: "TipPercentage",
+                table: "Order");
+
+            migrationBuilder.DropColumn(
+                name: "Amount",
                 table: "Payment");
 
             migrationBuilder.RenameTable(
@@ -75,6 +124,18 @@ namespace ReactApp1.Server.Migrations
                 name: "IX_Payment_OrderId",
                 table: "Table",
                 newName: "IX_Table_OrderId");
+
+            migrationBuilder.AddColumn<decimal>(
+                name: "TipFixed",
+                table: "Table",
+                type: "numeric",
+                nullable: true);
+
+            migrationBuilder.AddColumn<int>(
+                name: "TipPercentage",
+                table: "Table",
+                type: "integer",
+                nullable: true);
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_Table",

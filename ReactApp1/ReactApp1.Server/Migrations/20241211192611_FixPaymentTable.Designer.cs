@@ -12,8 +12,8 @@ using ReactApp1.Server.Data;
 namespace ReactApp1.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241210140742_MoveTipFromPaymentToOrder")]
-    partial class MoveTipFromPaymentToOrder
+    [Migration("20241211192611_FixPaymentTable")]
+    partial class FixPaymentTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -297,6 +297,9 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasKey("GiftCardId");
 
+                    b.HasIndex("Code")
+                        .IsUnique();
+
                     b.HasIndex("PaymentId");
 
                     b.ToTable("GiftCard");
@@ -319,6 +322,14 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("Cost");
 
+                    b.Property<int?>("CreatedByEmployeeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedByEmployeeId");
+
+                    b.Property<int?>("EstablishmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("EstablishmentId");
+
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
@@ -335,6 +346,10 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("Tax");
 
                     b.HasKey("ItemId");
+
+                    b.HasIndex("CreatedByEmployeeId");
+
+                    b.HasIndex("EstablishmentId");
 
                     b.ToTable("Item");
                 });
@@ -359,6 +374,10 @@ namespace ReactApp1.Server.Migrations
                     b.Property<int?>("DiscountPercentage")
                         .HasColumnType("integer")
                         .HasColumnName("DiscountPercentage");
+
+                    b.Property<int?>("EstablishmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("EstablishmentId");
 
                     b.Property<int?>("PaymentId")
                         .HasColumnType("integer")
@@ -394,6 +413,8 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("CreatedByEmployeeId");
 
+                    b.HasIndex("EstablishmentId");
+
                     b.HasIndex("ReservationId")
                         .IsUnique();
 
@@ -423,23 +444,19 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("ReceiveTime")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<decimal?>("TipFixed")
-                        .HasColumnType("numeric")
-                        .HasColumnName("TipFixed");
-
-                    b.Property<int?>("TipPercentage")
-                        .HasColumnType("integer")
-                        .HasColumnName("TipPercentage");
-
                     b.Property<int>("Type")
                         .HasColumnType("integer")
                         .HasColumnName("Type");
+
+                    b.Property<decimal>("Value")
+                        .HasColumnType("numeric")
+                        .HasColumnName("Amount");
 
                     b.HasKey("PaymentId");
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Table");
+                    b.ToTable("Payment");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Reservation", b =>
@@ -610,6 +627,21 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("Payment");
                 });
 
+            modelBuilder.Entity("ReactApp1.Server.Models.Item", b =>
+                {
+                    b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
+                        .WithMany("Items")
+                        .HasForeignKey("CreatedByEmployeeId");
+
+                    b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
+                        .WithMany("Items")
+                        .HasForeignKey("EstablishmentId");
+
+                    b.Navigation("CreatedByEmployee");
+
+                    b.Navigation("Establishment");
+                });
+
             modelBuilder.Entity("ReactApp1.Server.Models.Order", b =>
                 {
                     b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
@@ -618,11 +650,17 @@ namespace ReactApp1.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
+                        .WithMany("Orders")
+                        .HasForeignKey("EstablishmentId");
+
                     b.HasOne("ReactApp1.Server.Models.Reservation", "Reservation")
                         .WithOne("Order")
                         .HasForeignKey("ReactApp1.Server.Models.Order", "ReservationId");
 
                     b.Navigation("CreatedByEmployee");
+
+                    b.Navigation("Establishment");
 
                     b.Navigation("Reservation");
                 });
@@ -662,6 +700,8 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("EmployeeAddress")
                         .IsRequired();
 
+                    b.Navigation("Items");
+
                     b.Navigation("Orders");
                 });
 
@@ -670,6 +710,10 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("Employees");
 
                     b.Navigation("EstablishmentAddress");
+
+                    b.Navigation("Items");
+
+                    b.Navigation("Orders");
 
                     b.Navigation("Storages");
                 });
