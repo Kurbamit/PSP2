@@ -10,10 +10,10 @@ namespace ReactApp1.Server.Services
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly PaymentIntentService _paymentIntentService;
-        public PaymentService(IPaymentRepository giftCardRepository)
+        public PaymentService(IPaymentRepository giftCardRepository, PaymentIntentService paymentIntentService)
         {
             _paymentRepository = giftCardRepository;
-            _paymentIntentService = new PaymentIntentService();
+            _paymentIntentService = paymentIntentService;
         }
 
         public Task<PaginatedResult<Payment>> GetAllPayments(int pageSize, int pageNumber)

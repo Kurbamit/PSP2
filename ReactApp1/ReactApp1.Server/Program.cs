@@ -108,7 +108,7 @@ builder.Services.AddScoped<ISharedSearchesService, SharedSearchesService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IGiftCardService, GiftCardService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
-
+builder.Services.AddScoped<PaymentIntentService>();
 
 var app = builder.Build();
 
