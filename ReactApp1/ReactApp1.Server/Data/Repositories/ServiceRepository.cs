@@ -63,7 +63,7 @@ namespace ReactApp1.Server.Data.Repositories
                     EstablishmentId = service.EstablishmentId,
                     ServiceLength = service.ServiceLength,
                     Cost = service.Cost,
-                    Tax = service.Cost,
+                    Tax = service.Tax,
                     ReceiveTime = service.ReceiveTime
                 };
 

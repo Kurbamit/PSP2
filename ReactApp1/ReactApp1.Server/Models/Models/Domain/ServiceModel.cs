@@ -42,6 +42,7 @@ namespace ReactApp1.Server.Models.Models.Domain
 
         public void MapUpdate(Service existingModel)
         {
+            existingModel.Name = Name;
             existingModel.EstablishmentId = this.EstablishmentId;
             existingModel.ServiceLength = this.ServiceLength;
             existingModel.Cost = this.Cost;
