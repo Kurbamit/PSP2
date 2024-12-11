@@ -52,8 +52,8 @@ namespace ReactApp1.Server.Controllers
         [HttpPost("services")]
         public async Task<IActionResult> CreateService([FromBody] ServiceModel service)
         {
-            var userId = User.GetUserId();
-            var newService = await _serviceService.CreateNewService(service, userId);
+            var establishmentId = User.GetUserEstablishmentId();
+            var newService = await _serviceService.CreateNewService(service, establishmentId);
 
             return Ok(newService);
         }

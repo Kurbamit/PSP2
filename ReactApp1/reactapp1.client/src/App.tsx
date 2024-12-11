@@ -17,6 +17,7 @@ import OrderDetail from "./components/Domain/Order/OrderDetail.tsx";
 import { ErrorProvider } from "./components/Base/ErrorContext.tsx";
 import useAxiosInterceptors from "./assets/Utils/axiosInterceptor.ts";
 import GlobalAlert from "./components/Base/GlobalAlert.tsx";
+import Services from './components/Domain/Service/Services.tsx';
 
 interface Forecast {
     date: string;
@@ -139,6 +140,7 @@ function InnerApp({
                     <Route path="/orders/:id" element={<OrderDetail />} />
                     <Route path="/items" element={<Items />} />
                     <Route path="/items/new" element={<ItemDetail />} />
+                    <Route path="/services" element={<Services /> } />
                     <Route path="/items/:id" element={<ItemDetail />} />
                     <Route path="/register" element={<Register onRegister={handleLogin} />} />
                     <Route path="/employees" element={<Employees />} />
