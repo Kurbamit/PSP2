@@ -30,7 +30,13 @@ public class Order
     
     [Column("DiscountFixed")]
     public decimal? DiscountFixed { get; set; }
-    
+
+    [Column("TipPercentage")]
+    public int? TipPercentage { get; set; }
+
+    [Column("TipFixed")]
+    public decimal? TipFixed { get; set; }
+
     [Column("PaymentId")]
     public int? PaymentId { get; set; }
     

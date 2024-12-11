@@ -23,11 +23,12 @@ Requirements:
 2. Open reactapp1.client folder
 3. Run ```npm install```
    1. There could be a problem running `npm install`. Then try running `npm install --legacy-peer-deps`.
-4. Create postgreSql database with these parameters:
+4. Run ```npm install @stripe/react-stripe-js @stripe/stripe-js```
+5. Create postgreSql database with these parameters:
    1. name: ```postgres```
    2. password: ```1234```
    3. port: ```5432```
-5. Run ```dotnet ef database update```
+6. Run ```dotnet ef database update```
 
 ### HTTPS Certificate problem
 There could be HTTPS problem starting reactapp1.client
@@ -41,6 +42,9 @@ Run following commands:
 There is a `.sql` script for adding dummy data.
 The database should be empty for it to work properly.
 Run the `DummyData.sql` file in your database.
+Before running the script make sure to reset your database
+```dotnet ef database drop --force```
+```dotnet ef database update```
 Login with admin:
 - Email: `john.krasinski@gmail.com`
 - Password: `123`

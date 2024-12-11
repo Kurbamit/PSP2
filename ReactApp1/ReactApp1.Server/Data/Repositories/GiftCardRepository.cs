@@ -46,11 +46,25 @@ namespace ReactApp1.Server.Data.Repositories
                     Amount = f.Amount,
                     Code = f.Code,
                     ReceiveTime = f.ReceiveTime,
-                    PaymentId = f.PaymentId
                 }).FirstOrDefaultAsync();
+
             return giftCard;
         }
-        
+        public async Task<GiftCardModel?> GetGiftCardByCodeAsync(string giftCardCode)
+        {
+            var giftCard = await _context.GiftCards
+                .Where(f => f.Code == giftCardCode)
+                .Select(f => new GiftCardModel()
+                {
+                    GiftCardId = f.GiftCardId,
+                    ExpirationDate = f.ExpirationDate,
+                    Amount = f.Amount,
+                    Code = f.Code,
+                    ReceiveTime = f.ReceiveTime,
+                }).FirstOrDefaultAsync();
+
+            return giftCard;
+        }
         public async Task AddGiftCardAsync(GiftCard giftCard)
         {
             try

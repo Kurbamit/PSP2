@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReactApp1.Server.Data;
@@ -11,9 +12,11 @@ using ReactApp1.Server.Data;
 namespace ReactApp1.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241211192611_FixPaymentTable")]
+    partial class FixPaymentTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -283,7 +286,8 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("ExpirationDate");
 
                     b.Property<int?>("PaymentId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("PaymentId");
 
                     b.Property<DateTime>("ReceiveTime")
                         .ValueGeneratedOnAdd()
@@ -616,9 +620,11 @@ namespace ReactApp1.Server.Migrations
 
             modelBuilder.Entity("ReactApp1.Server.Models.GiftCard", b =>
                 {
-                    b.HasOne("ReactApp1.Server.Models.Payment", null)
+                    b.HasOne("ReactApp1.Server.Models.Payment", "Payment")
                         .WithMany("GiftCards")
                         .HasForeignKey("PaymentId");
+
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Item", b =>
