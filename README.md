@@ -42,6 +42,9 @@ Run following commands:
 There is a `.sql` script for adding dummy data.
 The database should be empty for it to work properly.
 Run the `DummyData.sql` file in your database.
+Before running the script make sure to reset your database
+```dotnet ef database drop --force```
+```dotnet ef database update```
 Login with admin:
 - Email: `john.krasinski@gmail.com`
 - Password: `123`

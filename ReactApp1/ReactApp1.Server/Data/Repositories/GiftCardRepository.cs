@@ -46,7 +46,6 @@ namespace ReactApp1.Server.Data.Repositories
                     Amount = f.Amount,
                     Code = f.Code,
                     ReceiveTime = f.ReceiveTime,
-                    PaymentId = f.PaymentId
                 }).FirstOrDefaultAsync();
 
             return giftCard;
@@ -62,7 +61,6 @@ namespace ReactApp1.Server.Data.Repositories
                     Amount = f.Amount,
                     Code = f.Code,
                     ReceiveTime = f.ReceiveTime,
-                    PaymentId = f.PaymentId
                 }).FirstOrDefaultAsync();
 
             return giftCard;
