@@ -92,7 +92,6 @@ const Orders: React.FC = () => {
             
         } catch (error) {
             console.error(ScriptResources.ErrorDeletingItem, error);
-            alert(ScriptResources.Error);
         }
     };
 
