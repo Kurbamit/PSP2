@@ -30,7 +30,7 @@ namespace ReactApp1.Server.Services
         {
             if (!userId.HasValue || !establishmentId.HasValue)
             {
-                _logger.LogError("Failed to open order: invalid or expired access token");
+                _logger.LogError("Failed to create item: invalid or expired access token");
                 throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
             }
             
