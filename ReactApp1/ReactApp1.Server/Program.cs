@@ -9,9 +9,12 @@ using ReactApp1.Server.Filters;
 using ReactApp1.Server.Middlewares;
 using ReactApp1.Server.Models.Models.Base;
 using Serilog;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var stripeApiKey =builder.Configuration.GetValue<string>("Stripe:ApiKey");
+StripeConfiguration.ApiKey = stripeApiKey;
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)

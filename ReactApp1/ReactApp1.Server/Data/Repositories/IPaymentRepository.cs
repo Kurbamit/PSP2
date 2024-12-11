@@ -10,11 +10,9 @@ namespace ReactApp1.Server.Data.Repositories
         Task<PaginatedResult<Payment>> GetAllPaymentsAsync(int pageNumber, int pageSize);
         Task<PaymentModel?> GetPaymentByIdAsync(int paymentId);
         Task<List<PaymentModel?>> GetPaymentsByOrderIdAsync(int orderId);
-
         Task AddPaymentAsync(PaymentModel payment);
         Task UpdatePaymentAsync(PaymentModel payment);
         Task DeletePaymentAsync(int paymentId);
-        Task<PaymentIntent> CreatePaymentIntentAsync(decimal amount, string currency);
 
     }
 }

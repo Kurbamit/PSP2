@@ -8,9 +8,9 @@ import { getOrderStatusString, getYesNoString, getPaymentTypeString } from "../.
 import SelectDropdown from "../../Base/SelectDropdown.tsx";
 import {OrderStatusEnum} from "../../../assets/Models/FrontendModels.ts";
 import { Form } from 'react-bootstrap';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import StripePayment from "../../Base/Stripe.tsx"; 
+import StripePayment from "./Stripe.tsx"; 
 interface Item {
     itemId: number;
     name: string;
@@ -138,7 +138,7 @@ const OrderDetail: React.FC = () => {
     };
 
     const handlePayPayment = async () => {
-        if (id && paymentValue > 0 && paymentValue <= order.order.leftToPay) {
+        if (id && paymentValue > 0 && paymentValue <= (order?.order.leftToPay ?? 0)) {
             try {
                 await axios.put(
                     `http://localhost:5114/api/orders/${id}/pay`,
@@ -157,7 +157,6 @@ const OrderDetail: React.FC = () => {
                 fetchItem();
             } catch (error) {
                 console.error(ScriptResources.ErrorPayment, error);
-                alert(error.response?.data?.error || "An error occurred during payment.");
             }
         }
     };
@@ -376,8 +375,8 @@ const OrderDetail: React.FC = () => {
                                 <button className="btn-close" onClick={() => setShowPaymentModal(false)}></button>
                             </div>
                             <div>
-                                <p><strong>{ScriptResources.TotalPaid}</strong> {order.order.totalPaid} {ScriptResources.Eur}</p>
-                                <p><strong>{ScriptResources.TotalLeftToPay}</strong> {order.order.leftToPay} {ScriptResources.Eur}</p>
+                                <p><strong>{ScriptResources.TotalPaid}</strong> {order?.order.totalPaid} {ScriptResources.Eur}</p>
+                                <p><strong>{ScriptResources.TotalLeftToPay}</strong> {order?.order.leftToPay} {ScriptResources.Eur}</p>
                             </div>
                             <div className="modal-body">
                                 <Form.Group className="mb-3" controlId="payment-method">
@@ -401,7 +400,7 @@ const OrderDetail: React.FC = () => {
                                 {paymentType == PaymentMethodEnum.Card && (
                                     <Elements stripe={stripePromise}>
                                         <StripePayment
-                                            order={order.order}
+                                            order={order?.order}
                                             token={token}
                                             paymentValue={paymentValue}
                                             setPaymentValue={setPaymentValue}
@@ -432,7 +431,7 @@ const OrderDetail: React.FC = () => {
                                     </button>
                                     <button className="btn btn-primary"
                                         onClick={handlePayPayment}
-                                        disabled={paymentValue > order.order.leftToPay || paymentValue <= 0}
+                                        disabled={paymentValue > (order?.order.leftToPay ?? 0) || paymentValue <= 0}
                                     >
                                         {ScriptResources.Pay}
                                     </button>

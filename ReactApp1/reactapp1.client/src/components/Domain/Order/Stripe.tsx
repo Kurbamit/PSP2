@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
+import React from 'react';
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Form } from 'react-bootstrap';
 import axios from 'axios';
-import ScriptResources from "../../assets/resources/strings.ts";
-import { Order } from "../../components/Domain/Order/Orders.tsx";
+import ScriptResources from "../../../assets/resources/strings.ts";
+import { Order } from "../../../components/Domain/Order/Orders.tsx";
 
 interface StripePaymentProps {
-    order: Order;
-    token: string;
+    order: Order | undefined;
+    token: string | undefined;
     paymentValue: number;
     setPaymentValue: React.Dispatch<React.SetStateAction<number>>; 
     handlePayPayment: () => void;
@@ -30,34 +29,38 @@ const StripePayment: React.FC<StripePaymentProps> = ({
     };
 
     const handleStripePayment = async () => {
-        if (order.orderId) {
+        if (order?.orderId) {
             try {
+                if (!stripe || !elements) {
+                    alert(`Stripe initialization failed`);
+                    return;
+                }
+
+                const cardElement = elements.getElement(CardElement);
+                if (!cardElement) {
+                    alert(`Payment initialization failed`);
+                    return;
+                }
+
                 const { data: clientSecret } = await axios.post(
                     `http://localhost:5114/api/payments/createIntent/${paymentValue}/${ScriptResources.Currency}`,
                     {},
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
 
-                if (!stripe || !elements) {
-                    return;
-                }
-
-                const cardElement = elements.getElement(CardElement);
-                if (!cardElement) {
-                    return;
-                }
-
                 const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret.clientSecret, {
                     payment_method: {
                         card: cardElement,
                     },
                 });
+
                 if (error) {
                     alert(`Payment failed: ${error.message}`);
                 } else if (paymentIntent.status === 'succeeded') {
                     alert("Payment successful");
                     handlePayPayment();
                 }
+
             } catch (error) {
                 console.error("Error in Stripe payment: ", error);
                 alert("Payment failed.");
@@ -89,7 +92,7 @@ const StripePayment: React.FC<StripePaymentProps> = ({
                 </button>
                 <button className="btn btn-primary"
                     onClick={handleStripePayment}
-                    disabled={paymentValue > order.leftToPay || paymentValue <= 0}
+                    disabled={paymentValue > (order?.leftToPay ?? 0) || paymentValue <= 0}
                 >
                     {ScriptResources.Pay}
                 </button>

@@ -9,10 +9,11 @@ namespace ReactApp1.Server.Services
     public class PaymentService : IPaymentService
     {
         private readonly IPaymentRepository _paymentRepository;
-
+        private readonly PaymentIntentService _paymentIntentService;
         public PaymentService(IPaymentRepository giftCardRepository)
         {
             _paymentRepository = giftCardRepository;
+            _paymentIntentService = new PaymentIntentService();
         }
 
         public Task<PaginatedResult<Payment>> GetAllPayments(int pageSize, int pageNumber)
@@ -43,9 +44,22 @@ namespace ReactApp1.Server.Services
         {
             return _paymentRepository.DeletePaymentAsync(paymentId);
         }
-        public Task<PaymentIntent> CreatePaymentIntent(decimal amount, string currency)
+        public async Task<PaymentIntent> CreatePaymentIntent(decimal amount, string currency)
         {
-            return _paymentRepository.CreatePaymentIntentAsync(amount, currency);
+
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = (long)(amount * 100), // convert to cents
+                Currency = currency,
+                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                {
+                    Enabled = true,
+                },
+            };
+
+            var paymentIntent = await _paymentIntentService.CreateAsync(options);
+
+            return paymentIntent;
         }
     }
 }
