@@ -162,7 +162,6 @@ const ItemDetail: React.FC = () => {
                 setStorageValue('');
             } catch (error) {
                 console.error(ScriptResources.Error, error);
-                alert(ScriptResources.FailedToUpdateStorage);
             }
         }
     };
@@ -190,7 +189,6 @@ const ItemDetail: React.FC = () => {
             handleBackToList();
         } catch (error) {
             console.error(ScriptResources.ErrorDeletingItem, error);
-            alert(ScriptResources.ErrorDeletingItem);
         }
     };
 
@@ -313,6 +311,7 @@ const ItemDetail: React.FC = () => {
                     <input
                         type="number"
                         value={storageValue}
+                        min={1}
                         onChange={(e) => setStorageValue(e.target.value === '' ? '' : parseInt(e.target.value))}
                         className="form-control"
                         placeholder={ScriptResources.StorageAdded}

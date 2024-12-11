@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using ReactApp1.Server.Exceptions;
+using ReactApp1.Server.Exceptions.ItemExceptions;
+using ReactApp1.Server.Exceptions.StorageExceptions;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Base;
@@ -51,27 +54,36 @@ namespace ReactApp1.Server.Data.Repositories
             return item;
         }
         
-        public async Task AddItemAsync(Item item, int? establishmentId)
+        public async Task<int> AddItemAsync(ItemModel item, int establishmentId, int userId)
         {
-            if (!establishmentId.HasValue)
-            {
-                throw new ArgumentNullException(nameof(establishmentId));
-            }
             try
             {
                 using var transaction = await _context.Database.BeginTransactionAsync();
-                await _context.Set<Item>().AddAsync(item);
+                var newItem = new Item()
+                {
+                    Name = item.Name,
+                    Cost = item.Cost,
+                    Tax = item.Tax,
+                    AlcoholicBeverage = item.AlcoholicBeverage,
+                    ReceiveTime = DateTime.UtcNow,
+                    EstablishmentId = establishmentId,
+                    CreatedByEmployeeId = userId
+                };
+                
+                await _context.Items.AddAsync(newItem);
                 await _context.SaveChangesAsync();
                 
                 var storage = new Storage()
                 {
-                    ItemId = item.ItemId,
+                    ItemId = newItem.ItemId,
                     Count = 0,
-                    EstablishmentId = establishmentId.Value
+                    EstablishmentId = establishmentId
                 };
                 await _context.Set<Storage>().AddAsync(storage);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+                return newItem.ItemId;
             }   
             catch (DbUpdateException e)
             {
@@ -116,6 +128,11 @@ namespace ReactApp1.Server.Data.Repositories
                 {
                     throw new KeyNotFoundException($"Storage with item ID {itemId} not found.");
                 }
+                
+                if (storage.Count + amount < 0)
+                {
+                    throw new StorageCountException(itemId, storage.Count, amount);
+                }
 
                 storage.Count += amount;
 
@@ -144,6 +161,14 @@ namespace ReactApp1.Server.Data.Repositories
         {
             try
             {
+                var isItemInUse = await _context.FullOrders
+                    .AnyAsync(f => f.ItemId == itemId);
+
+                if (isItemInUse)
+                {
+                    throw new ItemInUseException(itemId);
+                }
+                
                 _context.Set<Item>().Remove(new Item
                 {
                     ItemId = itemId 

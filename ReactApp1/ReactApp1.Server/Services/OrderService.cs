@@ -33,15 +33,15 @@ namespace ReactApp1.Server.Services
             _logger = logger;
         }
         
-        public async Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId)
+        public async Task<OrderItems> OpenOrder(int? createdByEmployeeId, int? establishmentId)
         {
-            if (!createdByEmployeeId.HasValue)
+            if (!createdByEmployeeId.HasValue || !establishmentId.HasValue)
             {
                 _logger.LogError("Failed to open order: invalid or expired access token");
                 throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
             }
             
-            var emptyOrder = await _orderRepository.AddEmptyOrderAsync(createdByEmployeeId.Value);
+            var emptyOrder = await _orderRepository.AddEmptyOrderAsync(createdByEmployeeId.Value, establishmentId.Value);
 
             return new OrderItemsPayments(emptyOrder, null, null);
         }

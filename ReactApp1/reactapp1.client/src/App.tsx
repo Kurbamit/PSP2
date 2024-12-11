@@ -14,6 +14,9 @@ import EmployeeDetail from "./components/Domain/Employee/EmployeeDetail.tsx";
 import SelectDropdown from "./components/Base/SelectDropdown.tsx";
 import Orders from "./components/Domain/Order/Orders.tsx";
 import OrderDetail from "./components/Domain/Order/OrderDetail.tsx";
+import { ErrorProvider } from "./components/Base/ErrorContext.tsx";
+import useAxiosInterceptors from "./assets/Utils/axiosInterceptor.ts";
+import GlobalAlert from "./components/Base/GlobalAlert.tsx";
 
 interface Forecast {
     date: string;
@@ -27,22 +30,21 @@ function App() {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     useEffect(() => {
-        // Check if authToken is present in cookies
         const token = Cookies.get('authToken');
         if (token) {
-            setIsLoggedIn(true); // Set logged in status to true if token exists
+            setIsLoggedIn(true);
             populateWeatherData();
         }
     }, []);
 
     const handleLogin = (token: string) => {
-        Cookies.set('authToken', token, { expires: 1 }); // Save token in cookies, expires in 7 days
+        Cookies.set('authToken', token, { expires: 1 });
         setIsLoggedIn(true);
         populateWeatherData();
     };
 
     const handleLogout = () => {
-        Cookies.remove('authToken'); // Remove token from cookies
+        Cookies.remove('authToken');
         setIsLoggedIn(false);
     };
 
@@ -82,9 +84,49 @@ function App() {
         </>;
 
     return (
+        <ErrorProvider>
+             {/* Ensure GlobalAlert is within ErrorProvider */}
+            <InnerApp
+                contents={contents}
+                isLoggedIn={isLoggedIn}
+                handleLogin={handleLogin}
+                handleLogout={handleLogout}
+            />
+        </ErrorProvider>
+    );
+
+    async function populateWeatherData() {
+        const token = Cookies.get('authToken');
+        const response = await fetch(`${API_BASE_URL}/GetWeatherForecast`,
+            {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+        const data = await response.json();
+        setForecasts(data);
+    }
+}
+
+function InnerApp({
+                      contents,
+                      isLoggedIn,
+                      handleLogin,
+                      handleLogout,
+                  }: {
+    contents: React.ReactNode;
+    isLoggedIn: boolean;
+    handleLogin: (token: string) => void;
+    handleLogout: () => void;
+}) {
+    useAxiosInterceptors(); // Now safely inside ErrorProvider
+
+    return (
         <Router>
-            <NavigationBar isLoggedIn={isLoggedIn}/>
-            <div style={{marginTop: '4rem', padding: '1rem' }}>
+            <NavigationBar isLoggedIn={isLoggedIn} />
+            <GlobalAlert />
+            <div style={{ marginTop: '4rem', padding: '1rem' }}>
                 <Routes>
                     <Route path="/" element={
                         <div>
@@ -103,26 +145,11 @@ function App() {
                     <Route path="/employees/new" element={<EmployeeDetail />} />
                     <Route path="/employees/:id" element={<EmployeeDetail />} />
                     <Route path="/login" element={<Login onLogin={handleLogin} />} />
-                    <Route path="/logout" element={
-                        <Logout onLogout={handleLogout} />
-                    } />
+                    <Route path="/logout" element={<Logout onLogout={handleLogout} />} />
                 </Routes>
             </div>
         </Router>
     );
-
-    async function populateWeatherData() {
-        const token = Cookies.get('authToken');
-        const response = await fetch(`${API_BASE_URL}/GetWeatherForecast`,
-            {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-        const data = await response.json();
-        setForecasts(data);
-    }
 }
 
 export default App;

@@ -17,3 +17,22 @@ th, td {
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
+/* GlobalAlert.css */
+.alert {
+    position: fixed;
+    top: 0;
+    left: 50%;                   /* Align to the center horizontally */
+    transform: translateX(-50%); /* Adjust the positioning to truly center */
+    z-index: 9999;
+    width: 80%;                  /* Limit width to 80% of the screen width */
+    max-width: 600px;            /* Optional: set a maximum width */
+    padding: 10px;
+    margin: 10px 0;              /* Optional: add vertical margin */
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.alert.show {
+    opacity: 1;
+}

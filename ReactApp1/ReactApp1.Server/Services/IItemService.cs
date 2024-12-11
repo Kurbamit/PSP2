@@ -8,7 +8,7 @@ public interface IItemService
 {
     Task<PaginatedResult<Item>> GetAllItems(int pageSize, int pageNumber);
     Task<ItemModel?> GetItemById(int itemId);
-    Task CreateNewItem(Item item, int? establishmentId);
+    Task<int> CreateNewItem(ItemModel item, int? establishmentId, int? userId);
     Task UpdateItem(ItemModel item);
     Task AddStorage(int itemId, int amount);
     Task DeleteItem(int itemId);
