@@ -9,11 +9,12 @@ import ScriptResources from "../../../assets/resources/strings.ts";
 
 interface Service {
     serviceId: number;
+    name: string;
     establishmentId: number;
-    serviceLength: string; // TimeSpan formatted string
+    serviceLength: string;
     cost?: number;
     tax?: number;
-    receiveTime: string; // DateTime formatted string
+    receiveTime: string;
 }
 
 const Services: React.FC = () => {
@@ -79,6 +80,7 @@ const Services: React.FC = () => {
             <Table striped bordered hover>
                 <thead>
                     <tr>
+                        <th>{ScriptResources.Name}</th>
                         <th>{ScriptResources.EstablishmentId}</th>
                         <th>{ScriptResources.ServiceLength}</th>
                         <th>{ScriptResources.Cost}</th>
@@ -91,6 +93,7 @@ const Services: React.FC = () => {
                     {services.map((service) => (
                         <tr key={service.serviceId}
                             onDoubleClick={() => handleIconClick(service.serviceId)}>
+                            <td>{service.name}</td>
                             <td>{service.establishmentId}</td>
                             <td>{service.serviceLength}</td>
                             <td>{service.cost ? `$${service.cost.toFixed(2)}` : ScriptResources.NotAvailable}</td>

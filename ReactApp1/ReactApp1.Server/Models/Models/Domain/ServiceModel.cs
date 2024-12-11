@@ -11,6 +11,11 @@ namespace ReactApp1.Server.Models.Models.Domain
         public int ServiceId { get; set; }
 
         /// <summary>
+        /// Serviso pavadinimas
+        /// </summary>
+        public string? Name { get; set; }
+
+        /// <summary>
         /// Imones identifikatorius
         /// </summary>
         public int EstablishmentId { get; set; }

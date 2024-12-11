@@ -7,8 +7,12 @@ namespace ReactApp1.Server.Models;
 public class Service
 {
     [Key]
-    [Column("ReservationId")]
+    [Column("ServiceId")]
     public int ServiceId { get; set; }
+
+    [Column("Name")]
+    [StringLength(255)]
+    public string? Name { get; set; }
 
     [Column("ReceiveTime")]
     public DateTime ReceiveTime { get; set; }

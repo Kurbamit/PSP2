@@ -42,6 +42,7 @@ namespace ReactApp1.Server.Data.Repositories
                 .Select(f => new ServiceModel()
                 {
                     ServiceId = f.ServiceId,
+                    Name = f.Name,
                     EstablishmentId = f.EstablishmentId,
                     Cost = f.Cost,
                     Tax = f.Tax,
@@ -58,6 +59,7 @@ namespace ReactApp1.Server.Data.Repositories
             {
                 var newService = new Service
                 {
+                    Name = service.Name,
                     EstablishmentId = service.EstablishmentId,
                     ServiceLength = service.ServiceLength,
                     Cost = service.Cost,
