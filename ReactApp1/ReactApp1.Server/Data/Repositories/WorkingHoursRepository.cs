@@ -53,7 +53,7 @@ namespace ReactApp1.Server.Data.Repositories
             return workingHours;
         }
 
-        public async Task<WorkingHours> AddWorkingHoursAsync(WorkingHoursModel workingHours)
+        public async Task<WorkingHours> AddWorkingHoursAsync(WorkingHoursModel workingHours, int createdByEmployeeId)
         {
             try
             {
@@ -64,7 +64,7 @@ namespace ReactApp1.Server.Data.Repositories
                     StartTime = workingHours.StartTime,
                     EndTime = workingHours.EndTime,
                     ReceiveTime = workingHours.ReceiveTime,
-                    CreatedByEmployeeId = workingHours.CreatedByEmployeeId
+                    CreatedByEmployeeId = createdByEmployeeId
                 };
 
                 var workingHoursEntity = await _context.WorkingHours.AddAsync(newWorkingHours);

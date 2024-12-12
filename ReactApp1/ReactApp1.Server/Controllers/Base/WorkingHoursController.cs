@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models.Models.Domain;
 using ReactApp1.Server.Services;
 namespace ReactApp1.Server.Controllers
@@ -49,7 +50,8 @@ namespace ReactApp1.Server.Controllers
         [HttpPost("workingHours")]
         public async Task<IActionResult> CreateWorkingHours([FromBody] WorkingHoursModel workingHours)
         {
-            var newWorkingHours = await _workingHoursService.CreateNewWorkingHours(workingHours);
+            var createdByEmployeeId = User.GetUserId();
+            var newWorkingHours = await _workingHoursService.CreateNewWorkingHours(workingHours, createdByEmployeeId);
 
             return Ok(newWorkingHours);
         }
