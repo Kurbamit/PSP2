@@ -59,7 +59,14 @@ namespace ReactApp1.Server.Services
 
             var paymentIntent = await _paymentIntentService.CreateAsync(options);
 
-            return paymentIntent;
+            if (paymentIntent.Status == "succeeded")
+            {
+                return paymentIntent;
+            }
+            else
+            {
+                throw new Exception();
+            }
         }
     }
 }

@@ -1,4 +1,3 @@
-using Azure;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Exceptions.ItemExceptions;
@@ -299,7 +298,7 @@ namespace ReactApp1.Server.Services
                 GiftCardModel? giftcard = await _giftcardRepository.GetGiftCardByCodeAsync(payment.GiftCardCode);
                 if (giftcard == null || giftcard.ExpirationDate < DateTime.Now)
                 {
-                    throw new GiftcardInvalidException();
+                    throw new GiftcardInvalidException(payment.GiftCardCode);
                 }
 
                 if (giftcard.Amount < payment.Value)

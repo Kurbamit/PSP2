@@ -23,7 +23,7 @@ Requirements:
 2. Open reactapp1.client folder
 3. Run ```npm install```
    1. There could be a problem running `npm install`. Then try running `npm install --legacy-peer-deps`.
-4. Run ```npm install @stripe/react-stripe-js @stripe/stripe-js```
+4. If you have problems with Stripe run ```npm install @stripe/react-stripe-js @stripe/stripe-js```
 5. Create postgreSql database with these parameters:
    1. name: ```postgres```
    2. password: ```1234```
@@ -48,3 +48,9 @@ Before running the script make sure to reset your database
 Login with admin:
 - Email: `john.krasinski@gmail.com`
 - Password: `123`
+
+### Stripe
+https://dashboard.stripe.com/test/payments
+hanid66211@eoilup.com
+Hanid66221...
+Here you can review all payments

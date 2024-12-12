@@ -63,7 +63,6 @@ const StripePayment: React.FC<StripePaymentProps> = ({
 
             } catch (error) {
                 console.error("Error in Stripe payment: ", error);
-                alert("Payment failed.");
             }
         }
     };

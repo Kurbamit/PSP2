@@ -4,8 +4,8 @@ namespace ReactApp1.Server.Exceptions.GiftCardExceptions
 {
     public class GiftcardInvalidException : BaseException
     {
-        public GiftcardInvalidException()
-            : base("Gift card code is invalid or expired.")
+        public GiftcardInvalidException(string code)
+            : base($"Gift card {code} is invalid or expired.")
         {
         }
     }

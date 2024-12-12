@@ -78,15 +78,9 @@ namespace ReactApp1.Server.Controllers.Domain
         [HttpPut("orders/{orderId}/pay")]
         public async Task<IActionResult> PayOrder([FromBody] PaymentModel payment)
         {
-            try
-            {
-                await _orderService.PayOrder(payment);
-                return Ok();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
+            await _orderService.PayOrder(payment);
+
+            return Ok();
         }
 
         [HttpDelete("orders/{orderId}/items")]
