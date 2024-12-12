@@ -10,9 +10,15 @@ export enum OrderStatusEnum {
     None = 0,
     Open = 1,
     Closed = 2,
-    Cancelled = 3
+    Cancelled = 3,
+    Completed = 4
 }
-
+export enum PaymentTypeEnum {
+    None = 0,
+    Cash = 1,
+    GiftCard = 2,
+    Card = 3
+}
 export enum YesNoEnum {
     No = 0,
     Yes = 1

@@ -8,6 +8,7 @@ namespace ReactApp1.Server.Data.Repositories
     {
         Task<PaginatedResult<GiftCard>> GetAllGiftCardsAsync(int pageNumber, int pageSize);
         Task<GiftCardModel?> GetGiftCardByIdAsync(int giftCardId);
+        Task<GiftCardModel?> GetGiftCardByCodeAsync(string giftCard);
         Task AddGiftCardAsync(GiftCard giftCard);
         Task UpdateGiftCardAsync(GiftCardModel giftCard);
         Task DeleteGiftCardAsync(int giftCardId);

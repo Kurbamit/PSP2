@@ -215,10 +215,9 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
-            
-            entity.HasOne(g => g.Payment)
-                .WithMany(p => p.GiftCards)
-                .HasForeignKey(g => g.PaymentId);
+
+            entity.HasIndex(e => e.Code)
+                .IsUnique();
         });
 
         modelBuilder.Entity<Reservation>(entity =>

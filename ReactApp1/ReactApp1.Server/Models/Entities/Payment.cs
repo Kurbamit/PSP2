@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ReactApp1.Server.Models;
 
-[Table("Table")]
+[Table("Payment")]
 public class Payment
 {
     public Payment()
@@ -20,12 +20,9 @@ public class Payment
     
     [Column("Type")]
     public int Type { get; set; }
-    
-    [Column("TipPercentage")]
-    public int? TipPercentage { get; set; }
-    
-    [Column("TipFixed")]
-    public decimal? TipFixed { get; set; }
+
+    [Column("Amount")]
+    public decimal Value { get; set; }
     
     [Column("ReceiveTime")]
     public DateTime ReceiveTime { get; set; }

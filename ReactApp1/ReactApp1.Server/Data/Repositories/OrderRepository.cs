@@ -31,6 +31,8 @@ namespace ReactApp1.Server.Data.Repositories
                     ReceiveTime = DateTime.UtcNow,
                     DiscountPercentage = null,
                     DiscountFixed = null,
+                    TipPercentage = null,
+                    TipFixed = null,
                     PaymentId = null,
                     Refunded = false,
                     ReservationId = null,
@@ -108,10 +110,6 @@ namespace ReactApp1.Server.Data.Repositories
             if(existingOrder == null)
                 throw new OrderNotFoundException(order.OrderId);
 
-            if (existingOrder.Status != (int)OrderStatusEnum.Open)
-            {
-                throw new OrderStatusConflictException(existingOrder.Status.ToString());
-            }
             
             UpdateExistingOrderFields();
             
@@ -132,6 +130,8 @@ namespace ReactApp1.Server.Data.Repositories
                 existingOrder.ReceiveTime = order.ReceiveTime;
                 existingOrder.DiscountPercentage = order.DiscountPercentage;
                 existingOrder.DiscountFixed = order.DiscountFixed;
+                existingOrder.TipPercentage = order.TipPercentage;
+                existingOrder.TipFixed = order.TipFixed;
                 existingOrder.PaymentId = order.PaymentId;
                 existingOrder.Refunded = order.Refunded;
                 existingOrder.ReservationId = order.ReservationId;
