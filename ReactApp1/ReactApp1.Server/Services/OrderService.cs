@@ -1,7 +1,9 @@
 using ReactApp1.Server.Data.Repositories;
+using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Exceptions.ItemExceptions;
 using ReactApp1.Server.Exceptions.OrderExceptions;
 using ReactApp1.Server.Exceptions.StorageExceptions;
+using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
@@ -14,29 +16,34 @@ namespace ReactApp1.Server.Services
         private readonly IItemRepository _itemRepository;
         private readonly IFullOrderRepository _fullOrderRepository;
         private readonly IEmployeeRepository _employeeRepository;
+        private readonly IPaymentRepository _paymentRepository;
+        private readonly IGiftCardRepository _giftcardRepository;
         private readonly ILogger<OrderService> _logger;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, 
-            IFullOrderRepository fullOrderRepository, IEmployeeRepository employeeRepository, ILogger<OrderService> logger)
+            IFullOrderRepository fullOrderRepository, IEmployeeRepository employeeRepository, ILogger<OrderService> logger,
+            IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
             _fullOrderRepository = fullOrderRepository;
             _employeeRepository = employeeRepository;
+            _paymentRepository = paymentRepository;
+            _giftcardRepository = giftcardRepository;
             _logger = logger;
         }
         
-        public async Task<OrderItems> OpenOrder(int? createdByEmployeeId)
+        public async Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId, int? establishmentId)
         {
-            if (!createdByEmployeeId.HasValue)
+            if (!createdByEmployeeId.HasValue || !establishmentId.HasValue)
             {
                 _logger.LogError("Failed to open order: invalid or expired access token");
                 throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
             }
             
-            var emptyOrder = await _orderRepository.AddEmptyOrderAsync(createdByEmployeeId.Value);
+            var emptyOrder = await _orderRepository.AddEmptyOrderAsync(createdByEmployeeId.Value, establishmentId.Value);
 
-            return new OrderItems(emptyOrder, null);
+            return new OrderItemsPayments(emptyOrder, null, null);
         }
         
         public async Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize)
@@ -52,13 +59,13 @@ namespace ReactApp1.Server.Services
             return orders;
         }
 
-        public async Task<OrderItems> GetOrderById(int orderId)
+        public async Task<OrderItemsPayments> GetOrderById(int orderId)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
             {
                 _logger.LogInformation($"Order with id: {orderId} not found");
-                return new OrderItems(null, null);
+                return new OrderItemsPayments(null, null, null);
             }
             
             var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
@@ -68,8 +75,12 @@ namespace ReactApp1.Server.Services
             var orderItems = await GetOrderItems(orderId);
 
             var orderWithTotalPrice = CalculateTotalPriceForOrder(order, orderItems);
-            
-            return new OrderItems(orderWithTotalPrice, orderItems);
+
+            var orderPayments = await GetOrderPayments(orderId);
+
+            var orderWithTotalPaidAndLeftToPay = CalculateTotalPaidAndLeftToPayForOrder(orderWithTotalPrice, orderPayments);
+
+            return new OrderItemsPayments(orderWithTotalPaidAndLeftToPay, orderItems, orderPayments);
         }
         
         private async Task<List<ItemModel>> GetOrderItems(int orderId)
@@ -90,6 +101,11 @@ namespace ReactApp1.Server.Services
 
             return orderItems;
         }
+        private async Task<List<PaymentModel>> GetOrderPayments(int orderId)
+        {
+            var payments = await _paymentRepository.GetPaymentsByOrderIdAsync(orderId);
+            return payments;
+        }
 
         private OrderModel CalculateTotalPriceForOrder(OrderModel order, List<ItemModel> orderItems)
         {
@@ -109,7 +125,16 @@ namespace ReactApp1.Server.Services
 
             return order;
         }
-        
+        private OrderModel CalculateTotalPaidAndLeftToPayForOrder(OrderModel order, List<PaymentModel> orderPayments)
+        {
+            decimal totalPaid = orderPayments.Sum(payment => payment.Value);
+
+            order.TotalPaid = totalPaid;
+            order.LeftToPay = order.TotalPrice - order.TotalPaid;
+
+            return order;
+        }
+
         public async Task AddItemToOrder(FullOrderModel fullOrder)
         {
             // Before adding an item to an order, check if:
@@ -209,7 +234,7 @@ namespace ReactApp1.Server.Services
         
         private async Task<OrderModel?> GetOrderIfExistsAndStatusIsOpen(int orderId, string? operation = null)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            var order = (await GetOrderById(orderId)).Order;
             if (order == null)
             {
                 _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
@@ -223,6 +248,82 @@ namespace ReactApp1.Server.Services
             }
                 
             return order;
+        }
+        private async Task<OrderModel?> GetOrderIfExistsAndStatusIsClosed(int orderId, string? operation = null)
+        {
+            var order = (await GetOrderById(orderId)).Order;
+            if (order == null)
+            {
+                _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
+                throw new OrderNotFoundException(orderId);
+            }
+
+            if (order.Status != (int)OrderStatusEnum.Closed)
+            {
+                _logger.LogError($"Operation '{operation}' failed: Order status is {order.Status.ToString()}");
+                throw new OrderStatusConflictException(order.Status.ToString());
+            }
+
+            return order;
+        }
+        public async Task CancelOrder(int orderId)
+        {
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(orderId, "CancelOrder");
+            if (existingOrderWithOpenStatus == null)
+                return;
+
+            existingOrderWithOpenStatus.Status = (int)OrderStatusEnum.Cancelled;
+
+            //Add items back to storage
+
+            var orderItems = await GetOrderItems(orderId);
+            foreach (var item in orderItems)
+            {
+                int itemCount = item.Count ?? 0;
+                await _itemRepository.AddStorageAsync(item.ItemId, itemCount);
+            }
+
+            // TODO refund if payments made
+
+            await _orderRepository.UpdateOrderAsync(existingOrderWithOpenStatus);
+        }
+        public async Task PayOrder(PaymentModel payment)
+        {
+            var existingOrderWithClosedStatus = await GetOrderIfExistsAndStatusIsClosed(payment.OrderId, "PayOrder");
+            if (existingOrderWithClosedStatus == null)
+                return;
+
+            if (payment.Type == (int)PaymentTypeEnum.GiftCard)
+            {
+                GiftCardModel? giftcard = await _giftcardRepository.GetGiftCardByCodeAsync(payment.GiftCardCode);
+                if (giftcard == null || giftcard.ExpirationDate < DateTime.Now)
+                {
+                    throw new GiftcardInvalidException(payment.GiftCardCode);
+                }
+
+                if (giftcard.Amount < payment.Value)
+                {
+                    throw new GiftcardNotEnoughFundsException(giftcard.Amount, payment.Value);
+                }
+
+                giftcard.Amount -= payment.Value;
+                payment.GiftCardId = giftcard.GiftCardId;
+
+                await _giftcardRepository.UpdateGiftCardAsync(giftcard);
+
+            } 
+            else if (payment.Type == (int)PaymentTypeEnum.Card)
+            {
+                // TODO save payment id
+            }
+
+            if (existingOrderWithClosedStatus.LeftToPay == payment.Value)
+            {
+                existingOrderWithClosedStatus.Status = (int)OrderStatusEnum.Completed;
+                await _orderRepository.UpdateOrderAsync(existingOrderWithClosedStatus);
+            }
+
+            await _paymentRepository.AddPaymentAsync(payment);
         }
     }
 }

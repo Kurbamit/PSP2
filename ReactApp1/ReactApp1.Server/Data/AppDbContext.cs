@@ -21,6 +21,8 @@ public class AppDbContext : DbContext
     public DbSet<Payment> Payments { get; set; }
     public DbSet<GiftCard> GiftCards { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
+    public DbSet<WorkingHours> WorkingHours { get; set; }
+    public DbSet<Service> Services { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -97,6 +99,14 @@ public class AppDbContext : DbContext
                 .WithOne(e => e.Establishment)
                 .HasForeignKey(e => e.EstablishmentId)
                 .IsRequired();
+
+            entity.HasMany(e => e.Items)
+                .WithOne(e => e.Establishment)
+                .HasForeignKey(e => e.EstablishmentId);
+
+            entity.HasMany(e => e.Orders)
+                .WithOne(e => e.Establishment)
+                .HasForeignKey(e => e.EstablishmentId);
             
             entity.Property(e => e.ReceiveTime)
                 .IsRequired()
@@ -134,6 +144,10 @@ public class AppDbContext : DbContext
             entity.HasMany(e => e.Orders) // One Employee has many Orders
                 .WithOne(o => o.CreatedByEmployee) // Each Order has one Employee
                 .HasForeignKey(o => o.CreatedByEmployeeId);
+
+            entity.HasMany(e => e.Items)
+                .WithOne(i => i.CreatedByEmployee)
+                .HasForeignKey(i => i.CreatedByEmployeeId);
         });
         
         modelBuilder.Entity<EmployeeAddress>(entity =>
@@ -202,10 +216,9 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
-            
-            entity.HasOne(g => g.Payment)
-                .WithMany(p => p.GiftCards)
-                .HasForeignKey(g => g.PaymentId);
+
+            entity.HasIndex(e => e.Code)
+                .IsUnique();
         });
 
         modelBuilder.Entity<Reservation>(entity =>
@@ -218,6 +231,33 @@ public class AppDbContext : DbContext
             .IsRequired()
             .ValueGeneratedOnAdd()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
+
+        modelBuilder.Entity<Service>(entity =>
+        {
+            entity.Property(p => p.ServiceId)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.ReceiveTime)
+                .IsRequired()
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.Property(n => n.EstablishmentId)
+                .IsRequired();
+        });
+
+        modelBuilder.Entity<WorkingHours>(entity =>
+        {
+            entity.Property(p => p.WorkingHoursId)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.ReceiveTime)
+                .IsRequired()
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         });
     }
 }

@@ -36,12 +36,13 @@ namespace ReactApp1.Server.Controllers
         }
         
         [HttpPost("items")]
-        public async Task<IActionResult> CreateItem([FromBody] Item item)
+        public async Task<IActionResult> CreateItem([FromBody] ItemModel item)
         {
             var establishmentId = User.GetUserEstablishmentId();
-            await _itemService.CreateNewItem(item, establishmentId);
+            var userId = User.GetUserId();
+            var newItemId = await _itemService.CreateNewItem(item, establishmentId, userId);
             
-            return Ok(item.ItemId);
+            return Ok(newItemId);
         }
         
         [HttpPut("items/{itemId}")]

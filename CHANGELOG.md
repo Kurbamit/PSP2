@@ -4,3 +4,13 @@
 4. Pridėti endpoint'ai susiję su `reservation` manipuliavimu. Juos galima kurti, redaguoti ir panašiai.
 5. Pridėjome `giftCards` endpoint'us, kad būtų galima juos kurti, redaguoti ir panašiai.
 6. Pridėti endpoint'ai susiję su `establishment` manipuliavimu. Juos galima kurti, redaguoti ir panašiai.
+7. Pridėjome `establishmentId`prie `Order` `Item` lentelių. Taip bus galima atskirti kuri įmonė turi tam tikrus item'us ir order'ius.
+8. Pridėjome `createdByEmployeeId` prie `Item` lentelės. Taip bus galima atskirti kuris darbuotojas sukūrėt tam tikrus item'us.
+9. Iš `Payment` lentelės į `Order` lentelę perkelėme `Tip`, nes tips turėtų būti visam order, o ne vienam payment.
+10. `Giftcard` lentelės reikšmę `Code` padarėme unikale, kad negalėtų būti dvieju giftcards su tuo pačiu kodu.
+11. Prie `Payment` lentelės pridėjome `Amount`, kad būtų galima žinoti, kiek kiekvienu payment buvo sumokėta.
+12. Pridėjome 'payments/createIntent/` endpoint'ą dėl Stripe integracijos
+13. Pridėta `Service` lentelė į databazę naudojant migrations.
+14. Pridėti `Service` CRUD endpoint'ai ir frontend funkcionalumas. Galima kurti, redaguoti ir panašiai.
+15. Pridėta `WorkingHours` lentelė į databazę naudojant migrations.
+16. Pridėti `WorkingHours` CRUD endpoint'ai kurimui, redagavimui ir panašiai.

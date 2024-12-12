@@ -10,6 +10,8 @@ public class Establishment
     {
         Storages = new HashSet<Storage>();
         Employees = new HashSet<Employee>();
+        Orders = new HashSet<Order>();
+        Items = new HashSet<Item>();
     }
     
     [Key]
@@ -33,4 +35,8 @@ public class Establishment
     
     // Navigation property for the related Employee entities
     public virtual ICollection<Employee> Employees { get; set; }
+    
+    public virtual ICollection<Order> Orders { get; set; }
+    
+    public virtual ICollection<Item> Items { get; set; }
 }

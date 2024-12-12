@@ -9,9 +9,12 @@ using ReactApp1.Server.Filters;
 using ReactApp1.Server.Middlewares;
 using ReactApp1.Server.Models.Models.Base;
 using Serilog;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var stripeApiKey =builder.Configuration.GetValue<string>("Stripe:ApiKey");
+StripeConfiguration.ApiKey = stripeApiKey;
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
@@ -94,6 +97,9 @@ builder.Services.AddScoped<ISharedSearchesRepository, SharedSearchesRepository>(
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IFullOrderRepository, FullOrderRepository>();
 builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
+builder.Services.AddScoped<IWorkingHoursRepository, WorkingHoursRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 
 // Register Services
 builder.Services.AddScoped<IItemService, ItemService>();
@@ -103,7 +109,10 @@ builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
 builder.Services.AddScoped<ISharedSearchesService, SharedSearchesService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IGiftCardService, GiftCardService>();
-
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<PaymentIntentService>();
+builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IWorkingHoursService, WorkingHoursService>();
 
 var app = builder.Build();
 

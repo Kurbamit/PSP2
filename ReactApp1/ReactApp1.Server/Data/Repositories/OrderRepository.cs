@@ -20,7 +20,7 @@ namespace ReactApp1.Server.Data.Repositories
             _logger = logger;
         }
 
-        public async Task<OrderModel> AddEmptyOrderAsync(int createdByEmployeeId)
+        public async Task<OrderModel> AddEmptyOrderAsync(int createdByEmployeeId, int establishmentId)
         {
             try
             {
@@ -31,9 +31,12 @@ namespace ReactApp1.Server.Data.Repositories
                     ReceiveTime = DateTime.UtcNow,
                     DiscountPercentage = null,
                     DiscountFixed = null,
+                    TipPercentage = null,
+                    TipFixed = null,
                     PaymentId = null,
                     Refunded = false,
-                    ReservationId = null
+                    ReservationId = null,
+                    EstablishmentId = establishmentId
                 };
 
                 var orderEntity = await _context.Orders.AddAsync(emptyOrder);
@@ -106,6 +109,7 @@ namespace ReactApp1.Server.Data.Repositories
             
             if(existingOrder == null)
                 throw new OrderNotFoundException(order.OrderId);
+
             
             UpdateExistingOrderFields();
             
@@ -126,6 +130,8 @@ namespace ReactApp1.Server.Data.Repositories
                 existingOrder.ReceiveTime = order.ReceiveTime;
                 existingOrder.DiscountPercentage = order.DiscountPercentage;
                 existingOrder.DiscountFixed = order.DiscountFixed;
+                existingOrder.TipPercentage = order.TipPercentage;
+                existingOrder.TipFixed = order.TipFixed;
                 existingOrder.PaymentId = order.PaymentId;
                 existingOrder.Refunded = order.Refunded;
                 existingOrder.ReservationId = order.ReservationId;

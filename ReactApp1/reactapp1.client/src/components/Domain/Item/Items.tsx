@@ -60,7 +60,6 @@ const Items: React.FC = () => {
             }
         } catch (error) {
             console.error(ScriptResources.ErrorDeletingItem, error);
-            alert(ScriptResources.ErrorDeletingItem);
         }
     };
 

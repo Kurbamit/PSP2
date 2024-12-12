@@ -283,8 +283,7 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("ExpirationDate");
 
                     b.Property<int?>("PaymentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("PaymentId");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("ReceiveTime")
                         .ValueGeneratedOnAdd()
@@ -293,6 +292,9 @@ namespace ReactApp1.Server.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("GiftCardId");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
 
                     b.HasIndex("PaymentId");
 
@@ -316,6 +318,14 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("Cost");
 
+                    b.Property<int?>("CreatedByEmployeeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedByEmployeeId");
+
+                    b.Property<int?>("EstablishmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("EstablishmentId");
+
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
@@ -332,6 +342,10 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("Tax");
 
                     b.HasKey("ItemId");
+
+                    b.HasIndex("CreatedByEmployeeId");
+
+                    b.HasIndex("EstablishmentId");
 
                     b.ToTable("Item");
                 });
@@ -357,6 +371,10 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("DiscountPercentage");
 
+                    b.Property<int?>("EstablishmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("EstablishmentId");
+
                     b.Property<int?>("PaymentId")
                         .HasColumnType("integer")
                         .HasColumnName("PaymentId");
@@ -379,9 +397,19 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("Status");
 
+                    b.Property<decimal?>("TipFixed")
+                        .HasColumnType("numeric")
+                        .HasColumnName("TipFixed");
+
+                    b.Property<int?>("TipPercentage")
+                        .HasColumnType("integer")
+                        .HasColumnName("TipPercentage");
+
                     b.HasKey("OrderId");
 
                     b.HasIndex("CreatedByEmployeeId");
+
+                    b.HasIndex("EstablishmentId");
 
                     b.HasIndex("ReservationId")
                         .IsUnique();
@@ -412,23 +440,19 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("ReceiveTime")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<decimal?>("TipFixed")
-                        .HasColumnType("numeric")
-                        .HasColumnName("TipFixed");
-
-                    b.Property<int?>("TipPercentage")
-                        .HasColumnType("integer")
-                        .HasColumnName("TipPercentage");
-
                     b.Property<int>("Type")
                         .HasColumnType("integer")
                         .HasColumnName("Type");
+
+                    b.Property<decimal>("Value")
+                        .HasColumnType("numeric")
+                        .HasColumnName("Amount");
 
                     b.HasKey("PaymentId");
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Table");
+                    b.ToTable("Payment");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Reservation", b =>
@@ -468,6 +492,49 @@ namespace ReactApp1.Server.Migrations
                     b.HasIndex("CreatedByEmployeeId");
 
                     b.ToTable("Reservation");
+                });
+
+            modelBuilder.Entity("ReactApp1.Server.Models.Service", b =>
+                {
+                    b.Property<int>("ServiceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("ServiceId");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ServiceId"));
+
+                    b.Property<decimal?>("Cost")
+                        .HasColumnType("numeric")
+                        .HasColumnName("Cost");
+
+                    b.Property<int>("EstablishmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("EstablishmentId");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("Name");
+
+                    b.Property<DateTime>("ReceiveTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ReceiveTime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<TimeSpan>("ServiceLength")
+                        .HasColumnType("interval")
+                        .HasColumnName("ServiceLength");
+
+                    b.Property<decimal?>("Tax")
+                        .HasColumnType("numeric")
+                        .HasColumnName("Tax");
+
+                    b.HasKey("ServiceId");
+
+                    b.HasIndex("EstablishmentId");
+
+                    b.ToTable("Service");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Storage", b =>
@@ -533,6 +600,50 @@ namespace ReactApp1.Server.Migrations
                         });
                 });
 
+            modelBuilder.Entity("ReactApp1.Server.Models.WorkingHours", b =>
+                {
+                    b.Property<int>("WorkingHoursId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("WorkingHoursId");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("WorkingHoursId"));
+
+                    b.Property<int>("CreatedByEmployeeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("CreatedByEmployeeId");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("integer")
+                        .HasColumnName("DayOfWeek");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("interval")
+                        .HasColumnName("EndTime");
+
+                    b.Property<int>("EstablishmentAddressId")
+                        .HasColumnType("integer")
+                        .HasColumnName("EstablishmentId");
+
+                    b.Property<DateTime>("ReceiveTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ReceiveTime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("interval")
+                        .HasColumnName("StartTime");
+
+                    b.HasKey("WorkingHoursId");
+
+                    b.HasIndex("CreatedByEmployeeId");
+
+                    b.HasIndex("EstablishmentAddressId");
+
+                    b.ToTable("WorkingHours");
+                });
+
             modelBuilder.Entity("FullOrderItem", b =>
                 {
                     b.HasOne("ReactApp1.Server.Models.FullOrder", null)
@@ -594,11 +705,24 @@ namespace ReactApp1.Server.Migrations
 
             modelBuilder.Entity("ReactApp1.Server.Models.GiftCard", b =>
                 {
-                    b.HasOne("ReactApp1.Server.Models.Payment", "Payment")
+                    b.HasOne("ReactApp1.Server.Models.Payment", null)
                         .WithMany("GiftCards")
                         .HasForeignKey("PaymentId");
+                });
 
-                    b.Navigation("Payment");
+            modelBuilder.Entity("ReactApp1.Server.Models.Item", b =>
+                {
+                    b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
+                        .WithMany("Items")
+                        .HasForeignKey("CreatedByEmployeeId");
+
+                    b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
+                        .WithMany("Items")
+                        .HasForeignKey("EstablishmentId");
+
+                    b.Navigation("CreatedByEmployee");
+
+                    b.Navigation("Establishment");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Order", b =>
@@ -609,11 +733,17 @@ namespace ReactApp1.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
+                        .WithMany("Orders")
+                        .HasForeignKey("EstablishmentId");
+
                     b.HasOne("ReactApp1.Server.Models.Reservation", "Reservation")
                         .WithOne("Order")
                         .HasForeignKey("ReactApp1.Server.Models.Order", "ReservationId");
 
                     b.Navigation("CreatedByEmployee");
+
+                    b.Navigation("Establishment");
 
                     b.Navigation("Reservation");
                 });
@@ -628,7 +758,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.Navigation("Order");
                 });
-
+                
             modelBuilder.Entity("ReactApp1.Server.Models.Reservation", b =>
                 {
                     b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
@@ -638,6 +768,17 @@ namespace ReactApp1.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedByEmployee");
+                });
+
+            modelBuilder.Entity("ReactApp1.Server.Models.Service", b =>
+                {
+                    b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
+                        .WithMany()
+                        .HasForeignKey("EstablishmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Establishment");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Storage", b =>
@@ -659,10 +800,31 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("Item");
                 });
 
+            modelBuilder.Entity("ReactApp1.Server.Models.WorkingHours", b =>
+                {
+                    b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
+                        .WithMany()
+                        .HasForeignKey("CreatedByEmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ReactApp1.Server.Models.EstablishmentAddress", "EstablishmentAddress")
+                        .WithMany()
+                        .HasForeignKey("EstablishmentAddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByEmployee");
+
+                    b.Navigation("EstablishmentAddress");
+                });
+
             modelBuilder.Entity("ReactApp1.Server.Models.Employee", b =>
                 {
                     b.Navigation("EmployeeAddress")
                         .IsRequired();
+
+                    b.Navigation("Items");
 
                     b.Navigation("Orders");
                 });
@@ -672,6 +834,10 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("Employees");
 
                     b.Navigation("EstablishmentAddress");
+
+                    b.Navigation("Items");
+
+                    b.Navigation("Orders");
 
                     b.Navigation("Storages");
                 });

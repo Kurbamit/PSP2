@@ -5,6 +5,5 @@ public enum PaymentTypeEnum
     None = 0,
     Cash = 1,
     GiftCard = 2,
-    CreditCard = 3,
-    DebitCard = 4
+    Card = 3
 }

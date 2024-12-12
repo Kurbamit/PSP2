@@ -1,3 +1,4 @@
+using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,6 +10,7 @@ public class Employee
     public Employee()
     {
         Orders = new HashSet<Order>();
+        Items = new HashSet<Item>();
     }
     
     [Key]
@@ -61,4 +63,6 @@ public class Employee
     public virtual Establishment Establishment { get; set; }
     
     public ICollection<Order> Orders { get; set; }
+    
+    public ICollection<Item> Items { get; set; }
 }
