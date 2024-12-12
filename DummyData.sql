@@ -61,3 +61,7 @@ VALUES
     ('2026-02-14', 80.0, 'VALENTINE2026N', CURRENT_TIMESTAMP),
     ('2026-03-17', 65.0, 'STPATRICKS2026O', CURRENT_TIMESTAMP);
 
+INSERT INTO public."Service" ("ReceiveTime", "EstablishmentId", "ServiceLength", "Cost", "Tax", "Name")
+VALUES
+	(CURRENT_TIMESTAMP, 1, '00:30:00', 50.0, 3.5, 'Massage')
+	(CURRENT_TIMESTAMP, 1, '00:45:00', 65.0, 6.0, 'Therapy')

@@ -10,3 +10,5 @@
 10. `Giftcard` lentelės reikšmę `Code` padarėme unikale, kad negalėtų būti dvieju giftcards su tuo pačiu kodu.
 11. Prie `Payment` lentelės pridėjome `Amount`, kad būtų galima žinoti, kiek kiekvienu payment buvo sumokėta.
 12. Pridėjome 'payments/createIntent/` endpoint'ą dėl Stripe integracijos
+13. Pridėta `Service` lentelė į databazę naudojant migrations.
+14. Pridėti `Service` CRUD endpoint'ai ir frontend funkcionalumas. Galima kurti, redaguoti ir panašiai.

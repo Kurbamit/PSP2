@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReactApp1.Server.Data;
@@ -11,9 +12,11 @@ using ReactApp1.Server.Data;
 namespace ReactApp1.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241211190417_ServicesAddNameColumn")]
+    partial class ServicesAddNameColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -283,7 +286,8 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("ExpirationDate");
 
                     b.Property<int?>("PaymentId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("PaymentId");
 
                     b.Property<DateTime>("ReceiveTime")
                         .ValueGeneratedOnAdd()
@@ -292,9 +296,6 @@ namespace ReactApp1.Server.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("GiftCardId");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
 
                     b.HasIndex("PaymentId");
 
@@ -397,14 +398,6 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("Status");
 
-                    b.Property<decimal?>("TipFixed")
-                        .HasColumnType("numeric")
-                        .HasColumnName("TipFixed");
-
-                    b.Property<int?>("TipPercentage")
-                        .HasColumnType("integer")
-                        .HasColumnName("TipPercentage");
-
                     b.HasKey("OrderId");
 
                     b.HasIndex("CreatedByEmployeeId");
@@ -440,19 +433,23 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("ReceiveTime")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
+                    b.Property<decimal?>("TipFixed")
+                        .HasColumnType("numeric")
+                        .HasColumnName("TipFixed");
+
+                    b.Property<int?>("TipPercentage")
+                        .HasColumnType("integer")
+                        .HasColumnName("TipPercentage");
+
                     b.Property<int>("Type")
                         .HasColumnType("integer")
                         .HasColumnName("Type");
-
-                    b.Property<decimal>("Value")
-                        .HasColumnType("numeric")
-                        .HasColumnName("Amount");
 
                     b.HasKey("PaymentId");
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Payment");
+                    b.ToTable("Table");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Reservation", b =>
@@ -659,9 +656,11 @@ namespace ReactApp1.Server.Migrations
 
             modelBuilder.Entity("ReactApp1.Server.Models.GiftCard", b =>
                 {
-                    b.HasOne("ReactApp1.Server.Models.Payment", null)
+                    b.HasOne("ReactApp1.Server.Models.Payment", "Payment")
                         .WithMany("GiftCards")
                         .HasForeignKey("PaymentId");
+
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Item", b =>

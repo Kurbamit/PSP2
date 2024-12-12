@@ -21,6 +21,7 @@ public class AppDbContext : DbContext
     public DbSet<Payment> Payments { get; set; }
     public DbSet<GiftCard> GiftCards { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
+    public DbSet<Service> Services { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -229,6 +230,21 @@ public class AppDbContext : DbContext
             .IsRequired()
             .ValueGeneratedOnAdd()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
+
+        modelBuilder.Entity<Service>(entity =>
+        {
+            entity.Property(p => p.ServiceId)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.ReceiveTime)
+                .IsRequired()
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.Property(n => n.EstablishmentId)
+                .IsRequired();
         });
     }
 }
