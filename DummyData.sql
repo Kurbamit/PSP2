@@ -63,5 +63,15 @@ VALUES
 
 INSERT INTO public."Service" ("ReceiveTime", "EstablishmentId", "ServiceLength", "Cost", "Tax", "Name")
 VALUES
-	(CURRENT_TIMESTAMP, 1, '00:30:00', 50.0, 3.5, 'Massage')
-	(CURRENT_TIMESTAMP, 1, '00:45:00', 65.0, 6.0, 'Therapy')
+	(CURRENT_TIMESTAMP, 1, '00:30:00', 50.0, 3.5, 'Massage'),
+	(CURRENT_TIMESTAMP, 1, '00:45:00', 65.0, 6.0, 'Therapy');
+	
+INSERT INTO public."WorkingHours" ("ReceiveTime", "EstablishmentId", "DayOfWeek", "StartTime", "EndTime", "CreatedByEmployeeId")
+VALUES
+    (CURRENT_TIMESTAMP, 1, 1, '08:00:00', '16:00:00', 1),
+    (CURRENT_TIMESTAMP, 1, 2, '08:00:00', '16:00:00', 1),
+    (CURRENT_TIMESTAMP, 1, 3, '08:00:00', '16:00:00', 1),
+    (CURRENT_TIMESTAMP, 1, 4, '08:00:00', '16:00:00', 1),
+    (CURRENT_TIMESTAMP, 1, 5, '08:00:00', '16:00:00', 1),
+    (CURRENT_TIMESTAMP, 1, 6, '10:00:00', '14:00:00', 1),
+    (CURRENT_TIMESTAMP, 1, 7, '10:00:00', '14:00:00', 1);

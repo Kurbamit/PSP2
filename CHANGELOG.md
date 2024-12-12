@@ -12,3 +12,5 @@
 12. Pridėjome 'payments/createIntent/` endpoint'ą dėl Stripe integracijos
 13. Pridėta `Service` lentelė į databazę naudojant migrations.
 14. Pridėti `Service` CRUD endpoint'ai ir frontend funkcionalumas. Galima kurti, redaguoti ir panašiai.
+15. Pridėta `WorkingHours` lentelė į databazę naudojant migrations.
+16. Pridėti `WorkingHours` CRUD endpoint'ai kurimui, redagavimui ir panašiai.
