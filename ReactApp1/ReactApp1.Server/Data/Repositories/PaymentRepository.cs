@@ -47,7 +47,8 @@ namespace ReactApp1.Server.Data.Repositories
                     Type = p.Type,
                     Value = p.Value,
                     ReceiveTime = p.ReceiveTime,
-                    GiftCardId = p.GiftCardId
+                    GiftCardId = p.GiftCardId,
+                    StripePaymentId = p.StripePaymentId,
                 }).FirstOrDefaultAsync();
 
             return payment;
@@ -63,7 +64,8 @@ namespace ReactApp1.Server.Data.Repositories
                     Type = p.Type,
                     Value = p.Value,
                     ReceiveTime = p.ReceiveTime,
-                    GiftCardId = p.GiftCardId
+                    GiftCardId = p.GiftCardId,
+                    StripePaymentId = p.StripePaymentId,
                 }).ToListAsync();
 
             return payments;
@@ -77,6 +79,7 @@ namespace ReactApp1.Server.Data.Repositories
                 Value = payment.Value,
                 ReceiveTime = payment.ReceiveTime,
                 GiftCardId = payment.GiftCardId,
+                StripePaymentId = payment.StripePaymentId
             };
 
             try

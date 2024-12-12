@@ -14,4 +14,5 @@ public interface IPaymentService
     Task UpdatePayment(PaymentModel payment);
     Task DeletePayment(int paymentId);
     Task<PaymentIntent> CreatePaymentIntent(decimal amount, string currency);
+    Task RefundPaymentIntent(string stripePaymentId);
 }

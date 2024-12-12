@@ -83,6 +83,14 @@ namespace ReactApp1.Server.Controllers.Domain
             return Ok();
         }
 
+        [HttpPut("orders/{orderId}/refund")]
+        public async Task<IActionResult> RefundOrder(int orderId)
+        {
+            await _orderService.RefundOrder(orderId);
+
+            return Ok();
+        }
+
         [HttpDelete("orders/{orderId}/items")]
         public async Task<IActionResult> RemoveItemFromOrder([FromBody] FullOrderModel order)
         {
