@@ -10,4 +10,5 @@ public interface IOrderRepository
     Task<OrderModel?> GetOrderByIdAsync(int orderId);
     Task UpdateOrderAsync(OrderModel order);
     Task DeleteOrderAsync(int orderId);
+    Task<byte[]> DownloadReceipt(OrderItemsPayments order);
 }

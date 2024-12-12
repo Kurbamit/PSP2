@@ -358,6 +358,18 @@ namespace ReactApp1.Server.Services
             order.Refunded = true;
             await _orderRepository.UpdateOrderAsync(order);
         }
+
+        public async Task<byte[]> DownloadReceipt(int orderId)
+        {
+            var order = await GetOrderById(orderId);
+            if (order.Order == null)
+            {
+                _logger.LogError($"Failed to download receipt: Order {orderId} not found");
+                throw new OrderNotFoundException(orderId);
+            }
+
+            return await _orderRepository.DownloadReceipt(order);
+        }
     }
 }
 

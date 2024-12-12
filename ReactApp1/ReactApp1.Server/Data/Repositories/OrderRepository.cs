@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Exceptions.OrderExceptions;
 using ReactApp1.Server.Extensions;
@@ -136,6 +137,39 @@ namespace ReactApp1.Server.Data.Repositories
                 existingOrder.Refunded = order.Refunded;
                 existingOrder.ReservationId = order.ReservationId;
             }
+        }
+
+        public async Task<byte[]> DownloadReceipt(OrderItemsPayments order)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine("RECEIPT");
+            sb.AppendLine(new string('-', 30));
+            sb.AppendLine($"Order ID: {order.Order.OrderId}");
+            sb.AppendLine($"Status: {((OrderStatusEnum)order.Order.Status).ToString()}");
+            sb.AppendLine($"Employee: {order.Order.CreatedByEmployeeName}");
+            sb.AppendLine($"Receive Time: {order.Order.ReceiveTime:yyyy-MM-dd HH:mm:ss}");
+            sb.AppendLine($"Total Price: {order.Order.TotalPrice?.ToString("0.00") ?? "N/A"} EUR");
+            sb.AppendLine($"Total Paid: {order.Order.TotalPaid?.ToString("0.00") ?? "N/A"} EUR");
+            sb.AppendLine($"Left to Pay: {order.Order.LeftToPay?.ToString("0.00") ?? "N/A"} EUR");
+            sb.AppendLine(new string('-', 30));
+            sb.AppendLine("ITEMS:");
+
+            foreach (var item in order.Items)
+            {
+                sb.AppendLine($"- {item.Name} x{item.Count}");
+                sb.AppendLine($"  Cost: {item.Cost?.ToString("0.00") ?? "N/A"} EUR");
+                sb.AppendLine($"  Tax: {item.Tax?.ToString("0.00") ?? "N/A"} EUR");
+                sb.AppendLine($"  Alcoholic: {(item.AlcoholicBeverage ? "Yes" : "No")}");
+                sb.AppendLine(new string('-', 30));
+            }
+
+            sb.AppendLine("Thank you for your order!");
+
+            // Convert the receipt string to bytes
+            var receiptBytes = Encoding.UTF8.GetBytes(sb.ToString());
+
+            return await Task.FromResult(receiptBytes);
         }
     }
 }

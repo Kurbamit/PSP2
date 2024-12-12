@@ -128,7 +128,8 @@ const ScriptResources = {
     ErrorRefund: 'Error refunding order',
     Processing: 'Processing...',
     RefundWarning: "Do you really want to refund all payments made for this order? This action is irreversible.",
-
+    Receipt: "Receipt",
+    Download: "Download",
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {

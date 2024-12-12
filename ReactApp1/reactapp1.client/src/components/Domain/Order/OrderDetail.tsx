@@ -4,13 +4,14 @@ import Cookies from 'js-cookie';
 import {useNavigate, useParams} from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
 import {Order} from "./Orders.tsx";
-import { getOrderStatusString, getYesNoString, getPaymentTypeString } from "../../../assets/Utils/utils.ts";
+import {getOrderStatusString, getPaymentTypeString, getYesNoString} from "../../../assets/Utils/utils.ts";
 import SelectDropdown from "../../Base/SelectDropdown.tsx";
 import {OrderStatusEnum} from "../../../assets/Models/FrontendModels.ts";
-import { Form } from 'react-bootstrap';
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import StripePayment from "./Stripe.tsx"; 
+import {Form} from 'react-bootstrap';
+import {Elements} from '@stripe/react-stripe-js';
+import {loadStripe} from '@stripe/stripe-js';
+import StripePayment from "./Stripe.tsx";
+
 interface Item {
     itemId: number;
     name: string;
@@ -185,6 +186,10 @@ const OrderDetail: React.FC = () => {
         navigate('/orders');
     };
 
+    const handleReceipt = () => {
+        navigate(`/receipt/${id}`);
+    };
+
     return (
         <div className="container-fluid">
             <h2 className="mb-4">{ScriptResources.Order}</h2>
@@ -308,6 +313,13 @@ const OrderDetail: React.FC = () => {
                 <button className="btn btn-secondary" onClick={handleBackToList}>
                     {ScriptResources.BackToTheMainList}
                 </button>
+                {order?.order.status === OrderStatusEnum.Completed && (
+                    <div className="mt-3">
+                        <button className="btn btn-primary me-2" onClick={() => handleReceipt()}>
+                            {ScriptResources.Receipt}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Modal */}
