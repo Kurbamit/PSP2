@@ -6,3 +6,5 @@
 6. Pridėti endpoint'ai susiję su `establishment` manipuliavimu. Juos galima kurti, redaguoti ir panašiai.
 7. Pridėjome `establishmentId`prie `Order` `Item` lentelių. Taip bus galima atskirti kuri įmonė turi tam tikrus item'us ir order'ius.
 8. Pridėjome `createdByEmployeeId` prie `Item` lentelės. Taip bus galima atskirti kuris darbuotojas sukūrėt tam tikrus item'us.
+9. Pridėta `Service` lentelė į databazę naudojant migrations.
+10. Pridėti `Service` CRUD endpoint'ai ir frontend funkcionalumas. Galima kurti, redaguoti ir panašiai.
