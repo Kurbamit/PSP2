@@ -8,9 +8,9 @@ namespace ReactApp1.Server.Services
     public class WorkingHoursService : IWorkingHoursService
     {
         private readonly IWorkingHoursRepository _workingHoursRepository;
-        private readonly Logger<WorkingHoursService> _logger;
+        private readonly ILogger<WorkingHoursService> _logger;
 
-        public WorkingHoursService(IWorkingHoursRepository serviceRepository, Logger<WorkingHoursService> logger)
+        public WorkingHoursService(IWorkingHoursRepository serviceRepository, ILogger<WorkingHoursService> logger)
         {
             _workingHoursRepository = serviceRepository;
             _logger = logger;
