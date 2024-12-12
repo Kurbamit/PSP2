@@ -46,7 +46,8 @@ namespace ReactApp1.Server.Data.Repositories
                     DayOfWeek = (DayOfWeekEnum)f.DayOfWeek,
                     StartTime = f.StartTime,
                     EndTime = f.EndTime,
-                    ReceiveTime = f.ReceiveTime
+                    ReceiveTime = f.ReceiveTime,
+                    CreatedByEmployeeId = f.CreatedByEmployeeId
                 }).FirstOrDefaultAsync();
 
             return workingHours;
@@ -62,7 +63,8 @@ namespace ReactApp1.Server.Data.Repositories
                     DayOfWeek = (int)workingHours.DayOfWeek,
                     StartTime = workingHours.StartTime,
                     EndTime = workingHours.EndTime,
-                    ReceiveTime = workingHours.ReceiveTime
+                    ReceiveTime = workingHours.ReceiveTime,
+                    CreatedByEmployeeId = workingHours.CreatedByEmployeeId
                 };
 
                 var workingHoursEntity = await _context.WorkingHours.AddAsync(newWorkingHours);

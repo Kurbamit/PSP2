@@ -24,7 +24,13 @@ public class WorkingHours
 
     [Column("EndTime")]
     public TimeSpan EndTime { get; set; }
-    
+
+    [Column("CreatedByEmployeeId")]
+    public int CreatedByEmployeeId { get; set; }
+
     [ForeignKey(nameof(EstablishmentAddressId))]
     public virtual EstablishmentAddress EstablishmentAddress { get; set; }
+
+    [ForeignKey(nameof(CreatedByEmployeeId))]
+    public virtual Employee CreatedByEmployee { get; set; }
 }

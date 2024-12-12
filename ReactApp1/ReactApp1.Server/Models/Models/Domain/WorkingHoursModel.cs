@@ -35,12 +35,18 @@ namespace ReactApp1.Server.Models.Models.Domain
         /// </summary>
         public DateTime ReceiveTime { get; set; }
 
+        /// <summary>
+        /// Identifikatorius darbuotojo, kuris sukure darbo valandas
+        /// </summary>
+        public int CreatedByEmployeeId { get; set; }
+
         public void MapUpdate(WorkingHours existingWorkingHours)
         {
             existingWorkingHours.EstablishmentAddressId = this.EstablishmentAddressId;
             existingWorkingHours.DayOfWeek = (int)this.DayOfWeek;
             existingWorkingHours.StartTime = this.StartTime;
             existingWorkingHours.EndTime = this.EndTime;
+            existingWorkingHours.CreatedByEmployeeId = this.CreatedByEmployeeId;
         }
     }
 }

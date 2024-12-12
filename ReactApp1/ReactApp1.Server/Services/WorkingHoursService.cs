@@ -8,12 +8,10 @@ namespace ReactApp1.Server.Services
     public class WorkingHoursService : IWorkingHoursService
     {
         private readonly IWorkingHoursRepository _workingHoursRepository;
-        private readonly ILogger<WorkingHoursService> _logger;
 
-        public WorkingHoursService(IWorkingHoursRepository serviceRepository, ILogger<WorkingHoursService> logger)
+        public WorkingHoursService(IWorkingHoursRepository serviceRepository)
         {
             _workingHoursRepository = serviceRepository;
-            _logger = logger;
         }
 
         public Task<PaginatedResult<WorkingHours>> GetAllWorkingHours(int pageSize, int pageNumber)
@@ -26,16 +24,8 @@ namespace ReactApp1.Server.Services
             return _workingHoursRepository.GetWorkingHoursByIdAsync(workingHoursId);
         }
 
-        public Task<WorkingHours> CreateNewWorkingHours(WorkingHoursModel workingHours, int? establishmentAddressId)
+        public Task<WorkingHours> CreateNewWorkingHours(WorkingHoursModel workingHours)
         {
-            if (!establishmentAddressId.HasValue)
-            {
-                _logger.LogError("Failed to add working hours: invalid or expired access token");
-                throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
-            }
-
-            workingHours.EstablishmentAddressId = establishmentAddressId.Value;
-
             return _workingHoursRepository.AddWorkingHoursAsync(workingHours);
         }
 
