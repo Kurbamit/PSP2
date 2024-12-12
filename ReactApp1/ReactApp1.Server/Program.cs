@@ -111,6 +111,7 @@ builder.Services.AddScoped<IGiftCardService, GiftCardService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<PaymentIntentService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<RefundService>();
 
 var app = builder.Build();
 

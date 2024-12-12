@@ -1,3 +1,4 @@
+using Azure;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Exceptions.ItemExceptions;
@@ -19,10 +20,11 @@ namespace ReactApp1.Server.Services
         private readonly IPaymentRepository _paymentRepository;
         private readonly IGiftCardRepository _giftcardRepository;
         private readonly ILogger<OrderService> _logger;
+        private readonly IPaymentService _paymentService;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, 
             IFullOrderRepository fullOrderRepository, IEmployeeRepository employeeRepository, ILogger<OrderService> logger,
-            IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository)
+            IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository, IPaymentService paymentService)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
@@ -31,6 +33,7 @@ namespace ReactApp1.Server.Services
             _paymentRepository = paymentRepository;
             _giftcardRepository = giftcardRepository;
             _logger = logger;
+            _paymentService = paymentService;
         }
         
         public async Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId, int? establishmentId)
@@ -140,7 +143,7 @@ namespace ReactApp1.Server.Services
             // Before adding an item to an order, check if:
             // 1. The order exists
             // 2. The item exists and there is enough stock in storage
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(fullOrder.OrderId, "AddItemToOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(fullOrder.OrderId, (int)OrderStatusEnum.Open, "AddItemToOrder");
             if (existingOrderWithOpenStatus == null) 
                 return;
 
@@ -183,7 +186,7 @@ namespace ReactApp1.Server.Services
         
         public async Task RemoveItemFromOrder(FullOrderModel fullOrder)
         {
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(fullOrder.OrderId, "RemoveItemFromOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(fullOrder.OrderId, (int)OrderStatusEnum.Open, "RemoveItemFromOrder");
             if (existingOrderWithOpenStatus == null)
                 return;
             
@@ -214,7 +217,7 @@ namespace ReactApp1.Server.Services
         
         public async Task UpdateOrder(OrderModel order)
         {
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(order.OrderId, "UpdateOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(order.OrderId, (int)OrderStatusEnum.Open, "UpdateOrder");
             if (existingOrderWithOpenStatus == null)
                 throw new OrderNotFoundException(order.OrderId);
             
@@ -223,7 +226,7 @@ namespace ReactApp1.Server.Services
 
         public async Task CloseOrder(int orderId)
         {
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(orderId, "CloseOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Open, "CloseOrder");
             if(existingOrderWithOpenStatus == null)
                 return;
 
@@ -232,7 +235,7 @@ namespace ReactApp1.Server.Services
             await _orderRepository.UpdateOrderAsync(existingOrderWithOpenStatus);
         }
         
-        private async Task<OrderModel?> GetOrderIfExistsAndStatusIsOpen(int orderId, string? operation = null)
+        private async Task<OrderModel?> GetOrderIfExistsAndStatusIs(int orderId, int orderStatus, string? operation = null)
         {
             var order = (await GetOrderById(orderId)).Order;
             if (order == null)
@@ -241,34 +244,17 @@ namespace ReactApp1.Server.Services
                 throw new OrderNotFoundException(orderId);
             }
 
-            if (order.Status != (int)OrderStatusEnum.Open)
+            if (order.Status != orderStatus)
             {
-                _logger.LogError($"Operation '{operation}' failed: Order status is {order.Status.ToString()}");
-                throw new OrderStatusConflictException(order.Status.ToString());
-            }
-                
-            return order;
-        }
-        private async Task<OrderModel?> GetOrderIfExistsAndStatusIsClosed(int orderId, string? operation = null)
-        {
-            var order = (await GetOrderById(orderId)).Order;
-            if (order == null)
-            {
-                _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
-                throw new OrderNotFoundException(orderId);
-            }
-
-            if (order.Status != (int)OrderStatusEnum.Closed)
-            {
-                _logger.LogError($"Operation '{operation}' failed: Order status is {order.Status.ToString()}");
-                throw new OrderStatusConflictException(order.Status.ToString());
+                _logger.LogError($"Operation '{operation}' failed: Order status is {orderStatus}");
+                throw new OrderStatusConflictException(orderStatus.ToString());
             }
 
             return order;
         }
         public async Task CancelOrder(int orderId)
         {
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIsOpen(orderId, "CancelOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Open, "CancelOrder");
             if (existingOrderWithOpenStatus == null)
                 return;
 
@@ -289,7 +275,7 @@ namespace ReactApp1.Server.Services
         }
         public async Task PayOrder(PaymentModel payment)
         {
-            var existingOrderWithClosedStatus = await GetOrderIfExistsAndStatusIsClosed(payment.OrderId, "PayOrder");
+            var existingOrderWithClosedStatus = await GetOrderIfExistsAndStatusIs(payment.OrderId, (int)OrderStatusEnum.Closed, "PayOrder");
             if (existingOrderWithClosedStatus == null)
                 return;
 
@@ -314,7 +300,7 @@ namespace ReactApp1.Server.Services
             } 
             else if (payment.Type == (int)PaymentTypeEnum.Card)
             {
-                // TODO save payment id
+               
             }
 
             if (existingOrderWithClosedStatus.LeftToPay == payment.Value)
@@ -324,6 +310,53 @@ namespace ReactApp1.Server.Services
             }
 
             await _paymentRepository.AddPaymentAsync(payment);
+        }
+        public async Task RefundOrder(int orderId)
+        {
+            var order = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Completed, "RefundOrder");
+            if (order == null || order.Refunded)
+                return;
+
+            var orderPayments = await GetOrderPayments(orderId);
+
+            foreach (var payment in orderPayments)
+            {
+                if(payment.Type == (int)PaymentTypeEnum.Cash)
+                {
+                    // idk?
+                }
+                else if(payment.Type == (int)PaymentTypeEnum.GiftCard)
+                {
+                    GiftCardModel? giftcard = await _giftcardRepository.GetGiftCardByIdAsync(payment.GiftCardId);
+
+                    if(giftcard == null)
+                    {
+                        _logger.LogError($"Could not refund payment {payment.PaymentId}. Giftcard not found.");
+                        continue;
+                    }
+
+                    giftcard.Amount += payment.Value;
+
+                    //Add 1 extra week to spend the money
+                    if(giftcard.ExpirationDate < DateTime.Now)
+                    {
+                        giftcard.ExpirationDate = DateTime.Now.AddDays(7);
+                    }
+                    else 
+                    {
+                        giftcard.ExpirationDate = giftcard.ExpirationDate.AddDays(7);
+                    }
+
+                    await _giftcardRepository.UpdateGiftCardAsync(giftcard);
+                }
+                else if(payment.Type == (int)PaymentTypeEnum.Card)
+                {
+                    await _paymentService.RefundPaymentIntent(payment.StripePaymentId);
+                }
+            }
+            
+            order.Refunded = true;
+            await _orderRepository.UpdateOrderAsync(order);
         }
     }
 }
