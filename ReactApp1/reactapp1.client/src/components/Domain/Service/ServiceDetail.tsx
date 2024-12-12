@@ -139,7 +139,6 @@ const ServiceDetail: React.FC = () => {
             handleBackToList();
         } catch (error) {
             console.error(ScriptResources.ErrorDeletingService, error);
-            alert(ScriptResources.ErrorDeletingService);
         }
     };
 

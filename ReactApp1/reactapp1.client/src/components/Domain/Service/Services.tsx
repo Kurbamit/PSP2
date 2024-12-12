@@ -61,7 +61,6 @@ const Services: React.FC = () => {
             }
         } catch (error) {
             console.error(ScriptResources.ErrorDeletingService, error);
-            alert(ScriptResources.ErrorDeletingService);
         }
     };
 
