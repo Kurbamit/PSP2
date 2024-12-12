@@ -66,7 +66,23 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok();
         }
-        
+
+        [HttpPut("orders/{orderId}/cancel")]
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            await _orderService.CancelOrder(orderId);
+
+            return Ok();
+        }
+
+        [HttpPut("orders/{orderId}/pay")]
+        public async Task<IActionResult> PayOrder([FromBody] PaymentModel payment)
+        {
+            await _orderService.PayOrder(payment);
+
+            return Ok();
+        }
+
         [HttpDelete("orders/{orderId}/items")]
         public async Task<IActionResult> RemoveItemFromOrder([FromBody] FullOrderModel order)
         {

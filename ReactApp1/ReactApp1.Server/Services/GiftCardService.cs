@@ -23,7 +23,10 @@ namespace ReactApp1.Server.Services
         {
             return _giftCardRepository.GetGiftCardByIdAsync(giftCardId);
         }
-
+        public Task<GiftCardModel?> GetGiftCardByCode(string giftCardCode)
+        {
+            return _giftCardRepository.GetGiftCardByCodeAsync(giftCardCode);
+        }
         public Task CreateNewGiftCard(GiftCard giftCard)
         {
             return _giftCardRepository.AddGiftCardAsync(giftCard);

@@ -22,6 +22,7 @@ public class AppDbContext : DbContext
     public DbSet<GiftCard> GiftCards { get; set; }
     public DbSet<Reservation> Reservations { get; set; }
     public DbSet<WorkingHours> WorkingHours { get; set; }
+    public DbSet<Service> Services { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -215,10 +216,9 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
-            
-            entity.HasOne(g => g.Payment)
-                .WithMany(p => p.GiftCards)
-                .HasForeignKey(g => g.PaymentId);
+
+            entity.HasIndex(e => e.Code)
+                .IsUnique();
         });
 
         modelBuilder.Entity<Reservation>(entity =>
@@ -231,6 +231,21 @@ public class AppDbContext : DbContext
             .IsRequired()
             .ValueGeneratedOnAdd()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
+
+        modelBuilder.Entity<Service>(entity =>
+        {
+            entity.Property(p => p.ServiceId)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+
+            entity.Property(e => e.ReceiveTime)
+                .IsRequired()
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.Property(n => n.EstablishmentId)
+                .IsRequired();
         });
 
         modelBuilder.Entity<WorkingHours>(entity =>

@@ -8,18 +8,23 @@ public class OrderModel
     public DateTime ReceiveTime { get; set; }
     public int? DiscountPercentage { get; set; }
     public decimal? DiscountFixed { get; set; }
+    public int? TipPercentage { get; set; }
+    public decimal? TipFixed { get; set; }
     public int? PaymentId { get; set; }
     public bool Refunded { get; set; }
     public int? ReservationId { get; set; }
     public string? CreatedByEmployeeName { get; set; }
     public decimal? TotalPrice { get; set; }
+    public decimal? TotalPaid { get; set; }
+    public decimal? LeftToPay { get; set; }
 
     public OrderModel()
     {
     }
     
     public OrderModel(int orderId, int status, int createdByEmployeeId, DateTime receiveTime, 
-        int? discountPercentage, decimal? discountFixed, int? paymentId, bool refunded, int? reservationId)
+        int? discountPercentage, decimal? discountFixed, int? tipPercentage, decimal? tipFixed, int? paymentId, 
+        bool refunded, int? reservationId)
     {
         OrderId = orderId;
         Status = status;
@@ -27,6 +32,8 @@ public class OrderModel
         ReceiveTime = receiveTime;
         DiscountPercentage = discountPercentage;
         DiscountFixed = discountFixed;
+        TipPercentage = tipPercentage;
+        TipFixed = tipFixed;
         PaymentId = paymentId;
         Refunded = refunded;
         ReservationId = reservationId;
@@ -34,20 +41,23 @@ public class OrderModel
     
     public OrderModel(Order order)
     : this(order.OrderId, order.Status, order.CreatedByEmployeeId, order.ReceiveTime, 
-        order.DiscountPercentage, order.DiscountFixed, order.PaymentId, order.Refunded, order.ReservationId)
+        order.DiscountPercentage, order.DiscountFixed, order.TipPercentage, order.TipFixed, order.PaymentId, 
+        order.Refunded, order.ReservationId)
     {
         
     }
 }
 
-public class OrderItems
+public class OrderItemsPayments
 {
     public OrderModel Order { get; set; }
     public List<ItemModel> Items { get; set; }
+    public List<PaymentModel> Payments { get; set; }
 
-    public OrderItems(OrderModel? order, List<ItemModel>? items)
+    public OrderItemsPayments(OrderModel? order, List<ItemModel>? items, List<PaymentModel> payments)
     {
         Order = order ?? new OrderModel();
         Items = items ?? new List<ItemModel>();
+        Payments = payments ?? new List<PaymentModel>();
     }
 }

@@ -12,7 +12,6 @@ public class GiftCardModel
 
     public DateTime ReceiveTime { get; set; }
 
-    public int? PaymentId { get; set; }
 
     public void MapUpdate(GiftCard existingGiftCard)
     {
@@ -20,6 +19,5 @@ public class GiftCardModel
         existingGiftCard.Amount = this.Amount;
         existingGiftCard.Code = this.Code;
         existingGiftCard.ReceiveTime = this.ReceiveTime;
-        existingGiftCard.PaymentId = this.PaymentId;
     }
 }
