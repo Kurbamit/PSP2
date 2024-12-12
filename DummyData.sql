@@ -63,5 +63,5 @@ VALUES
 
 INSERT INTO public."Service" ("ReceiveTime", "EstablishmentId", "ServiceLength", "Cost", "Tax", "Name")
 VALUES
-	(CURRENT_TIMESTAMP, 1, '00:30:00', 50.0, 3.5, 'Massage')
+	(CURRENT_TIMESTAMP, 1, '00:30:00', 50.0, 3.5, 'Massage'),
 	(CURRENT_TIMESTAMP, 1, '00:45:00', 65.0, 6.0, 'Therapy')
