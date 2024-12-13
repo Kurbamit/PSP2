@@ -161,7 +161,7 @@ namespace ReactApp1.Server.UnitTest
         }
         
         [Fact]
-        public async Task AddItemToOrder_OrderStatusIsNotOpen_ThrowsOrderStatusConflictExceptionException()
+        public async Task AddItemToOrder_OrderStatusIsNotOpen_ThrowsOrderStatusConflictException()
         {
             // arrange
             var state = BuildTestState();
@@ -188,7 +188,7 @@ namespace ReactApp1.Server.UnitTest
         }
         
         [Fact]
-        public async Task AddItemToOrder_ItemDoesNotExistInStorage_ThrowsItemNotFoundExceptionException()
+        public async Task AddItemToOrder_ItemDoesNotExistInStorage_ThrowsItemNotFoundException()
         {
             // arrange
             var state = BuildTestState();
@@ -206,7 +206,7 @@ namespace ReactApp1.Server.UnitTest
         }
         
         [Fact]
-        public async Task AddItemToOrder_RequestedItemQuantityExceedsStock_ThrowsStockExhaustedExceptionException()
+        public async Task AddItemToOrder_RequestedItemQuantityExceedsStock_ThrowsStockExhaustedException()
         {
             // arrange
             var state = BuildTestState();
