@@ -59,7 +59,6 @@ const ReservationDetail: React.FC = () => {
                 });
             } catch (error) {
                 console.error(ScriptResources.ErrorFetchingEstablishmentDetails, error);
-                setError(ScriptResources.ErrorFetchingEstablishmentDetails);
             }
         };
 

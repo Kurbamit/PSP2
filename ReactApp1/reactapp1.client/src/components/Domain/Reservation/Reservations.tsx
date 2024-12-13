@@ -17,6 +17,9 @@ interface Reservation {
     establishmentAddressId: number;
     serviceId: number;
     customerPhoneNumber: string;
+    employeeName?: string;
+    establishmentAddress?: string;
+    serviceName?: string;
 }
 
 const Reservations: React.FC = () => {
@@ -31,16 +34,66 @@ const Reservations: React.FC = () => {
     useEffect(() => {
         const fetchReservations = async () => {
             try {
-                const response = await axios.get(`http://localhost:5114/api/reservations`, {
+                const response = await axios.get('http://localhost:5114/api/reservations', {
                     params: { pageNumber: currentPage, pageSize },
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                setReservations(response.data.items);
+                const reservationsData = await Promise.all(
+                    response.data.items.map(async (reservation: Reservation) => {
+                        const employeeName = await fetchEmployeeName(reservation.createdByEmployeeId);
+                        const establishmentAddress = await fetchEstablishmentAddress(reservation.establishmentId);
+                        const serviceName = await fetchServiceName(reservation.serviceId);
+
+                        return {
+                            ...reservation,
+                            employeeName,
+                            establishmentAddress,
+                            serviceName,
+                        };
+                    })
+                );
+
+                setReservations(reservationsData);
                 setTotalPages(response.data.totalPages);
                 setTotalItems(response.data.totalItems);
             } catch (error) {
                 console.error(ScriptResources.ErrorFetchingReservations, error);
+            }
+        };
+
+        const fetchEmployeeName = async (employeeId: number) => {
+            try {
+                const response = await axios.get(`http://localhost:5114/api/employees/${employeeId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const { firstName, lastName } = response.data;
+                return `${firstName} ${lastName}`;
+            } catch (error) {
+                console.error(ScriptResources.ErrorFetchingEmployeeDetails, error);
+            }
+        };
+
+        const fetchEstablishmentAddress = async (establishmentId: number) => {
+            try {
+                const response = await axios.get(`http://localhost:5114/api/establishments/${establishmentId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const { street, streetNumber } = response.data;
+                return `${street} ${streetNumber}`;
+            } catch (error) {
+                console.error(ScriptResources.ErrorFetchingEstablishmentDetails, error);
+            }
+        };
+
+        const fetchServiceName = async (serviceId: number) => {
+            try {
+                const response = await axios.get(`http://localhost:5114/api/services/${serviceId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                return response.data.name;
+            } catch (error) {
+                console.error(ScriptResources.ErrorFetchingServiceDetails, error);
             }
         };
 
@@ -84,10 +137,9 @@ const Reservations: React.FC = () => {
                         <th>{ScriptResources.ReceiveTime}</th>
                         <th>{ScriptResources.StartTime}</th>
                         <th>{ScriptResources.EndTime}</th>
-                        <th>{ScriptResources.CreatedByEmployeeId}</th>
-                        <th>{ScriptResources.EstablishmentId}</th>
-                        <th>{ScriptResources.EstablishmentAddressId}</th>
-                        <th>{ScriptResources.ServiceId}</th>
+                        <th>{ScriptResources.CreatedByEmployee}</th>
+                        <th>{ScriptResources.EstablishmentAddress}</th>
+                        <th>{ScriptResources.Service}</th>
                         <th>{ScriptResources.CustomerPhoneNumber}</th>
                         <th>{ScriptResources.Actions}</th>
                     </tr>
@@ -99,10 +151,9 @@ const Reservations: React.FC = () => {
                             <td>{new Date(reservation.receiveTime).toLocaleString()}</td>
                             <td>{new Date(reservation.startTime).toLocaleString()}</td>
                             <td>{new Date(reservation.endTime).toLocaleString()}</td>
-                            <td>{reservation.createdByEmployeeId}</td>
-                            <td>{reservation.establishmentId}</td>
-                            <td>{reservation.establishmentAddressId}</td>
-                            <td>{reservation.serviceId}</td>
+                            <td>{reservation.employeeName}</td>
+                            <td>{reservation.establishmentAddress}</td>
+                            <td>{reservation.serviceName}</td>
                             <td>{reservation.customerPhoneNumber}</td>
                             <td style={{ display: 'flex', justifyContent: 'space-around' }}>
                                 <span
