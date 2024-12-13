@@ -3,24 +3,9 @@ import axios from 'axios';
 import Cookies from "js-cookie";
 import {useNavigate, useParams} from "react-router-dom";
 import ScriptResources from "../../../assets/resources/strings.ts";
+import { Order } from "./Orders.tsx";
+import {getOrderStatusString} from "../../../assets/Utils/utils.ts";
 
-interface Order {
-    orderId: number;
-    status: number;
-    createdByEmployeeId: number;
-    receiveTime: string;
-    discountPercentage?: number | null;
-    discountFixed?: number | null;
-    tipPercentage?: number | null;
-    tipFixed?: number | null;
-    paymentId?: number | null;
-    refunded: boolean;
-    reservationId?: number | null;
-    createdByEmployeeName?: string | null;
-    totalPrice?: number | null;
-    totalPaid?: number | null;
-    leftToPay?: number | null;
-}
 
 interface Item {
     itemId: number;
@@ -92,49 +77,48 @@ const Receipt: React.FC = () => {
         }
     }
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (loading) return <div>{ScriptResources.Loading}</div>;
+    if (error) return <div>{ScriptResources.Error} + {error}</div>;
 
-    if (!data) return <div>No data found</div>;
+    if (!data) return <div>{ScriptResources.NoDataFound}</div>;
 
     const { order, items } = data;
 
     return (
         <div className="container mt-5">
-            <h1 className="mb-4">Receipt</h1>
+            <h1 className="mb-4">{ScriptResources.Receipt}</h1>
             <div className="card mb-4">
                 <div className="card-body">
-                    <h5 className="card-title">Order Details</h5>
-                    <p><strong>Order ID:</strong> {order.orderId}</p>
-                    <p><strong>Status:</strong> {order.status}</p>
-                    <p><strong>Employee:</strong> {order.createdByEmployeeName}</p>
-                    <p><strong>Receive Time:</strong> {new Date(order.receiveTime).toLocaleString()}</p>
-                    <p><strong>Total Price:</strong> {order.totalPrice?.toFixed(2) ?? 'N/A'} &euro;</p>
-                    <p><strong>Total Paid:</strong> {order.totalPaid?.toFixed(2) ?? 'N/A'} &euro;</p>
-                    <p><strong>Left to Pay:</strong> {order.leftToPay?.toFixed(2) ?? 'N/A'} &euro;</p>
+                    <h5 className="card-title">{ScriptResources.OrderDetails}</h5>
+                    <p><strong>{ScriptResources.OrderId}</strong> {order.orderId}</p>
+                    <p><strong>{ScriptResources.Status}</strong> {getOrderStatusString(order.status)}</p>
+                    <p><strong>{ScriptResources.Employee}</strong> {order.createdByEmployeeName}</p>
+                    <p><strong>{ScriptResources.ReceiveTime}</strong> {new Date(order.receiveTime).toLocaleString()}</p>
+                    <p><strong>{ScriptResources.TotalPrice}</strong> {order.totalPrice?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</p>
+                    <p><strong>{ScriptResources.TotalPaid}</strong> {order.totalPaid?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</p>
                 </div>
             </div>
 
             <div className="card">
                 <div className="card-body">
-                    <h5 className="card-title">Items</h5>
+                    <h5 className="card-title">{ScriptResources.Items}</h5>
                     <table className="table table-striped">
                         <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Cost</th>
-                            <th>Tax</th>
-                            <th>Alcoholic</th>
-                            <th>Count</th>
+                            <th>{ScriptResources.Name}</th>
+                            <th>{ScriptResources.Cost}</th>
+                            <th>{ScriptResources.Tax}</th>
+                            <th>{ScriptResources.AlcoholicBeverage}</th>
+                            <th>{ScriptResources.Count}</th>
                         </tr>
                         </thead>
                         <tbody>
                         {items.map(item => (
                             <tr key={item.itemId}>
                                 <td>{item.name}</td>
-                                <td>{item.cost?.toFixed(2) ?? 'N/A'} &euro;</td>
-                                <td>{item.tax?.toFixed(2) ?? 'N/A'} &euro;</td>
-                                <td>{item.alcoholicBeverage ? 'Yes' : 'No'}</td>
+                                <td>{item.cost?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
+                                <td>{item.tax?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
+                                <td>{item.alcoholicBeverage ? ScriptResources.Yes : ScriptResources.No}</td>
                                 <td>{item.count ?? 'N/A'}</td>
                             </tr>
                         ))}

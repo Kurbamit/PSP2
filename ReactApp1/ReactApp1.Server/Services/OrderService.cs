@@ -368,6 +368,11 @@ namespace ReactApp1.Server.Services
                 throw new OrderNotFoundException(orderId);
             }
 
+            if (order.Order.Status != (int)OrderStatusEnum.Completed)
+            {
+                throw new OrderStatusConflictException(((OrderStatusEnum)order.Order.Status).ToString());
+            }
+
             return await _orderRepository.DownloadReceipt(order);
         }
     }
