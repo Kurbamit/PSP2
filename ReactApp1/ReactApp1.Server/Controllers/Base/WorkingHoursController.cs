@@ -24,7 +24,7 @@ namespace ReactApp1.Server.Controllers
         /// <param name="pageSize"></param>
         /// <returns></returns>
         [HttpGet("workingHours")]
-        public async Task<IActionResult> GetWorkingHourss(int pageNumber, int pageSize)
+        public async Task<IActionResult> GetWorkingHours(int pageNumber, int pageSize)
         {
             var workingHours = await _workingHoursService.GetAllWorkingHours(pageNumber, pageSize);
             return Ok(workingHours);
@@ -36,11 +36,12 @@ namespace ReactApp1.Server.Controllers
         /// <param name="workingHoursId"></param>
         /// <returns></returns>
         [HttpGet("workingHours/{workingHoursId}")]
-        public async Task<IActionResult> GetWorkingHourss(int workingHoursId)
+        public async Task<IActionResult> GetWorkingHours(int workingHoursId)
         {
             var workingHours = await _workingHoursService.GetWorkingHoursById(workingHoursId);
             return Ok(workingHours);
         }
+
 
         /// <summary>
         /// Create new working hours

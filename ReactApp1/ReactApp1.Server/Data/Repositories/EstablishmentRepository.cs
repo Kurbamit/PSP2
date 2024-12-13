@@ -42,6 +42,7 @@ namespace ReactApp1.Server.Data.Repositories
                 .Select(f => new EstablishmentModel()
                 {
                     EstablishmentId = f.EstablishmentId,
+                    EstablishmentAddressId = f.EstablishmentAddressId,
                     Type = f.Type,
                     Country = f.EstablishmentAddress.Country,
                     City = f.EstablishmentAddress.City,
@@ -64,7 +65,8 @@ namespace ReactApp1.Server.Data.Repositories
 
                 var newEstablishment = new Establishment
                 {
-                    Type = establishment.Type
+                    Type = establishment.Type,
+                    EstablishmentAddressId = establishment.EstablishmentAddressId
                 };
                 
                 await _context.Establishments.AddAsync(newEstablishment);
