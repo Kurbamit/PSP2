@@ -13,6 +13,7 @@ const ScriptResources = {
     ReservationsList: 'Reservations List:',
     CustomerPhoneNumber: 'Customer Phone Number:',
     EstablishmentId: 'Establishment Id:',
+    EstablishmentAddressId: 'Establishment Address Id:',
     CreatedByEmployeeId: 'Created By Employee Id:',
     CreatedByEmployee: 'Created By Employee:',
     UnknownEmployee: 'Unknown Employee',

@@ -46,6 +46,9 @@ namespace ReactApp1.Server.Data.Repositories
                     StartTime = f.StartTime.Value,
                     EndTime = f.EndTime.Value,
                     CreatedByEmployeeId = f.CreatedByEmployeeId,
+                    EstablishmentId = f.EstablishmentId,
+                    EstablishmentAddressId = f.EstablishmentAddressId,
+                    ServiceId = f.ServiceId,
                     CustomerPhoneNumber = f.CustomerPhoneNumber
                 }).FirstOrDefaultAsync();
             return reservation;
@@ -61,6 +64,9 @@ namespace ReactApp1.Server.Data.Repositories
                     StartTime = reservation.StartTime,
                     EndTime = reservation.EndTime,
                     CreatedByEmployeeId = reservation.CreatedByEmployeeId,
+                    EstablishmentId = reservation.EstablishmentId,
+                    EstablishmentAddressId = reservation.EstablishmentAddressId,
+                    ServiceId = reservation.ServiceId,
                     CustomerPhoneNumber = reservation.CustomerPhoneNumber
                 };
 

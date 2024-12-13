@@ -28,14 +28,24 @@ public class ReservationModel
     public int CreatedByEmployeeId { get; set; }
 
     /// <summary>
+    /// Identifikatorius istaigos, kuriame siuloma rezervacija
+    /// </summary>
+    public int EstablishmentId { get; set; }
+
+    /// <summary>
+    /// Identifikatorius istaigos adreso, kuriame vyks rezervacija
+    /// </summary>
+    public int EstablishmentAddressId { get; set; }
+
+    /// <summary>
+    /// Identifikatorius serviso, kuris bus atliekamas rezervacijoje
+    /// </summary>
+    public int ServiceId { get; set; }
+
+    /// <summary>
     /// Kliento telefono numeris
     /// </summary>
     public string CustomerPhoneNumber { get; set; }
-
-    /// <summary>
-    /// Identifikatorius serviso, kuriame vyks rezervacija
-    /// </summary>
-    public int EstablishmentId { get; set; }
 
     public void MapUpdate(Reservation existingReservation)
     {
@@ -43,6 +53,9 @@ public class ReservationModel
         existingReservation.StartTime = StartTime;
         existingReservation.EndTime = EndTime;
         existingReservation.CreatedByEmployeeId = CreatedByEmployeeId;
+        existingReservation.EstablishmentId = EstablishmentId;
+        existingReservation.EstablishmentAddressId = EstablishmentAddressId;
+        existingReservation.ServiceId = ServiceId;
         existingReservation.CustomerPhoneNumber = CustomerPhoneNumber;
     }
 }

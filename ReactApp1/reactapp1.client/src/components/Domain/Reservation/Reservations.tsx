@@ -10,12 +10,13 @@ import ScriptResources from "../../../assets/resources/strings.ts";
 interface Reservation {
     reservationId: number;
     receiveTime: string;
-    startTime?: string;
-    endTime?: string;
+    startTime: string;
+    endTime: string;
     createdByEmployeeId: number;
+    establishmentId: number;
+    establishmentAddressId: number;
+    serviceId: number;
     customerPhoneNumber: string;
-    establishmentId?: number;
-    createdByEmployeeName?: string;
 }
 
 const Reservations: React.FC = () => {
@@ -35,24 +36,7 @@ const Reservations: React.FC = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                const reservationsWithEmployeeNames = await Promise.all(
-                    response.data.items.map(async (reservation: Reservation) => {
-                        try {
-                            const employeeResponse = await axios.get(
-                                `http://localhost:5114/api/employees/${reservation.createdByEmployeeId}`,
-                                { headers: { Authorization: `Bearer ${token}` } }
-                            );
-                            const employee = employeeResponse.data;
-                            const employeeName = `${employee.firstName} ${employee.lastName}`;
-                            return { ...reservation, createdByEmployeeName: employeeName, establishmentId: employee.establishmentId };
-                        } catch (employeeError) {
-                            console.error(ScriptResources.ErrorFetchingEmployeeDetailsForReservation, reservation.reservationId, employeeError);
-                            return { ...reservation, createdByEmployeeName: ScriptResources.UnknownEmployee, establishmentId: null };
-                        }
-                    })
-                );
-
-                setReservations(reservationsWithEmployeeNames);
+                setReservations(response.data.items);
                 setTotalPages(response.data.totalPages);
                 setTotalItems(response.data.totalItems);
             } catch (error) {
@@ -74,12 +58,11 @@ const Reservations: React.FC = () => {
             });
 
             if (response.status === 204) {
-                setReservations(reservations.filter((res) => res.reservationId !== reservationId));
+                setReservations(reservations.filter((reservation) => reservation.reservationId !== reservationId));
                 setTotalItems(totalItems - 1);
             }
         } catch (error) {
             console.error(ScriptResources.ErrorDeletingReservation, error);
-            alert(ScriptResources.ErrorDeletingReservation);
         }
     };
 
@@ -101,9 +84,11 @@ const Reservations: React.FC = () => {
                         <th>{ScriptResources.ReceiveTime}</th>
                         <th>{ScriptResources.StartTime}</th>
                         <th>{ScriptResources.EndTime}</th>
-                        <th>{ScriptResources.CreatedByEmployee}</th>
-                        <th>{ScriptResources.CustomerPhoneNumber}</th>
+                        <th>{ScriptResources.CreatedByEmployeeId}</th>
                         <th>{ScriptResources.EstablishmentId}</th>
+                        <th>{ScriptResources.EstablishmentAddressId}</th>
+                        <th>{ScriptResources.ServiceId}</th>
+                        <th>{ScriptResources.CustomerPhoneNumber}</th>
                         <th>{ScriptResources.Actions}</th>
                     </tr>
                 </thead>
@@ -111,12 +96,14 @@ const Reservations: React.FC = () => {
                     {reservations.map((reservation) => (
                         <tr key={reservation.reservationId}
                             onDoubleClick={() => handleIconClick(reservation.reservationId)}>
-                            <td>{reservation.receiveTime}</td>
-                            <td>{reservation.startTime || ScriptResources.NotAvailable}</td>
-                            <td>{reservation.endTime || ScriptResources.NotAvailable}</td>
-                            <td>{reservation.createdByEmployeeName || ScriptResources.UnknownEmployee}</td>
-                            <td>{reservation.customerPhoneNumber || ScriptResources.NotAvailable}</td>
-                            <td>{reservation.establishmentId || ScriptResources.NotAvailable}</td>
+                            <td>{new Date(reservation.receiveTime).toLocaleString()}</td>
+                            <td>{new Date(reservation.startTime).toLocaleString()}</td>
+                            <td>{new Date(reservation.endTime).toLocaleString()}</td>
+                            <td>{reservation.createdByEmployeeId}</td>
+                            <td>{reservation.establishmentId}</td>
+                            <td>{reservation.establishmentAddressId}</td>
+                            <td>{reservation.serviceId}</td>
+                            <td>{reservation.customerPhoneNumber}</td>
                             <td style={{ display: 'flex', justifyContent: 'space-around' }}>
                                 <span
                                     className="material-icons"

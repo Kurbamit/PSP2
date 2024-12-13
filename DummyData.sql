@@ -76,6 +76,6 @@ VALUES
     (CURRENT_TIMESTAMP, 1, 6, '10:00:00', '14:00:00', 1),
     (CURRENT_TIMESTAMP, 1, 7, '10:00:00', '14:00:00', 1);
 
-INSERT INTO public."Reservation" ("ReceiveTime", "StartTime", "EndTime", "CreatedByEmployeeId", "CustomerPhoneNumber")
+INSERT INTO public."Reservation" ("ReceiveTime", "StartTime", "EndTime", "CreatedByEmployeeId", "CustomerPhoneNumber", "EstablishmentAddressId", "EstablishmentId", "ServiceId")
 VALUES
-    (CURRENT_TIMESTAMP, '2024-12-10 18:00:00', '2024-12-10 20:00:00', 1, '+37047298312');
+    (CURRENT_TIMESTAMP, '2024-12-10 18:00:00', '2024-12-10 20:00:00', 1, '+37047298312', '1', '1', '1');
