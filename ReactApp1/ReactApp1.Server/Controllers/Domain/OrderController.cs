@@ -98,6 +98,14 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok();
         }
+
+        [HttpGet("orders/{orderId}/download")]
+        public async Task<IActionResult> DownloadReceipt(int orderId)
+        {
+            var receipt = await _orderService.DownloadReceipt(orderId);
+
+            return File(receipt, "text/plain", $"Receipt_Order{orderId}.txt");
+        }
     }
 }
 
