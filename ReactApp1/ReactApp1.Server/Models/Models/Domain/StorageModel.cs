@@ -7,6 +7,10 @@ public class StorageModel
     public int ItemId { get; set; }
     public int Count { get; set; }
 
+    public StorageModel()
+    {
+    }
+    
     public StorageModel(int storageId, int establishmentId, int itemId, int count)
     {
         StorageId = storageId;
