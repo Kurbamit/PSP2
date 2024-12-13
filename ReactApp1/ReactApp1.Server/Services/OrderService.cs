@@ -93,7 +93,7 @@ namespace ReactApp1.Server.Services
             var orderItems = new List<ItemModel>();
             foreach (var fullOrder in fullOrders)
             {
-                var item = await _itemRepository.GetItemByIdAsync(fullOrder.ItemId);
+                var item = await _itemRepository.GetItemByIdFromFullOrderAsync(fullOrder.ItemId, orderId);
                 
                 if(item == null)
                     continue;
@@ -138,8 +138,14 @@ namespace ReactApp1.Server.Services
             return order;
         }
 
-        public async Task AddItemToOrder(FullOrderModel fullOrder)
+        public async Task AddItemToOrder(FullOrderModel fullOrder, int? userId)
         {
+            if (!userId.HasValue)
+            {
+                _logger.LogError("Failed to add item to order: invalid or expired access token");
+                throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
+            }
+            
             // Before adding an item to an order, check if:
             // 1. The order exists
             // 2. The item exists and there is enough stock in storage
@@ -161,7 +167,7 @@ namespace ReactApp1.Server.Services
                 // update its quantity by adding new count to existing count
                 ? _fullOrderRepository.UpdateItemInOrderCountAsync(fullOrder)
                 // Otherwise, create a new record for it
-                : _fullOrderRepository.AddItemToOrderAsync(fullOrder);
+                : _fullOrderRepository.AddItemToOrderAsync(fullOrder, userId.Value);
             
             await task;
 

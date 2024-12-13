@@ -13,6 +13,7 @@ namespace ReactApp1.Server.Data.Repositories
         Task AddStorageAsync(int itemId, int amount);
         Task<StorageModel?> GetItemStorageAsync(int itemId);
         Task DeleteItemAsync(int itemId);
+        Task<ItemModel?> GetItemByIdFromFullOrderAsync(int itemId, int orderId);
     }
 }
 
