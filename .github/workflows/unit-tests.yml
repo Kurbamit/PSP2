@@ -22,7 +22,7 @@ jobs:
           dotnet-version: 8.0
 
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore ReactApp1/ReactApp1.sln
 
       - name: Run Unit Tests
         run: dotnet test ReactApp1/ReactApp1.Server.UnitTest/ReactApp1.Server.UnitTest.csproj
