@@ -1,10 +1,8 @@
-using Azure;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Exceptions.ItemExceptions;
 using ReactApp1.Server.Exceptions.OrderExceptions;
 using ReactApp1.Server.Exceptions.StorageExceptions;
-using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
@@ -149,13 +147,9 @@ namespace ReactApp1.Server.Services
             // Before adding an item to an order, check if:
             // 1. The order exists
             // 2. The item exists and there is enough stock in storage
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(fullOrder.OrderId, (int)OrderStatusEnum.Open, "AddItemToOrder");
-            if (existingOrderWithOpenStatus == null) 
-                return;
+            await GetOrderIfExistsAndStatusIs(fullOrder.OrderId, (int)OrderStatusEnum.Open,"AddItemToOrder");
 
-            var itemIsAvailableInStorage = await ItemIsAvailableInStorage();
-            if (!itemIsAvailableInStorage)
-                return;
+            await ItemIsAvailableInStorage();
             
             var existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
             
@@ -171,7 +165,7 @@ namespace ReactApp1.Server.Services
             
             await task;
 
-            async Task<bool> ItemIsAvailableInStorage()
+            async Task ItemIsAvailableInStorage()
             {
                 var storage = await _itemRepository.GetItemStorageAsync(fullOrder.ItemId);
                 if (storage == null)
@@ -185,8 +179,6 @@ namespace ReactApp1.Server.Services
                     _logger.LogError($"Not enough stock for item {fullOrder.ItemId}. Requested: {fullOrder.Count}, Available: {storage.Count} for order {fullOrder.OrderId}");
                     throw new StockExhaustedException(fullOrder.ItemId, storage.Count);
                 }
-
-                return true;
             }
         }
         
@@ -243,7 +235,7 @@ namespace ReactApp1.Server.Services
         
         private async Task<OrderModel?> GetOrderIfExistsAndStatusIs(int orderId, int orderStatus, string? operation = null)
         {
-            var order = (await GetOrderById(orderId)).Order;
+            var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
             {
                 _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
@@ -252,8 +244,8 @@ namespace ReactApp1.Server.Services
 
             if (order.Status != orderStatus)
             {
-                _logger.LogError($"Operation '{operation}' failed: Order status is {orderStatus}");
-                throw new OrderStatusConflictException(orderStatus.ToString());
+                _logger.LogError($"Operation '{operation}' failed: Order status is {order.Status}");
+                throw new OrderStatusConflictException(order.Status.ToString());
             }
 
             return order;
