@@ -235,20 +235,20 @@ namespace ReactApp1.Server.Services
         
         private async Task<OrderModel?> GetOrderIfExistsAndStatusIs(int orderId, int orderStatus, string? operation = null)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            var order = await GetOrderById(orderId);
             if (order == null)
             {
                 _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
                 throw new OrderNotFoundException(orderId);
             }
 
-            if (order.Status != orderStatus)
+            if (order.Order.Status != orderStatus)
             {
-                _logger.LogError($"Operation '{operation}' failed: Order status is {order.Status}");
-                throw new OrderStatusConflictException(order.Status.ToString());
+                _logger.LogError($"Operation '{operation}' failed: Order status is {order.Order.Status}");
+                throw new OrderStatusConflictException(order.Order.Status.ToString());
             }
 
-            return order;
+            return order.Order;
         }
         public async Task CancelOrder(int orderId)
         {
@@ -296,10 +296,6 @@ namespace ReactApp1.Server.Services
                 await _giftcardRepository.UpdateGiftCardAsync(giftcard);
 
             } 
-            else if (payment.Type == (int)PaymentTypeEnum.Card)
-            {
-               
-            }
 
             if (existingOrderWithClosedStatus.LeftToPay == payment.Value)
             {
