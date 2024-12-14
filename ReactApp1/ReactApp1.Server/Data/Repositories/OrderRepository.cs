@@ -150,8 +150,7 @@ namespace ReactApp1.Server.Data.Repositories
             sb.AppendLine($"Employee: {order.Order.CreatedByEmployeeName}");
             sb.AppendLine($"Receive Time: {order.Order.ReceiveTime:yyyy-MM-dd HH:mm:ss}");
             sb.AppendLine($"Total Price: {order.Order.TotalPrice?.ToString("0.00") ?? "N/A"} EUR");
-            sb.AppendLine($"Total Paid: {order.Order.TotalPaid?.ToString("0.00") ?? "N/A"} EUR");
-            sb.AppendLine($"Left to Pay: {order.Order.LeftToPay?.ToString("0.00") ?? "N/A"} EUR");
+            sb.AppendLine($"Tip: {order.Order.TipAmount?.ToString("0.00") ?? "N/A"} EUR");
             sb.AppendLine(new string('-', 30));
             sb.AppendLine("ITEMS:");
 

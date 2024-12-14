@@ -139,7 +139,9 @@ const ScriptResources = {
     Percentage: 'Percentage',
     Fixed: 'Fixed',
     ApplyTip: 'Apply tip',
-    Tip: 'Tip'
+    Tip: 'Tip',
+    TipAmount: 'Tip amount',
+
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {

@@ -17,6 +17,7 @@ public class OrderModel
     public decimal? TotalPrice { get; set; }
     public decimal? TotalPaid { get; set; }
     public decimal? LeftToPay { get; set; }
+    public decimal? TipAmount { get; set; }
 
     public OrderModel()
     {

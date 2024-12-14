@@ -95,7 +95,7 @@ const Receipt: React.FC = () => {
                     <p><strong>{ScriptResources.Employee}</strong> {order.createdByEmployeeName}</p>
                     <p><strong>{ScriptResources.ReceiveTime}</strong> {new Date(order.receiveTime).toLocaleString()}</p>
                     <p><strong>{ScriptResources.TotalPrice}</strong> {order.totalPrice?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</p>
-                    <p><strong>{ScriptResources.TotalPaid}</strong> {order.totalPaid?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</p>
+                    <p><strong>{ScriptResources.TipAmount}</strong> {order.tipAmount?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</p>
                 </div>
             </div>
 

@@ -123,10 +123,13 @@ namespace ReactApp1.Server.Services
             if (order.TipFixed != null)
             {
                 totalPrice += (order.TipFixed ?? 0);
+                order.TipAmount = (order.TipFixed ?? 0);
             }
             else if (order.TipPercentage != null)
             {
-                totalPrice += Math.Round(totalPrice * ((order.TipPercentage ?? 0) / 100), 2);
+                decimal tip = Math.Round(totalPrice * ((order.TipPercentage ?? 0) / 100), 2);
+                totalPrice += tip;
+                order.TipAmount = tip;
             }
 
             // TODO: Apply discount and taxes to the total price
