@@ -50,7 +50,7 @@ Login with admin:
 - Password: `123`
 
 ### Stripe
-https://dashboard.stripe.com/test/payments
-hanid66211@eoilup.com
-Hanid66221...
-Here you can review all payments
+Here you can review all payments:
+1. url:  ```https://dashboard.stripe.com/test/payments```
+2. email: ```hanid66211@eoilup.com```
+3. password: ```Hanid66221...```
