@@ -53,6 +53,39 @@ namespace ReactApp1.Server.Data.Repositories
                 }).FirstOrDefaultAsync();
             return item;
         }
+
+        /// <summary>
+        /// Method to get historical data of an item from a full order.
+        /// </summary>
+        /// <param name="itemId"></param>
+        /// <returns></returns>
+        public async Task<ItemModel?> GetItemByIdFromFullOrderAsync(int itemId, int orderId)
+        {
+            var item = await _context.FullOrders
+                .Where(f => f.ItemId == itemId)
+                .Where(f => f.OrderId == orderId)
+                .Select(f => new ItemModel()
+                {
+                    ItemId = f.ItemId,
+                    Name = f.Name,
+                    Cost = f.Cost,
+                    Tax = f.Tax,
+                    AlcoholicBeverage = f.AlcoholicBeverage,
+                    ReceiveTime = f.ReceiveTime,
+                }).FirstOrDefaultAsync();
+
+            var storage = await _context.Storages
+                .Where(f => f.ItemId == itemId)
+                .Select(f => f.Count)
+                .FirstOrDefaultAsync();
+
+            if (item != null)
+            {
+                item.Storage = storage;
+            }
+
+            return item;
+        }
         
         public async Task<int> AddItemAsync(ItemModel item, int establishmentId, int userId)
         {

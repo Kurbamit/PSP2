@@ -188,6 +188,10 @@ public class AppDbContext : DbContext
             entity.Property(e => e.FullOrderId)
                 .IsRequired()
                 .ValueGeneratedOnAdd();
+
+            entity.HasOne(e => e.CreatedByEmployee)
+                .WithMany(f => f.FullOrders)
+                .HasForeignKey(f => f.CreatedByEmployeeId);
         });
 
         modelBuilder.Entity<Payment>(entity =>
