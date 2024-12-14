@@ -11,6 +11,7 @@ public class Employee
     {
         Orders = new HashSet<Order>();
         Items = new HashSet<Item>();
+        FullOrders = new HashSet<FullOrder>();
     }
     
     [Key]
@@ -65,4 +66,6 @@ public class Employee
     public ICollection<Order> Orders { get; set; }
     
     public ICollection<Item> Items { get; set; }
+    
+    public ICollection<FullOrder> FullOrders { get; set; }
 }

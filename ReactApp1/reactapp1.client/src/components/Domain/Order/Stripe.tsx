@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Form } from 'react-bootstrap';
 import axios from 'axios';
@@ -9,8 +9,9 @@ interface StripePaymentProps {
     order: Order | undefined;
     token: string | undefined;
     paymentValue: number;
+    setShowPaymentModal: React.Dispatch<React.SetStateAction<boolean>>;
     setPaymentValue: React.Dispatch<React.SetStateAction<number>>; 
-    handlePayPayment: () => void;
+    handlePayPayment: (stripePaymentId: string) => void;
 }
 
 const StripePayment: React.FC<StripePaymentProps> = ({
@@ -18,11 +19,13 @@ const StripePayment: React.FC<StripePaymentProps> = ({
     token,
     paymentValue,
     setPaymentValue,
+    setShowPaymentModal,
     handlePayPayment,
 }) => {
 
     const stripe = useStripe();
     const elements = useElements();
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const cardOptions = {
         hidePostalCode: true
@@ -31,13 +34,17 @@ const StripePayment: React.FC<StripePaymentProps> = ({
     const handleStripePayment = async () => {
         if (order?.orderId) {
             try {
+                setIsProcessing(true);
+
                 if (!stripe || !elements) {
+                    setIsProcessing(false);
                     alert(`Stripe initialization failed`);
                     return;
                 }
 
                 const cardElement = elements.getElement(CardElement);
                 if (!cardElement) {
+                    setIsProcessing(false);
                     alert(`Payment initialization failed`);
                     return;
                 }
@@ -58,11 +65,13 @@ const StripePayment: React.FC<StripePaymentProps> = ({
                     alert(`Payment failed: ${error.message}`);
                 } else if (paymentIntent.status === 'succeeded') {
                     alert("Payment successful");
-                    handlePayPayment();
+                    handlePayPayment(paymentIntent.id);
                 }
 
             } catch (error) {
                 console.error("Error in Stripe payment: ", error);
+            } finally {
+                setIsProcessing(false);
             }
         }
     };
@@ -86,14 +95,15 @@ const StripePayment: React.FC<StripePaymentProps> = ({
                 />
             </Form.Group>
             <div className="modal-footer">
-                <button className="btn btn-secondary">
+                <button className="btn btn-secondary"
+                    onClick={() => setShowPaymentModal(false)}>
                     {ScriptResources.Cancel}
                 </button>
                 <button className="btn btn-primary"
                     onClick={handleStripePayment}
-                    disabled={paymentValue > (order?.leftToPay ?? 0) || paymentValue <= 0}
+                    disabled={isProcessing || paymentValue > (order?.leftToPay ?? 0) || paymentValue <= 0}
                 >
-                    {ScriptResources.Pay}
+                    {isProcessing? ScriptResources.Processing : ScriptResources.Pay}
                 </button>
             </div>
         </div>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReactApp1.Server.Data;
@@ -11,9 +12,11 @@ using ReactApp1.Server.Data;
 namespace ReactApp1.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241212140437_AddedStripePaymentId")]
+    partial class AddedStripePaymentId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -240,45 +243,19 @@ namespace ReactApp1.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("FullOrderId"));
 
-                    b.Property<bool>("AlcoholicBeverage")
-                        .HasColumnType("boolean")
-                        .HasColumnName("AlcoholicBeverage");
-
-                    b.Property<decimal?>("Cost")
-                        .HasColumnType("numeric")
-                        .HasColumnName("Cost");
-
                     b.Property<int>("Count")
                         .HasColumnType("integer")
                         .HasColumnName("Count");
-
-                    b.Property<int?>("CreatedByEmployeeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("CreatedByEmployeeId");
 
                     b.Property<int>("ItemId")
                         .HasColumnType("integer")
                         .HasColumnName("ItemId");
 
-                    b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("Name");
-
                     b.Property<int>("OrderId")
                         .HasColumnType("integer")
                         .HasColumnName("OrderId");
 
-                    b.Property<DateTime>("ReceiveTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ReceiveTime");
-
-                    b.Property<decimal?>("Tax")
-                        .HasColumnType("numeric")
-                        .HasColumnName("Tax");
-
                     b.HasKey("FullOrderId");
-
-                    b.HasIndex("CreatedByEmployeeId");
 
                     b.HasIndex("OrderId");
 
@@ -495,26 +472,13 @@ namespace ReactApp1.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReservationId"));
 
-                    b.Property<int>("CreatedByEmployeeId")
+                    b.Property<int?>("CustomerCount")
                         .HasColumnType("integer")
-                        .HasColumnName("CreatedByEmployeeId");
-
-                    b.Property<string>("CustomerPhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("CustomerPhoneNumber");
+                        .HasColumnName("CustomerCount");
 
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("EndTime");
-
-                    b.Property<int>("EstablishmentAddressId")
-                        .HasColumnType("integer")
-                        .HasColumnName("EstablishmentAddressId");
-
-                    b.Property<int>("EstablishmentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("EstablishmentId");
 
                     b.Property<DateTime>("ReceiveTime")
                         .ValueGeneratedOnAdd()
@@ -522,23 +486,16 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("ReceiveTime")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("ServiceId");
+                    b.Property<string>("ReservedSpot")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("ReservedSpot");
 
                     b.Property<DateTime?>("StartTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("StartTime");
 
                     b.HasKey("ReservationId");
-
-                    b.HasIndex("CreatedByEmployeeId");
-
-                    b.HasIndex("EstablishmentAddressId");
-
-                    b.HasIndex("EstablishmentId");
-
-                    b.HasIndex("ServiceId");
 
                     b.ToTable("Reservation");
                 });
@@ -649,50 +606,6 @@ namespace ReactApp1.Server.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ReactApp1.Server.Models.WorkingHours", b =>
-                {
-                    b.Property<int>("WorkingHoursId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("WorkingHoursId");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("WorkingHoursId"));
-
-                    b.Property<int>("CreatedByEmployeeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("CreatedByEmployeeId");
-
-                    b.Property<int>("DayOfWeek")
-                        .HasColumnType("integer")
-                        .HasColumnName("DayOfWeek");
-
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("interval")
-                        .HasColumnName("EndTime");
-
-                    b.Property<int>("EstablishmentAddressId")
-                        .HasColumnType("integer")
-                        .HasColumnName("EstablishmentId");
-
-                    b.Property<DateTime>("ReceiveTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ReceiveTime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("interval")
-                        .HasColumnName("StartTime");
-
-                    b.HasKey("WorkingHoursId");
-
-                    b.HasIndex("CreatedByEmployeeId");
-
-                    b.HasIndex("EstablishmentAddressId");
-
-                    b.ToTable("WorkingHours");
-                });
-
             modelBuilder.Entity("FullOrderItem", b =>
                 {
                     b.HasOne("ReactApp1.Server.Models.FullOrder", null)
@@ -743,17 +656,11 @@ namespace ReactApp1.Server.Migrations
 
             modelBuilder.Entity("ReactApp1.Server.Models.FullOrder", b =>
                 {
-                    b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
-                        .WithMany("FullOrders")
-                        .HasForeignKey("CreatedByEmployeeId");
-
                     b.HasOne("ReactApp1.Server.Models.Order", "Order")
                         .WithMany("FullOrders")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("CreatedByEmployee");
 
                     b.Navigation("Order");
                 });
@@ -814,41 +721,6 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("ReactApp1.Server.Models.Reservation", b =>
-                {
-                    b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
-                        .WithMany()
-                        .HasForeignKey("CreatedByEmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ReactApp1.Server.Models.EstablishmentAddress", "EstablishmentAddress")
-                        .WithMany()
-                        .HasForeignKey("EstablishmentAddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
-                        .WithMany()
-                        .HasForeignKey("EstablishmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ReactApp1.Server.Models.Service", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByEmployee");
-
-                    b.Navigation("Establishment");
-
-                    b.Navigation("EstablishmentAddress");
-
-                    b.Navigation("Service");
-                });
-
             modelBuilder.Entity("ReactApp1.Server.Models.Service", b =>
                 {
                     b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
@@ -879,31 +751,10 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("Item");
                 });
 
-            modelBuilder.Entity("ReactApp1.Server.Models.WorkingHours", b =>
-                {
-                    b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
-                        .WithMany()
-                        .HasForeignKey("CreatedByEmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ReactApp1.Server.Models.EstablishmentAddress", "EstablishmentAddress")
-                        .WithMany()
-                        .HasForeignKey("EstablishmentAddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByEmployee");
-
-                    b.Navigation("EstablishmentAddress");
-                });
-
             modelBuilder.Entity("ReactApp1.Server.Models.Employee", b =>
                 {
                     b.Navigation("EmployeeAddress")
                         .IsRequired();
-
-                    b.Navigation("FullOrders");
 
                     b.Navigation("Items");
 

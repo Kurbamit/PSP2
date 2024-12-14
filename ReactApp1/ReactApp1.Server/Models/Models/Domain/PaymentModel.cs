@@ -19,6 +19,7 @@ public class PaymentModel
 
     public string GiftCardCode { get; set; }
 
+    public string StripePaymentId { get; set; }
 
     public void MapUpdate(Payment existingPayment)
     {
@@ -27,6 +28,7 @@ public class PaymentModel
         existingPayment.Value = this.Value;
         existingPayment.ReceiveTime = this.ReceiveTime;
         existingPayment.GiftCardId = this.GiftCardId;
+        existingPayment.StripePaymentId = this.StripePaymentId;
     }
 
 }

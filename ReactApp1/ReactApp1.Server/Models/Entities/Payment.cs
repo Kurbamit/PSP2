@@ -29,6 +29,9 @@ public class Payment
     
     [Column("GiftCardId")]
     public int GiftCardId { get; set; }
+
+    [Column("StripePaymentId")]
+    public string StripePaymentId { get; set; }
     
     [ForeignKey(nameof(OrderId))]
     public virtual Order Order { get; set; }

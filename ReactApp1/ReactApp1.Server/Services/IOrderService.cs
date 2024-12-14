@@ -8,10 +8,12 @@ public interface IOrderService
     Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId, int? establishmentId);
     Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize);
     Task<OrderItemsPayments> GetOrderById(int orderId);
-    Task AddItemToOrder(FullOrderModel fullOrder);
+    Task AddItemToOrder(FullOrderModel fullOrder, int? userId);
     Task UpdateOrder(OrderModel order);
     Task RemoveItemFromOrder(FullOrderModel fullOrder);
     Task CloseOrder(int orderId);
     Task CancelOrder(int orderId);
+    Task RefundOrder(int orderId);
     Task PayOrder(PaymentModel payment);
+    Task<byte[]> DownloadReceipt(int orderId);
 }

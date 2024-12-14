@@ -10,10 +10,13 @@ namespace ReactApp1.Server.Services
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly PaymentIntentService _paymentIntentService;
-        public PaymentService(IPaymentRepository giftCardRepository, PaymentIntentService paymentIntentService)
+        private readonly RefundService _refundService;
+
+        public PaymentService(IPaymentRepository giftCardRepository, PaymentIntentService paymentIntentService, RefundService refundService)
         {
             _paymentRepository = giftCardRepository;
             _paymentIntentService = paymentIntentService;
+            _refundService = refundService;
         }
 
         public Task<PaginatedResult<Payment>> GetAllPayments(int pageSize, int pageNumber)
@@ -67,6 +70,15 @@ namespace ReactApp1.Server.Services
             {
                 throw new Exception();
             }
+        }
+        public async Task RefundPaymentIntent(string paymentIntentId)
+        {
+            var refundOptions = new RefundCreateOptions
+            {
+                PaymentIntent = paymentIntentId
+            };
+
+            await _refundService.CreateAsync(refundOptions);
         }
     }
 }

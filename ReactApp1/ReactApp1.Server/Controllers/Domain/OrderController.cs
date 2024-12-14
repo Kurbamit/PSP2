@@ -45,7 +45,9 @@ namespace ReactApp1.Server.Controllers.Domain
         [HttpPut("orders/{orderId}/items")]
         public async Task<IActionResult> AddItemToOrder([FromBody] FullOrderModel order)
         {
-            await _orderService.AddItemToOrder(order);
+            var userId = User.GetUserId();
+            
+            await _orderService.AddItemToOrder(order, userId);
 
             return Ok();
         }
@@ -83,12 +85,28 @@ namespace ReactApp1.Server.Controllers.Domain
             return Ok();
         }
 
+        [HttpPut("orders/{orderId}/refund")]
+        public async Task<IActionResult> RefundOrder(int orderId)
+        {
+            await _orderService.RefundOrder(orderId);
+
+            return Ok();
+        }
+
         [HttpDelete("orders/{orderId}/items")]
         public async Task<IActionResult> RemoveItemFromOrder([FromBody] FullOrderModel order)
         {
             await _orderService.RemoveItemFromOrder(order);
 
             return Ok();
+        }
+
+        [HttpGet("orders/{orderId}/download")]
+        public async Task<IActionResult> DownloadReceipt(int orderId)
+        {
+            var receipt = await _orderService.DownloadReceipt(orderId);
+
+            return File(receipt, "text/plain", $"Receipt_Order{orderId}.txt");
         }
     }
 }

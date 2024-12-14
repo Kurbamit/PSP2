@@ -23,8 +23,29 @@ public class FullOrder
     [Column("Count")]
     public int Count { get; set; }
     
+    [Column("Name")]
+    public string? Name { get; set; }
+    
+    [Column("Cost")]
+    public decimal? Cost { get; set; }
+    
+    [Column("Tax")]
+    public decimal? Tax { get; set; }
+    
+    [Column("AlcoholicBeverage")]
+    public bool AlcoholicBeverage { get; set; }
+    
+    [Column("ReceiveTime")]
+    public DateTime ReceiveTime { get; set; }
+    
+    [Column("CreatedByEmployeeId")]
+    public int? CreatedByEmployeeId { get; set; }
+    
     // Navigation property for Order
     public virtual Order Order { get; set; }
+    
+    [ForeignKey(nameof(CreatedByEmployeeId))]
+    public virtual Employee CreatedByEmployee { get; set; }
 
     // Navigation property for Item
     public virtual ICollection<Item> Items { get; set; }

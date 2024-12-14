@@ -21,6 +21,7 @@ import useAxiosInterceptors from "./assets/Utils/axiosInterceptor.ts";
 import GlobalAlert from "./components/Base/GlobalAlert.tsx";
 import Services from './components/Domain/Service/Services.tsx';
 import ServiceDetail from './components/Domain/Service/ServiceDetail.tsx';
+import Receipt from "./components/Domain/Order/Receipt.tsx";
 
 interface Forecast {
     date: string;
@@ -144,6 +145,7 @@ function InnerApp({
                     <Route path="/reservations" element={<Reservations />} />
                     <Route path="/reservations/new" element={<ReservationDetail /> } />
                     <Route path="/reservations/:id" element={<ReservationDetail /> } />
+                    <Route path="/receipt/:id" element={<Receipt />} />
                     <Route path="/items" element={<Items />} />
                     <Route path="/items/new" element={<ItemDetail />} />
                     <Route path="/services" element={<Services />} />

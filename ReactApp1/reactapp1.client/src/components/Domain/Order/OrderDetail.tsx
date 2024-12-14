@@ -4,13 +4,14 @@ import Cookies from 'js-cookie';
 import {useNavigate, useParams} from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
 import {Order} from "./Orders.tsx";
-import { getOrderStatusString, getYesNoString, getPaymentTypeString } from "../../../assets/Utils/utils.ts";
+import {getOrderStatusString, getPaymentTypeString, getYesNoString} from "../../../assets/Utils/utils.ts";
 import SelectDropdown from "../../Base/SelectDropdown.tsx";
 import {OrderStatusEnum} from "../../../assets/Models/FrontendModels.ts";
-import { Form } from 'react-bootstrap';
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import StripePayment from "./Stripe.tsx"; 
+import {Form} from 'react-bootstrap';
+import {Elements} from '@stripe/react-stripe-js';
+import {loadStripe} from '@stripe/stripe-js';
+import StripePayment from "./Stripe.tsx";
+
 interface Item {
     itemId: number;
     name: string;
@@ -48,10 +49,12 @@ const OrderDetail: React.FC = () => {
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
     const [showItemModal, setShowItemModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [showRefundModal, setShowRefundModal] = useState(false);
     const [count, setCount] = useState(1);
     const [paymentValue, setPaymentValue] = useState<number>(0);
     const [paymentType, setPaymentType] = useState<PaymentMethodEnum>(PaymentMethodEnum.Cash);
     const [giftCardCode, setGiftCardCode] = useState<string>('');
+
     const stripePromise = loadStripe('pk_test_51QUk2yJ37W5f2NTslpQJKoAg1uGzZWe7oJfoWAJqJW6APPYsOudx08XfcFBI9dbRXdmPPE1RvbUZo4eT5LQ12bLd00lNgxiIsW');
 
     const fetchItem = async () => {
@@ -137,7 +140,7 @@ const OrderDetail: React.FC = () => {
         setPaymentType(Number(e.target.value) as PaymentMethodEnum);
     };
 
-    const handlePayPayment = async () => {
+    const handlePayPayment = async (stripePaymentId: string) => {
         if (id && paymentValue > 0 && paymentValue <= (order?.order.leftToPay ?? 0)) {
             try {
                 await axios.put(
@@ -147,6 +150,7 @@ const OrderDetail: React.FC = () => {
                         type: paymentType,
                         value: paymentValue,
                         giftCardCode: giftCardCode,
+                        stripePaymentId: stripePaymentId,
                     },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -161,8 +165,29 @@ const OrderDetail: React.FC = () => {
         }
     };
 
+    const handleRefund = async () => {
+        if (id) {
+            try {
+                await axios.put(
+                    `http://localhost:5114/api/orders/${id}/refund`,
+                    {},
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                fetchItem();
+            } catch (error) {
+                console.error(ScriptResources.ErrorRefund, error);
+            } finally {
+                setShowRefundModal(false);
+            }
+        }
+    };
+
     const handleBackToList = () => {
         navigate('/orders');
+    };
+
+    const handleReceipt = () => {
+        navigate(`/receipt/${id}`);
     };
 
     return (
@@ -288,6 +313,13 @@ const OrderDetail: React.FC = () => {
                 <button className="btn btn-secondary" onClick={handleBackToList}>
                     {ScriptResources.BackToTheMainList}
                 </button>
+                {order?.order.status === OrderStatusEnum.Completed && (
+                    <div className="mt-3">
+                        <button className="btn btn-primary me-2" onClick={() => handleReceipt()}>
+                            {ScriptResources.Receipt}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Modal */}
@@ -363,7 +395,11 @@ const OrderDetail: React.FC = () => {
                             {ScriptResources.AddPayment}
                         </button>
                     )}
-
+                    {order?.order.status === OrderStatusEnum.Completed && !order?.order.refunded && (
+                        <button className="btn btn-primary mt-3" onClick={() => setShowRefundModal(true)}>
+                            {ScriptResources.Refund}
+                        </button>
+                    )}
                 </div>
             )}
             {showPaymentModal && (
@@ -404,6 +440,7 @@ const OrderDetail: React.FC = () => {
                                             token={token}
                                             paymentValue={paymentValue}
                                             setPaymentValue={setPaymentValue}
+                                            setShowPaymentModal={setShowPaymentModal}
                                             handlePayPayment={handlePayPayment} />
                                     </Elements>
                                 )}
@@ -430,13 +467,37 @@ const OrderDetail: React.FC = () => {
                                         {ScriptResources.Cancel}
                                     </button>
                                     <button className="btn btn-primary"
-                                        onClick={handlePayPayment}
+                                        onClick={() => handlePayPayment("")}
                                         disabled={paymentValue > (order?.order.leftToPay ?? 0) || paymentValue <= 0}
                                     >
                                         {ScriptResources.Pay}
                                     </button>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showRefundModal && (
+                <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">{ScriptResources.AddNewItem}</h5>
+                                <button className="btn-close" onClick={() => setShowRefundModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <p><strong>{ScriptResources.RefundWarning}</strong></p>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowRefundModal(false)}>
+                                    {ScriptResources.Cancel}
+                                </button>
+                                <button className="btn btn-primary" onClick={handleRefund}>
+                                    {ScriptResources.Refund}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

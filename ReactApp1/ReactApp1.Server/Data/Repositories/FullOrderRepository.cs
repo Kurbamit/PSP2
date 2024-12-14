@@ -17,16 +17,29 @@ namespace ReactApp1.Server.Data.Repositories
             _logger = logger;
         }
         
-        public async Task AddItemToOrderAsync(FullOrderModel fullOrder)
+        public async Task AddItemToOrderAsync(FullOrderModel fullOrder, int userId)
         {
             try
             {
-                var newFullOrder = new FullOrder
+                var newFullOrder = await _context.Items
+                    .Where(f => f.ItemId == fullOrder.ItemId)
+                    .Select(f => new FullOrder()
+                    {
+                        OrderId = fullOrder.OrderId,
+                        ItemId = fullOrder.ItemId,
+                        Count = fullOrder.Count,
+                        Name = f.Name,
+                        Cost = f.Cost,
+                        Tax = f.Tax,
+                        AlcoholicBeverage = f.AlcoholicBeverage,
+                        ReceiveTime = DateTime.UtcNow,
+                        CreatedByEmployeeId = userId
+                    }). FirstOrDefaultAsync();
+
+                if (newFullOrder == null)
                 {
-                    OrderId = fullOrder.OrderId,
-                    ItemId = fullOrder.ItemId,
-                    Count = fullOrder.Count
-                };
+                    throw new ItemNotFoundException(fullOrder.ItemId);
+                }
                 
                 await _context.Set<FullOrder>().AddAsync(newFullOrder);
                 await _context.SaveChangesAsync();
