@@ -1,0 +1,28 @@
+name: Run xUnit Tests
+
+on:
+  push:
+    branches-ignore:
+      - "*"
+  create:
+    branches:
+      - "*"
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Run Unit Tests
+        run: dotnet test ReactApp1/ReactApp1.Server.UnitTest/ReactApp1.Server.UnitTest.csproj
