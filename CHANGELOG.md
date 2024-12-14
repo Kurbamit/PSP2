@@ -16,3 +16,4 @@
 16. Pridėti `WorkingHours` CRUD endpoint'ai kurimui, redagavimui ir panašiai.
 17. `Reservation` DB lentelės atnaujinimai, kad laikytų koks servisas atliekamas.
 18. Pridėtas `Reservation` frontend funkcionalumas. Galima kurti, peržiūrėti, editinti ir trinti rezervacijas.
+19. Pridėtas sms siuntimas kai sukuriama ir ištrinama rezervacija.
