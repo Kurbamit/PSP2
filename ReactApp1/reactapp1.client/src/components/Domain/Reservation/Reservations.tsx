@@ -161,7 +161,7 @@ const Reservations: React.FC = () => {
                                     style={{ cursor: 'pointer', marginRight: '5px' }}
                                     onClick={() => handleIconClick(reservation.reservationId)}
                                 >
-                                    open_in_new
+                                    edit
                                 </span>
                                 <span
                                     className="material-icons"

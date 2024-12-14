@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
 import moment from 'moment';
 
@@ -15,10 +15,11 @@ interface Reservation {
 
 const ReservationDetail: React.FC = () => {
     const [reservation, setReservation] = useState<Reservation | null>(null);
-    const [isEditing, setIsEditing] = useState(true);
     const [customerPhoneNumber, setCustomerPhoneNumber] = useState('');
     const [establishmentAddress, setEstablishmentAddress] = useState('');
     const [establishmentAddressId, setEstablishmentAddressId] = useState<number | null>(null);
+    const [createdByEmployeeId, setCreatedByEmployeeId] = useState<number | null>(null);
+    const [receiveTime, setReceiveTime] = useState<string | null>(null);
     const [establishmentId, setEstablishmentId] = useState<number | null>(null);
     const [services, setServices] = useState<any[]>([]);
     const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
@@ -30,6 +31,9 @@ const ReservationDetail: React.FC = () => {
     const token = Cookies.get('authToken');
     const navigate = useNavigate();
     const [error, setError] = useState('');
+    const { id } = useParams<{ id: string }>();
+    const isNewReservation = !id;
+    const [hasLoaded, setHasLoaded] = useState(false);
 
     useEffect(() => {
         const fetchEstablishmentAddress = async () => {
@@ -46,7 +50,6 @@ const ReservationDetail: React.FC = () => {
                 });
 
                 const establishmentData = establishmentResponse.data;
-
                 const address = `${establishmentData.street} ${establishmentData.streetNumber}`;
 
                 setEstablishmentAddress(address);
@@ -57,18 +60,12 @@ const ReservationDetail: React.FC = () => {
                     establishmentAddress: address,
                     establishmentAddressId: establishmentData.establishmentAddressId,
                 });
+
             } catch (error) {
                 console.error(ScriptResources.ErrorFetchingEstablishmentDetails, error);
             }
         };
-
-        fetchEstablishmentAddress();
-    }, [token]);
-
-    useEffect(() => {
-        const fetchServices = async () => {
-            if (!establishmentId) return;
-
+        const fetchServices = async (establishmentId) => {
             try {
                 const servicesResponse = await axios.get(`http://localhost:5114/api/services?pageNumber=1&pageSize=100`, {
                     headers: { Authorization: `Bearer ${token}` },
@@ -87,17 +84,10 @@ const ReservationDetail: React.FC = () => {
                 setServices([]);
             }
         };
-
-        fetchServices();
-    }, [establishmentId, token]);
-
-    useEffect(() => {
-        const fetchWorkingHours = async () => {
-            if (!selectedDate || !establishmentId) return;
-
+        const fetchWorkingHours = async (establishmentAddressId, selectedDate) => {
             try {
                 const date = new Date(selectedDate);
-                const americanDayOfWeek = date.getDay(); // JavaScript's getDay(): 0=Sunday, 6=Saturday. Its stupid.
+                const americanDayOfWeek = date.getDay(); // JavaScript's getDay(): 0=Sunday, 6=Saturday.
 
                 const numberdayweek = [7, 1, 2, 3, 4, 5, 6];
                 const normalPersonDayOfWeek = numberdayweek[americanDayOfWeek];
@@ -118,9 +108,127 @@ const ReservationDetail: React.FC = () => {
                 console.error(ScriptResources.ErrorFetchingWorkingHours, error);
             }
         };
+        const calculateTimeSlots = (workingHours, serviceLength) => {
+            const [startTime, endTime] = workingHours.split(' - ').map(time => moment(time, "HH:mm:ss"));
+            const serviceDuration = moment.duration(serviceLength);
 
-        fetchWorkingHours();
-    }, [selectedDate, establishmentId, token]);
+            if (!startTime || !endTime || !serviceDuration) {
+                console.error("Invalid working hours or service length format.");
+                return;
+            }
+
+            const slots = [];
+            const currentTime = startTime.clone();
+            const now = moment();
+            const isToday = moment(selectedDate).isSame(moment(), 'day');
+
+            if (isToday && now.isAfter(currentTime)) {
+                const minutesSinceStart = now.diff(currentTime, 'minutes');
+                const extraSlots = Math.ceil(minutesSinceStart / serviceDuration.asMinutes());
+                currentTime.add(extraSlots * serviceDuration.asMinutes(), 'minutes');
+            }
+
+            if (currentTime.isBefore(endTime)) {
+                slots.push(currentTime.clone().format("HH:mm:ss"));
+            }
+
+            while (currentTime.add(serviceDuration).isBefore(endTime)) {
+                slots.push(currentTime.clone().format("HH:mm:ss"));
+            }
+
+            setTimeSlots(slots);
+        };
+
+
+        const processNewReservation = () => {
+            const fetchData = async () => {
+                if (token) {
+                    await fetchEstablishmentAddress();
+
+                    if (establishmentId) {
+                        await fetchServices(establishmentId);
+                    }
+
+                    if (selectedDate && establishmentAddressId) {
+                        await fetchWorkingHours(establishmentAddressId, selectedDate);
+                    }
+
+                    if (workingHours && serviceLength && selectedDate && selectedServiceId) {
+                        calculateTimeSlots(workingHours, serviceLength);
+                    }
+                }
+            };
+
+            fetchData();
+        }
+
+        const loadExistingReservation = () => {
+            const fetchReservationDetails = async () => {
+                try {
+                    const response = await axios.get(`http://localhost:5114/api/reservations/${id}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    const reservationData = response.data;
+
+                    setReservation(reservationData);
+                    setCustomerPhoneNumber(reservationData.customerPhoneNumber);
+                    setSelectedServiceId(reservationData.serviceId);
+                    setEstablishmentId(reservationData.establishmentId);
+                    const localStartTime = moment.utc(reservationData.startTime).local();
+                    setSelectedDate(localStartTime.format("YYYY-MM-DD"));
+                    setCurrentlySelectedTimeSlot(localStartTime.format("HH:mm:ss"));
+                    setCreatedByEmployeeId(reservationData.createdByEmployeeId);
+                    setReceiveTime(reservationData.receiveTime);
+                } catch (error) {
+                    console.error(ScriptResources.ErrorFetchingReservationDetails, error);
+                }
+            };
+
+            fetchReservationDetails();
+
+            const fetchData = async () => {
+                if (token) {
+                    await fetchEstablishmentAddress();
+
+                    if (establishmentId) {
+                        await fetchServices(establishmentId);
+                    }
+
+                    if (selectedDate && establishmentAddressId) {
+                        await fetchWorkingHours(establishmentAddressId, selectedDate);
+                    }
+
+                    if (selectedServiceId) {
+                        const serviceResponse = await axios.get(`http://localhost:5114/api/services/${selectedServiceId}`, {
+                            headers: { Authorization: `Bearer ${token}` },
+                        });
+
+                        setServiceLength(serviceResponse.data.serviceLength);
+                    }
+
+                    if (workingHours && serviceLength && selectedDate && selectedServiceId) {
+                        calculateTimeSlots(workingHours, serviceLength);
+                    }
+                }
+            };
+
+            fetchData();
+
+            if (workingHours && serviceLength && selectedDate && selectedServiceId) {
+                setHasLoaded(true);
+            }
+
+
+        }
+
+        if (isNewReservation || hasLoaded) {
+            processNewReservation();
+        } else {
+            loadExistingReservation();
+        }
+
+    }, [token, establishmentId, selectedDate, serviceLength, selectedServiceId, workingHours, establishmentAddressId]);    
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -131,30 +239,6 @@ const ReservationDetail: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        if (!workingHours || !serviceLength || !selectedDate || !selectedServiceId) return;
-
-        const [startTime, endTime] = workingHours.split(' - ').map(time => moment(time, "HH:mm:ss"));
-        const serviceDuration = moment.duration(serviceLength);
-
-        if (!startTime || !endTime || !serviceDuration) {
-            console.error("Invalid working hours or service length format.");
-            return;
-        }
-
-        const slots = [];
-        const currentTime = startTime.clone();
-
-        slots.push(currentTime.clone().format("HH:mm:ss"));
-
-        while (currentTime.add(serviceDuration).isBefore(endTime)) {
-            slots.push(currentTime.clone().format("HH:mm:ss"));
-        }
-
-        console.log("Time Slots:", slots);
-        setTimeSlots(slots);
-    }, [workingHours, serviceLength, selectedDate, selectedServiceId]);
-
     const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const serviceId = parseInt(e.target.value, 10);
         setSelectedServiceId(serviceId);
@@ -163,19 +247,16 @@ const ReservationDetail: React.FC = () => {
 
         if (selectedService) {
             const serviceLength = selectedService.serviceLength;
-            console.log("Service Length:", serviceLength);
             setServiceLength(serviceLength);
         } else {
-            console.warn("Selected service not found in the available services list.");
+            console.error("Selected service not found in the available services list.");
         }
 
-        console.log("Selected Service ID:", serviceId);
     };
 
     const handleTimeSlotChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const timeSlot = e.target.value;
         setCurrentlySelectedTimeSlot(timeSlot);
-        console.log("Selected Time Slot:", timeSlot);
     };
 
     const validateForm = () => {
@@ -205,20 +286,36 @@ const ReservationDetail: React.FC = () => {
                 const startTime = startTimeMoment.toISOString();
                 const endTime = endTimeMoment.toISOString();
 
-                const payload = {
-                    startTime,
-                    endTime,
-                    establishmentId,
-                    establishmentAddressId,
-                    serviceId: selectedServiceId,
-                    customerPhoneNumber,
-                };
+                if (isNewReservation) {
+                    const payload = {
+                        startTime,
+                        endTime,
+                        establishmentId,
+                        establishmentAddressId,
+                        serviceId: selectedServiceId,
+                        customerPhoneNumber,
+                    };
 
-                console.log("Payload:", payload);
+                    await axios.post(`http://localhost:5114/api/reservations`, payload, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                } else {
+                    const payload = {
+                        reservationId: parseInt(id),
+                        startTime,
+                        endTime,
+                        establishmentId,
+                        establishmentAddressId,
+                        serviceId: selectedServiceId,
+                        createdByEmployeeId: createdByEmployeeId,
+                        receiveTime: receiveTime,
+                        customerPhoneNumber,
+                    };
 
-                await axios.post(`http://localhost:5114/api/reservations`, payload, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                    await axios.put(`http://localhost:5114/api/reservations/${id}`, payload, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                }
 
                 navigate('/reservations');
             } catch (error) {
@@ -235,7 +332,9 @@ const ReservationDetail: React.FC = () => {
 
     return (
         <div className="container-fluid">
-            <h2 className="mb-4">{ScriptResources.CreateNewReservation}</h2>
+            <h2 className="mb-4">
+                {isNewReservation ? ScriptResources.CreateNewReservation : ScriptResources.EditReservation}
+            </h2>
             {reservation ? (
                 <div className="card">
                     <div className="card-body">
@@ -251,7 +350,6 @@ const ReservationDetail: React.FC = () => {
                                             value={customerPhoneNumber}
                                             onChange={handleInputChange}
                                             className="form-control"
-                                            disabled={!isEditing}
                                         />
                                     </li>
                                     <li className="list-group-item">
@@ -286,7 +384,7 @@ const ReservationDetail: React.FC = () => {
                                             value={selectedDate}
                                             onChange={handleInputChange}
                                             className="form-control"
-                                            disabled={!isEditing}
+                                            min={new Date().toISOString().split('T')[0]}
                                         />
                                     </li>
                                     <li className="list-group-item">
@@ -318,7 +416,7 @@ const ReservationDetail: React.FC = () => {
                         </div>
                         <div className="mt-3">
                             <button className="btn btn-success me-2" onClick={handleSave}>
-                                {ScriptResources.Save}
+                                {isNewReservation ? ScriptResources.Save : ScriptResources.Save}
                             </button>
                             <button className="btn btn-secondary" onClick={handleBackToList}>
                                 {ScriptResources.Cancel}
