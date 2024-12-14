@@ -72,7 +72,7 @@ function InnerApp({
     handleLogin: (token: string) => void;
     handleLogout: () => void;
 }) {
-    useAxiosInterceptors(); // Now safely inside ErrorProvider
+    useAxiosInterceptors();
 
     return (
         <Router>
