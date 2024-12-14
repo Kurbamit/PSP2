@@ -93,6 +93,14 @@ namespace ReactApp1.Server.Controllers.Domain
             return Ok();
         }
 
+        [HttpPut("orders/{orderId}/tip")]
+        public async Task<IActionResult> TipOrder([FromBody] TipModel tip)
+        {
+            await _orderService.TipOrder(tip);
+
+            return Ok();
+        }
+
         [HttpDelete("orders/{orderId}/items")]
         public async Task<IActionResult> RemoveItemFromOrder([FromBody] FullOrderModel order)
         {

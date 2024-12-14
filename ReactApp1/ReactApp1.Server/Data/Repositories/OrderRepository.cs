@@ -33,7 +33,7 @@ namespace ReactApp1.Server.Data.Repositories
                     DiscountPercentage = null,
                     DiscountFixed = null,
                     TipPercentage = null,
-                    TipFixed = null,
+                    TipFixed = 0,
                     PaymentId = null,
                     Refunded = false,
                     ReservationId = null,

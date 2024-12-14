@@ -6,9 +6,9 @@ public class OrderModel
     public int Status { get; set; }
     public int CreatedByEmployeeId { get; set; }
     public DateTime ReceiveTime { get; set; }
-    public int? DiscountPercentage { get; set; }
+    public decimal? DiscountPercentage { get; set; }
     public decimal? DiscountFixed { get; set; }
-    public int? TipPercentage { get; set; }
+    public decimal? TipPercentage { get; set; }
     public decimal? TipFixed { get; set; }
     public int? PaymentId { get; set; }
     public bool Refunded { get; set; }
@@ -23,7 +23,7 @@ public class OrderModel
     }
     
     public OrderModel(int orderId, int status, int createdByEmployeeId, DateTime receiveTime, 
-        int? discountPercentage, decimal? discountFixed, int? tipPercentage, decimal? tipFixed, int? paymentId, 
+        decimal? discountPercentage, decimal? discountFixed, decimal? tipPercentage, decimal? tipFixed, int? paymentId, 
         bool refunded, int? reservationId)
     {
         OrderId = orderId;

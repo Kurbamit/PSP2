@@ -134,6 +134,12 @@ const ScriptResources = {
     OrderDetails: "Order Details",
     Employee: 'Employee',
     Euro: '€',
+    ErrorTip: 'Error setting tip',
+    TipType: 'Tip type',
+    Percentage: 'Percentage',
+    Fixed: 'Fixed',
+    ApplyTip: 'Apply tip',
+    Tip: 'Tip'
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {

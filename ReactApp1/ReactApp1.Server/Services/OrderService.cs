@@ -119,9 +119,18 @@ namespace ReactApp1.Server.Services
                 
                 totalPrice += itemCost * itemCount;
             }
-            
+
+            if (order.TipFixed != null)
+            {
+                totalPrice += (order.TipFixed ?? 0);
+            }
+            else if (order.TipPercentage != null)
+            {
+                totalPrice += Math.Round(totalPrice * ((order.TipPercentage ?? 0) / 100), 2);
+            }
+
             // TODO: Apply discount and taxes to the total price
-            
+
             order.TotalPrice = totalPrice;
 
             return order;
@@ -368,6 +377,28 @@ namespace ReactApp1.Server.Services
             }
 
             return await _orderRepository.DownloadReceipt(order);
+        }
+        public async Task TipOrder(TipModel tip)
+        {
+            var order = await GetOrderIfExistsAndStatusIs(tip.OrderId, (int)OrderStatusEnum.Open, "TipOrder");
+            if (order == null)
+            {
+                return;
+            }
+
+            if(tip.Type == (int)TipEnum.Fixed)
+            {
+                order.TipPercentage = null;
+                order.TipFixed = tip.Amount;
+
+
+            } else if(tip.Type == (int)TipEnum.Percentage)
+            {
+                order.TipFixed = null;
+                order.TipPercentage = tip.Amount;
+            }
+
+            await _orderRepository.UpdateOrderAsync(order);
         }
     }
 }
