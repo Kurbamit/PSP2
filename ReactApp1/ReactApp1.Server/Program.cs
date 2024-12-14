@@ -37,6 +37,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddSingleton(builder.Configuration);
+
 var jwtSection = builder.Configuration.GetSection("JwtSettings");
 builder.Services.Configure<JwtSettings>(jwtSection);
 
@@ -104,7 +106,6 @@ builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 // Register Services
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
 builder.Services.AddScoped<ISharedSearchesService, SharedSearchesService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
@@ -114,6 +115,17 @@ builder.Services.AddScoped<PaymentIntentService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<RefundService>();
 builder.Services.AddScoped<IWorkingHoursService, WorkingHoursService>();
+
+
+builder.Services.AddScoped<IReservationService>(provider =>
+{
+    var configuration = provider.GetRequiredService<IConfiguration>();
+    var apiKey = configuration.GetValue<string>("SevenIo:ApiKey");
+    var reservationRepository = provider.GetRequiredService<IReservationRepository>();
+    var logger = provider.GetRequiredService<ILogger<OrderService>>();
+
+    return new ReservationService(reservationRepository, logger, apiKey);
+});
 
 var app = builder.Build();
 
