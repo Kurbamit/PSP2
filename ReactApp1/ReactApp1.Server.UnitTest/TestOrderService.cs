@@ -95,7 +95,7 @@ namespace ReactApp1.Server.UnitTest
                 .Returns(Task.CompletedTask);
             
             output.FullOrderRepository
-                .Setup(x => x.AddItemToOrderAsync(It.IsAny<FullOrderModel>()))
+                .Setup(x => x.AddItemToOrderAsync(It.IsAny<FullOrderModel>(), It.IsAny<int>()))
                 .Returns(Task.CompletedTask);
             
             return output;
@@ -114,11 +114,11 @@ namespace ReactApp1.Server.UnitTest
                 .ReturnsAsync(() => null);
 
             // act
-            await state.OrderService.AddItemToOrder(state.FullOrder);
+            await state.OrderService.AddItemToOrder(state.FullOrder, 1);
 
             // assert
             state.FullOrderRepository.Verify(
-                repo => repo.AddItemToOrderAsync(It.IsAny<FullOrderModel>()),
+                repo => repo.AddItemToOrderAsync(It.IsAny<FullOrderModel>(), It.IsAny<int>()),
                 Times.Once);
         }
         
@@ -134,7 +134,7 @@ namespace ReactApp1.Server.UnitTest
                 .ReturnsAsync(() => state.FullOrder);
 
             // act
-            await state.OrderService.AddItemToOrder(state.FullOrder);
+            await state.OrderService.AddItemToOrder(state.FullOrder, 1);
 
             // assert
             state.FullOrderRepository.Verify(
@@ -143,7 +143,7 @@ namespace ReactApp1.Server.UnitTest
         }
         
         [Fact]
-        public async Task AddItemToOrder_OrderDoesNotExist_ThrowsOrderNotFoundExceptionException()
+        public async Task AddItemToOrder_OrderDoesNotExist_ThrowsOrderNotFoundException()
         {
             // arrange
             var state = BuildTestState();
@@ -153,7 +153,7 @@ namespace ReactApp1.Server.UnitTest
                 .ReturnsAsync(() => null);
 
             // act
-            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder);
+            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1);
 
             // assert
             var exception = await Assert.ThrowsAsync<OrderNotFoundException>(Act);
@@ -180,7 +180,7 @@ namespace ReactApp1.Server.UnitTest
                 .ReturnsAsync(() => order);
 
             // act
-            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder);
+            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1);
 
             // assert
             var exception = await Assert.ThrowsAsync<OrderStatusConflictException>(Act);
@@ -198,7 +198,7 @@ namespace ReactApp1.Server.UnitTest
                 .ReturnsAsync(() => null);
 
             // act
-            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder);
+            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1);
 
             // assert
             var exception = await Assert.ThrowsAsync<ItemNotFoundException>(Act);
@@ -218,7 +218,7 @@ namespace ReactApp1.Server.UnitTest
                 .ReturnsAsync(() => state.Storage);
 
             // act
-            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder);
+            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1);
 
             // assert
             var exception = await Assert.ThrowsAsync<StockExhaustedException>(Act);
