@@ -244,20 +244,20 @@ namespace ReactApp1.Server.Services
         
         private async Task<OrderModel?> GetOrderIfExistsAndStatusIs(int orderId, int orderStatus, string? operation = null)
         {
-            var order = await GetOrderById(orderId);
+            var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
             {
                 _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
                 throw new OrderNotFoundException(orderId);
             }
 
-            if (order.Order.Status != orderStatus)
+            if (order.Status != orderStatus)
             {
-                _logger.LogError($"Operation '{operation}' failed: Order status is {order.Order.Status}");
-                throw new OrderStatusConflictException(order.Order.Status.ToString());
+                _logger.LogError($"Operation '{operation}' failed: Order status is {order.Status}");
+                throw new OrderStatusConflictException(order.Status.ToString());
             }
 
-            return order.Order;
+            return order;
         }
         public async Task CancelOrder(int orderId)
         {
@@ -282,7 +282,8 @@ namespace ReactApp1.Server.Services
         }
         public async Task PayOrder(PaymentModel payment)
         {
-            var existingOrderWithClosedStatus = await GetOrderIfExistsAndStatusIs(payment.OrderId, (int)OrderStatusEnum.Closed, "PayOrder");
+            var existingOrderWithClosedStatus = (await GetOrderById(payment.OrderId)).Order;
+
             if (existingOrderWithClosedStatus == null)
                 return;
 
@@ -317,6 +318,7 @@ namespace ReactApp1.Server.Services
         public async Task RefundOrder(int orderId)
         {
             var order = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Completed, "RefundOrder");
+
             if (order == null || order.Refunded)
                 return;
 
