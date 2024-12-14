@@ -15,6 +15,7 @@ namespace ReactApp1.Server.Services
                 navigation.Items.AddRange(new List<NavigationItem>
                 {
                     new NavigationItem { Path = "/orders", Label = "Orders" },
+                    new NavigationItem { Path = "/reservations", Label = "Reservations" },
                     new NavigationItem { Path = "/items", Label = "Items" },
                     new NavigationItem { Path = "/inventory", Label = "Inventory" },
                     new NavigationItem { Path = "/services", Label = "Services" },

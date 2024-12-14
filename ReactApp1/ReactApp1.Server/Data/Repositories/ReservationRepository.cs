@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
+using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -44,18 +45,35 @@ namespace ReactApp1.Server.Data.Repositories
                     ReceiveTime = f.ReceiveTime,
                     StartTime = f.StartTime.Value,
                     EndTime = f.EndTime.Value,
-                    CustomerCount = f.CustomerCount.Value,
-                    ReservedSpot = f.ReservedSpot
+                    CreatedByEmployeeId = f.CreatedByEmployeeId,
+                    EstablishmentId = f.EstablishmentId,
+                    EstablishmentAddressId = f.EstablishmentAddressId,
+                    ServiceId = f.ServiceId,
+                    CustomerPhoneNumber = f.CustomerPhoneNumber
                 }).FirstOrDefaultAsync();
             return reservation;
         }
 
-        public async Task AddReservationAsync(Reservation reservation)
+        public async Task<Reservation> AddReservationAsync(ReservationModel reservation)
         {
             try
             {
-                await _context.Set<Reservation>().AddAsync(reservation);
+                var newReservation = new Reservation
+                {
+                    ReceiveTime = reservation.ReceiveTime,
+                    StartTime = reservation.StartTime,
+                    EndTime = reservation.EndTime,
+                    CreatedByEmployeeId = reservation.CreatedByEmployeeId,
+                    EstablishmentId = reservation.EstablishmentId,
+                    EstablishmentAddressId = reservation.EstablishmentAddressId,
+                    ServiceId = reservation.ServiceId,
+                    CustomerPhoneNumber = reservation.CustomerPhoneNumber
+                };
+
+                var reservationEntity = await _context.Reservations.AddAsync(newReservation);
                 await _context.SaveChangesAsync();
+
+                return reservationEntity.Entity;
             }
             catch (DbUpdateException e)
             {

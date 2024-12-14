@@ -14,3 +14,5 @@
 14. Pridėti `Service` CRUD endpoint'ai ir frontend funkcionalumas. Galima kurti, redaguoti ir panašiai.
 15. Pridėta `WorkingHours` lentelė į databazę naudojant migrations.
 16. Pridėti `WorkingHours` CRUD endpoint'ai kurimui, redagavimui ir panašiai.
+17. `Reservation` DB lentelės atnaujinimai, kad laikytų koks servisas atliekamas.
+18. Pridėtas `Reservation` frontend funkcionalumas. Galima kurti, peržiūrėti, editinti ir trinti rezervacijas.

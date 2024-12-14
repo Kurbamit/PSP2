@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ReactApp1.Server.Data.Repositories;
+using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Domain;
 using ReactApp1.Server.Services;
@@ -49,12 +50,12 @@ namespace ReactApp1.Server.Controllers
         /// <param name="reservation"></param>
         /// <returns></returns>
         [HttpPost("reservations")]
-        public async Task<IActionResult> CreateReservation([FromBody] Reservation reservation)
+        public async Task<IActionResult> CreateReservation([FromBody] ReservationModel reservation)
         {
+            var userId = User.GetUserId();
+            var newReservation = await _reservationService.CreateNewReservation(reservation, userId);
 
-            await _reservationService.CreateNewReservation(reservation);
-
-            return Ok(reservation.ReservationId);
+            return Ok(newReservation);
         }
 
         /// <summary>

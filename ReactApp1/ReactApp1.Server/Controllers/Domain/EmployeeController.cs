@@ -44,7 +44,27 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok(employee);
         }
-        
+
+        /// <summary>
+        /// Get the currently logged in employee
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="UnauthorizedAccessException"></exception>
+        [HttpGet("employees/current")]
+        public async Task<IActionResult> GetCurrentEmployee()
+        {
+            var userId = User.GetUserId();
+            if (userId.HasValue)
+            {
+                var employee = await _employeeService.GetEmployeeById(userId.Value);
+                return Ok(employee);
+            }
+            else
+            {
+                throw new UnauthorizedAccessException();
+            }
+        }
+
         /// <summary>
         /// Create new employee
         /// </summary>
