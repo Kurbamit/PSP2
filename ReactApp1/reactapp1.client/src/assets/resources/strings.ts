@@ -180,6 +180,19 @@ const ScriptResources = {
     ErrorApplyingDiscount: 'Error applying discount',
     Discount: 'Discount:',
     Value: 'Value',
+    ErrorFetchingGiftCards: 'Error fetching giftcards',
+    ErrorDeletingGiftCard: 'Error deleting giftcard',
+    GiftCardsList: 'Giftcard list',
+    GiftCardId: 'Giftcard ID',
+    ExpirationDate: 'Expiration date',
+    Code: 'Code',
+    ErrorFetchingGiftCard: 'Error fetching giftcard',
+    AmountMustBeGreaterThanZero: 'Amount must be greater than zero',
+    CodeIsRequired: 'Code is required',
+    ErrorSavingGiftCard: 'Error saving giftcard',
+    CreateNewGiftCard: 'Create new giftcard',
+    GiftCardDetail: 'Giftcard details',
+
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {

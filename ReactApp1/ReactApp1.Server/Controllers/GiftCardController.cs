@@ -35,7 +35,7 @@ namespace ReactApp1.Server.Controllers
         }
         
         [HttpPost("giftCards")]
-        public async Task<IActionResult> CreateGiftCard([FromBody] GiftCard giftCard)
+        public async Task<IActionResult> CreateGiftCard([FromBody] GiftCardModel giftCard)
         {
             
             await _giftCardService.CreateNewGiftCard(giftCard);
