@@ -22,9 +22,6 @@ public class Item
     [Column("Cost")]
     public decimal? Cost { get; set; }
     
-    [Column("Tax")]
-    public decimal? Tax { get; set; }
-    
     [Column("AlcoholicBeverage")]
     public bool AlcoholicBeverage { get; set; }
     

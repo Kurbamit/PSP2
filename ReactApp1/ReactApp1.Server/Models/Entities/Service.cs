@@ -26,9 +26,6 @@ public class Service
     [Column("Cost")]
     public decimal? Cost { get; set; }
 
-    [Column("Tax")]
-    public decimal? Tax { get; set; }
-
     [ForeignKey(nameof(EstablishmentId))]
     public virtual Establishment Establishment { get; set; }
 }

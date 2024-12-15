@@ -50,7 +50,6 @@ namespace ReactApp1.Server.Models.Models.Domain
             existingModel.EstablishmentId = this.EstablishmentId;
             existingModel.ServiceLength = this.ServiceLength;
             existingModel.Cost = this.Cost;
-            existingModel.Tax = this.Tax;
         }
     }
 }

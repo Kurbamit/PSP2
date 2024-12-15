@@ -32,9 +32,6 @@ public class FullOrderService
     [Column("Cost")]
     public decimal? Cost { get; set; }
     
-    [Column("Tax")]
-    public decimal? Tax { get; set; }
-    
     [Column("ReceiveTime")]
     public DateTime ReceiveTime { get; set; }
     

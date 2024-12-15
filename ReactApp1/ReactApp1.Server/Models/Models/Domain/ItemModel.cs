@@ -43,7 +43,6 @@ public class ItemModel
     {
         existingItem.Name = this.Name;
         existingItem.Cost = this.Cost;
-        existingItem.Tax = this.Tax;
         existingItem.AlcoholicBeverage = this.AlcoholicBeverage;
         existingItem.ReceiveTime = this.ReceiveTime;
         if (existingItem.Storage != null && this.Storage.HasValue)

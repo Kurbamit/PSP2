@@ -31,7 +31,6 @@ namespace ReactApp1.Server.Data.Repositories
                         Count = fullOrder.Count,
                         Name = f.Name,
                         Cost = f.Cost,
-                        Tax = f.Tax,
                         ServiceLength = f.ServiceLength,
                         ReceiveTime = DateTime.UtcNow,
                         CreatedByEmployeeId = userId

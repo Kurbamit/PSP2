@@ -8,7 +8,7 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-    
+
     public DbSet<TestModel> TestModels { get; set; }
     public DbSet<Employee> Employees { get; set; }
     public DbSet<EmployeeAddress> EmployeeAddresses { get; set; }
@@ -25,6 +25,9 @@ public class AppDbContext : DbContext
     public DbSet<WorkingHours> WorkingHours { get; set; }
     public DbSet<Service> Services { get; set; }
     public DbSet<Discount> Discounts { get; set; }
+    public DbSet<Tax> Taxes { get; set; }
+    public DbSet<ServiceTax> ServiceTaxes { get; set; }
+    public DbSet<ItemTax> ItemTaxes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -82,21 +85,21 @@ public class AppDbContext : DbContext
             entity.Property(e => e.EstablishmentId)
                 .IsRequired()
                 .ValueGeneratedOnAdd();
-            
+
             entity.HasOne(e => e.EstablishmentAddress)
                 .WithOne(a => a.Establishment)
                 .HasForeignKey<EstablishmentAddress>(a => a.EstablishmentId);
-            
-            entity.HasOne(e => e.EstablishmentAddress) 
+
+            entity.HasOne(e => e.EstablishmentAddress)
                 .WithOne(a => a.Establishment)
                 .HasForeignKey<EstablishmentAddress>(a => a.EstablishmentId) // EstablishmentAddress.EstablishmentId is the foreign key
                 .IsRequired();
-            
+
             entity.HasMany(e => e.Storages)
                 .WithOne(s => s.Establishment)
                 .HasForeignKey(s => s.EstablishmentId)
                 .IsRequired();
-            
+
             entity.HasMany(e => e.Employees)
                 .WithOne(e => e.Establishment)
                 .HasForeignKey(e => e.EstablishmentId)
@@ -109,7 +112,7 @@ public class AppDbContext : DbContext
             entity.HasMany(e => e.Orders)
                 .WithOne(e => e.Establishment)
                 .HasForeignKey(e => e.EstablishmentId);
-            
+
             entity.Property(e => e.ReceiveTime)
                 .IsRequired()
                 .ValueGeneratedOnAdd()
@@ -126,7 +129,7 @@ public class AppDbContext : DbContext
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .IsRequired();
-            
+
             entity.Property(p => p.AddressId)
                 .ValueGeneratedOnAdd()
                 .IsRequired();
@@ -155,13 +158,13 @@ public class AppDbContext : DbContext
                 .WithOne(i => i.CreatedByEmployee)
                 .HasForeignKey(i => i.CreatedByEmployeeId);
         });
-        
+
         modelBuilder.Entity<EmployeeAddress>(entity =>
         {
             entity.Property(p => p.AddressId)
                 .ValueGeneratedOnAdd()
                 .IsRequired();
-            
+
             entity.Property(e => e.ReceiveTime)
                 .IsRequired()
                 .ValueGeneratedOnAdd()
@@ -173,12 +176,12 @@ public class AppDbContext : DbContext
             entity.Property(e => e.OrderId)
                 .IsRequired()
                 .ValueGeneratedOnAdd();
-            
+
             entity.HasOne(o => o.Reservation)
                 .WithOne(r => r.Order)
                 .HasForeignKey<Order>(o => o.ReservationId)
                 .IsRequired(false);
-            
+
             entity.Property(e => e.ReceiveTime)
                 .IsRequired()
                 .ValueGeneratedOnAdd()
@@ -213,11 +216,11 @@ public class AppDbContext : DbContext
             entity.Property(p => p.PaymentId)
                 .IsRequired()
                 .ValueGeneratedOnAdd();
-            
+
             entity.HasOne(p => p.Order)
                 .WithMany(o => o.Payments)
                 .HasForeignKey(p => p.OrderId);
-            
+
             entity.Property(e => e.ReceiveTime)
                 .IsRequired()
                 .ValueGeneratedOnAdd()
@@ -229,7 +232,7 @@ public class AppDbContext : DbContext
             entity.Property(p => p.GiftCardId)
                 .IsRequired()
                 .ValueGeneratedOnAdd();
-            
+
             entity.Property(e => e.ReceiveTime)
                 .IsRequired()
                 .ValueGeneratedOnAdd()
@@ -241,7 +244,7 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Reservation>(entity =>
         {
-            entity.Property (p => p.ReservationId)
+            entity.Property(p => p.ReservationId)
                 .IsRequired()
                 .ValueGeneratedOnAdd();
 
@@ -276,6 +279,51 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        });
+
+        modelBuilder.Entity<Tax>(entity =>
+        {
+            entity.Property(t => t.TaxId)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+
+            entity.Property(t => t.Percentage).IsRequired();
+
+            entity.Property(t => t.Description).HasMaxLength(255);
+        });
+
+        modelBuilder.Entity<ServiceTax>(entity =>
+        {
+            entity.Property(st => st.ServiceTaxId)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+
+            entity.HasOne(st => st.Service)
+                  .WithMany()
+                  .HasForeignKey(st => st.ServiceId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(st => st.Tax)
+                  .WithMany()
+                  .HasForeignKey(st => st.TaxId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ItemTax>(entity =>
+        {
+            entity.Property(it => it.ItemTaxId)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+
+            entity.HasOne(it => it.Item)
+                  .WithMany()
+                  .HasForeignKey(it => it.ItemId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(it => it.Tax)
+                  .WithMany()
+                  .HasForeignKey(it => it.TaxId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
