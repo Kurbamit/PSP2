@@ -26,13 +26,13 @@ public class Order
     public DateTime ReceiveTime { get; set; }
 
     [Column("DiscountPercentage")]
-    public int? DiscountPercentage { get; set; }
+    public decimal? DiscountPercentage { get; set; }
     
     [Column("DiscountFixed")]
     public decimal? DiscountFixed { get; set; }
 
     [Column("TipPercentage")]
-    public int? TipPercentage { get; set; }
+    public decimal? TipPercentage { get; set; }
 
     [Column("TipFixed")]
     public decimal? TipFixed { get; set; }

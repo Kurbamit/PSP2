@@ -54,6 +54,8 @@ const OrderDetail: React.FC = () => {
     const [paymentValue, setPaymentValue] = useState<number>(0);
     const [paymentType, setPaymentType] = useState<PaymentMethodEnum>(PaymentMethodEnum.Cash);
     const [giftCardCode, setGiftCardCode] = useState<string>('');
+    const [tipType, setTipType] = useState<"percentage" | "fixed">("percentage");
+    const [tipValue, setTipValue] = useState<number>(0);
 
     const stripePromise = loadStripe('pk_test_51QUk2yJ37W5f2NTslpQJKoAg1uGzZWe7oJfoWAJqJW6APPYsOudx08XfcFBI9dbRXdmPPE1RvbUZo4eT5LQ12bLd00lNgxiIsW');
 
@@ -64,6 +66,8 @@ const OrderDetail: React.FC = () => {
             });
             setOrder(response.data);
             setEditedItem(response.data);
+            setTipValue(response.data.order.tipFixed == null ? response.data.order.tipPercentage : response.data.order.tipFixed)
+            setTipType(response.data.order.tipFixed == null ? "percentage" : "fixed")
         } catch (error) {
             console.error(ScriptResources.ErrorFetchingItems, error);
         }
@@ -182,6 +186,26 @@ const OrderDetail: React.FC = () => {
         }
     };
 
+    const handleApplyTip = async () => {
+        if (id) {
+            try {
+                await axios.put(
+                    `http://localhost:5114/api/orders/${id}/tip`,
+                    {
+                        orderId: id,
+                        type: tipType === "fixed" ? 1 : 2,
+                        amount: tipValue,
+                    },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                fetchItem();
+                alert("Tip applied")
+            } catch (error) {
+                console.error(ScriptResources.ErrorTip, error);
+            }
+        }
+    };
+
     const handleBackToList = () => {
         navigate('/orders');
     };
@@ -236,7 +260,55 @@ const OrderDetail: React.FC = () => {
                 <div>{ScriptResources.Loading}</div>
             )}
 
+            {order?.order && order?.order.status == OrderStatusEnum.Open && (
+                <div>
+                    <Form.Group className="mb-3" controlId="tip-type">
+                        <h3>{ScriptResources.TipType}</h3>
+                        <Form.Select
+                            value={tipType}
+                            onChange={(e) => setTipType(e.target.value as "percentage" | "fixed")}
+                        >
+                            <option value="percentage">{ScriptResources.Percentage}</option>
+                            <option value="fixed">{ScriptResources.Fixed}</option>
+                        </Form.Select>
+                    </Form.Group>
 
+                    <Form.Group className="mb-3" controlId="tip-value">
+                        <Form.Label>
+                            <h3>{ScriptResources.Tip} {ScriptResources.Amount}</h3>
+                        </Form.Label>
+                        <Form.Control
+                            type="number"
+                            value={tipValue}
+                            onChange={(e) => {
+                                let value = e.target.value;
+                                if (/^\d*\.?\d{0,2}$/.test(value)) { // limit to 2 decimal places
+                                    setTipValue(parseFloat(value));
+                                }
+                            }}
+                            min="0"
+                        />
+                    </Form.Group>
+
+                    <button
+                        className="btn btn-primary"
+                        onClick={handleApplyTip}
+                        disabled={!tipValue || tipValue <= 0}
+                    >
+                        {ScriptResources.ApplyTip}
+                    </button>
+                </div>
+            )}
+            {order?.order && order?.order.status != OrderStatusEnum.Open && (
+                <div>
+                    <h3>{ScriptResources.Tip}</h3>
+                    <p>
+                        {order?.order.tipPercentage != null
+                            ? `${order?.order.tipPercentage}%`
+                            : `${order?.order.tipFixed} ${ScriptResources.Euro}`}
+                    </p>
+                </div>
+            )}
             {/* Render Items Table */}
             {editedItem && (
                 <div className="mt-4">

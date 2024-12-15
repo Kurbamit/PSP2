@@ -18,12 +18,15 @@ export interface Order {
     receiveTime: string;
     discountPercentage: number | null;
     discountFixed: number | null;
+    tipPercentage: number | undefined;
+    tipFixed: number | undefined;
     paymentId: number | null;
     refunded: boolean;
     reservationId: number | null;
     totalPrice: number | null;
     totalPaid: number | null;
     leftToPay: number | null;
+    tipAmount: number | null;
 }
 
 const Orders: React.FC = () => {

@@ -119,9 +119,21 @@ namespace ReactApp1.Server.Services
                 
                 totalPrice += itemCost * itemCount;
             }
-            
+
+            if (order.TipFixed != null)
+            {
+                totalPrice += (order.TipFixed ?? 0);
+                order.TipAmount = (order.TipFixed ?? 0);
+            }
+            else if (order.TipPercentage != null)
+            {
+                decimal tip = Math.Round(totalPrice * ((order.TipPercentage ?? 0) / 100), 2);
+                totalPrice += tip;
+                order.TipAmount = tip;
+            }
+
             // TODO: Apply discount and taxes to the total price
-            
+
             order.TotalPrice = totalPrice;
 
             return order;
@@ -273,7 +285,8 @@ namespace ReactApp1.Server.Services
         }
         public async Task PayOrder(PaymentModel payment)
         {
-            var existingOrderWithClosedStatus = await GetOrderIfExistsAndStatusIs(payment.OrderId, (int)OrderStatusEnum.Closed, "PayOrder");
+            var existingOrderWithClosedStatus = (await GetOrderById(payment.OrderId)).Order;
+
             if (existingOrderWithClosedStatus == null)
                 return;
 
@@ -296,10 +309,6 @@ namespace ReactApp1.Server.Services
                 await _giftcardRepository.UpdateGiftCardAsync(giftcard);
 
             } 
-            else if (payment.Type == (int)PaymentTypeEnum.Card)
-            {
-               
-            }
 
             if (existingOrderWithClosedStatus.LeftToPay == payment.Value)
             {
@@ -312,6 +321,7 @@ namespace ReactApp1.Server.Services
         public async Task RefundOrder(int orderId)
         {
             var order = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Completed, "RefundOrder");
+
             if (order == null || order.Refunded)
                 return;
 
@@ -372,6 +382,28 @@ namespace ReactApp1.Server.Services
             }
 
             return await _orderRepository.DownloadReceipt(order);
+        }
+        public async Task TipOrder(TipModel tip)
+        {
+            var order = await GetOrderIfExistsAndStatusIs(tip.OrderId, (int)OrderStatusEnum.Open, "TipOrder");
+            if (order == null)
+            {
+                return;
+            }
+
+            if(tip.Type == (int)TipEnum.Fixed)
+            {
+                order.TipPercentage = null;
+                order.TipFixed = tip.Amount;
+
+
+            } else if(tip.Type == (int)TipEnum.Percentage)
+            {
+                order.TipFixed = null;
+                order.TipPercentage = tip.Amount;
+            }
+
+            await _orderRepository.UpdateOrderAsync(order);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReactApp1.Server.Data;
@@ -11,9 +12,11 @@ using ReactApp1.Server.Data;
 namespace ReactApp1.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241214140034_ChangeTipAndDiscountInOrderToDecimal")]
+    partial class ChangeTipAndDiscountInOrderToDecimal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -495,26 +498,13 @@ namespace ReactApp1.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReservationId"));
 
-                    b.Property<int>("CreatedByEmployeeId")
+                    b.Property<int?>("CustomerCount")
                         .HasColumnType("integer")
-                        .HasColumnName("CreatedByEmployeeId");
-
-                    b.Property<string>("CustomerPhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("CustomerPhoneNumber");
+                        .HasColumnName("CustomerCount");
 
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("EndTime");
-
-                    b.Property<int>("EstablishmentAddressId")
-                        .HasColumnType("integer")
-                        .HasColumnName("EstablishmentAddressId");
-
-                    b.Property<int>("EstablishmentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("EstablishmentId");
 
                     b.Property<DateTime>("ReceiveTime")
                         .ValueGeneratedOnAdd()
@@ -522,23 +512,16 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("ReceiveTime")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("ServiceId");
+                    b.Property<string>("ReservedSpot")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("ReservedSpot");
 
                     b.Property<DateTime?>("StartTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("StartTime");
 
                     b.HasKey("ReservationId");
-
-                    b.HasIndex("CreatedByEmployeeId");
-
-                    b.HasIndex("EstablishmentAddressId");
-
-                    b.HasIndex("EstablishmentId");
-
-                    b.HasIndex("ServiceId");
 
                     b.ToTable("Reservation");
                 });
@@ -812,41 +795,6 @@ namespace ReactApp1.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("ReactApp1.Server.Models.Reservation", b =>
-                {
-                    b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
-                        .WithMany()
-                        .HasForeignKey("CreatedByEmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ReactApp1.Server.Models.EstablishmentAddress", "EstablishmentAddress")
-                        .WithMany()
-                        .HasForeignKey("EstablishmentAddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
-                        .WithMany()
-                        .HasForeignKey("EstablishmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ReactApp1.Server.Models.Service", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByEmployee");
-
-                    b.Navigation("Establishment");
-
-                    b.Navigation("EstablishmentAddress");
-
-                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Service", b =>
