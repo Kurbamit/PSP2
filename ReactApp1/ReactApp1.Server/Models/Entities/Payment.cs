@@ -35,7 +35,4 @@ public class Payment
     
     [ForeignKey(nameof(OrderId))]
     public virtual Order Order { get; set; }
-
-    [ForeignKey(nameof(GiftCardId))]
-    public virtual GiftCard Giftcard { get; set; }
 }
