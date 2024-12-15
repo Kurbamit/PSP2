@@ -41,11 +41,17 @@ public class FullOrder
     [Column("CreatedByEmployeeId")]
     public int? CreatedByEmployeeId { get; set; }
     
+    [Column("DiscountId")]
+    public int? DiscountId { get; set; }
+    
     // Navigation property for Order
     public virtual Order Order { get; set; }
     
     [ForeignKey(nameof(CreatedByEmployeeId))]
     public virtual Employee CreatedByEmployee { get; set; }
+    
+    [ForeignKey(nameof(DiscountId))]
+    public virtual Discount Discount { get; set; }
 
     // Navigation property for Item
     public virtual ICollection<Item> Items { get; set; }

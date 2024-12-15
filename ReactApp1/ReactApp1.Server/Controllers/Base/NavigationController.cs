@@ -27,10 +27,10 @@ namespace ReactApp1.Server.Controllers
         {
             var userRole = User.GetUserTitle();
             
-            if (!userRole.HasValue)
-            {
-                return BadRequest("User role not found.");
-            }
+            // if (!userRole.HasValue)
+            // {
+            //     return BadRequest("User role not found.");
+            // }
 
             var navigation = SiteLinkManager.GetNavigationBasedOnRole(userRole);
 

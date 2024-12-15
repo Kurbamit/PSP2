@@ -85,6 +85,23 @@ namespace ReactApp1.Server.Data.Repositories
             
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateFullOrderDiscountAsync(FullOrderModel fullOrder)
+        {
+            var existingFullOrder = await _context.FullOrders
+                .Where(f => f.OrderId == fullOrder.OrderId && f.ItemId == fullOrder.ItemId)
+                .FirstOrDefaultAsync();
+            
+            if (existingFullOrder == null)
+            {
+                _logger.LogError($"Item {fullOrder.ItemId} was not found in order {fullOrder.OrderId}");
+                throw new ItemNotFoundInOrderException(fullOrder.OrderId, fullOrder.ItemId);
+            }
+
+            existingFullOrder.DiscountId = fullOrder.DiscountId;
+            
+            await _context.SaveChangesAsync();
+        }
         
         public async Task DeleteItemFromOrderAsync(FullOrderModel fullOrder)
         {

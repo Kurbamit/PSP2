@@ -103,6 +103,7 @@ builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 builder.Services.AddScoped<IWorkingHoursRepository, WorkingHoursRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
 
 // Register Services
 builder.Services.AddScoped<IItemService, ItemService>();

@@ -31,6 +31,16 @@ namespace ReactApp1.Server.Controllers.Domain
             var establishmentId = User.GetUserEstablishmentId();
 
             var result = await _sharedSearchesService.GetAllServices(establishmentId, search);
+            
+            return Ok(result);
+        }
+        
+        [HttpGet("AllDiscounts")]
+        public async Task<IActionResult> AllDiscounts([FromQuery] string? search)
+        {
+            var establishmentId = User.GetUserEstablishmentId();
+
+            var result = await _sharedSearchesService.GetAllDiscounts(establishmentId, search);
 
             return Ok(result);
         }

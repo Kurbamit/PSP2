@@ -49,6 +49,9 @@ public class Order
     [Column("EstablishmentId")]
     public int? EstablishmentId { get; set; }
     
+    [Column("DiscountId")]
+    public int? DiscountId { get; set; }
+    
     [ForeignKey(nameof(CreatedByEmployeeId))]
     public virtual Employee CreatedByEmployee { get; set; }
     
@@ -57,6 +60,9 @@ public class Order
     
     [ForeignKey(nameof(EstablishmentId))]
     public virtual Establishment Establishment { get; set; }
+    
+    [ForeignKey(nameof(DiscountId))]
+    public virtual Discount Discount { get; set; }
     
     public virtual ICollection<FullOrder> FullOrders { get; set; }
 

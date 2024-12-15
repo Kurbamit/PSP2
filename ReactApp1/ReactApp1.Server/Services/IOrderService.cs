@@ -17,6 +17,7 @@ public interface IOrderService
     Task CancelOrder(int orderId);
     Task RefundOrder(int orderId);
     Task TipOrder(TipModel tip);
+    Task DiscountOrder(DiscountModel discount);
     Task PayOrder(PaymentModel payment);
     Task<byte[]> DownloadReceipt(int orderId);
 }

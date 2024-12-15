@@ -79,3 +79,9 @@ VALUES
 INSERT INTO public."Reservation" ("ReceiveTime", "StartTime", "EndTime", "CreatedByEmployeeId", "CustomerPhoneNumber", "EstablishmentAddressId", "EstablishmentId", "ServiceId")
 VALUES
     (CURRENT_TIMESTAMP, '2024-12-10 18:00:00', '2024-12-10 20:00:00', 1, '+37047298312', '1', '1', '1');
+
+INSERT INTO "Discount" ("DiscountId", "Name", "Percentage", "ReceiveTime", "EstablishmentId", "ValidFrom", "ValidTo")
+VALUES 
+    (1, 'Holiday Sale', 20.00, CURRENT_TIMESTAMP, 1, '2024-12-01', '2024-12-31'),
+    (2, 'Black Friday', 30.00, CURRENT_TIMESTAMP, 1, '2024-11-29', '2024-11-30'),
+    (3, 'Good Client', 5.00, CURRENT_TIMESTAMP, 1, NULL, NULL);

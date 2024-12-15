@@ -9,4 +9,5 @@ public interface IFullOrderRepository
     Task<List<FullOrderModel>> GetOrderItemsAsync(int orderId);
     Task UpdateItemInOrderCountAsync(FullOrderModel fullOrder);
     Task DeleteItemFromOrderAsync(FullOrderModel fullOrder);
+    Task UpdateFullOrderDiscountAsync(FullOrderModel fullOrder);
 }

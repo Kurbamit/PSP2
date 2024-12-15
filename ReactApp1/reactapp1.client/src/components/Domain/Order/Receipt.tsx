@@ -4,7 +4,8 @@ import Cookies from "js-cookie";
 import { useNavigate, useParams } from "react-router-dom";
 import ScriptResources from "../../../assets/resources/strings.ts";
 import { Order } from "./Orders.tsx";
-import { getOrderStatusString } from "../../../assets/Utils/utils.ts";
+import {getOrderStatusString, getPaymentTypeString} from "../../../assets/Utils/utils.ts";
+import {PaymentTypeEnum} from "../../../assets/Models/FrontendModels.ts";
 
 interface Service {
     serviceId: number;
@@ -25,10 +26,18 @@ interface Item {
     receiveTime: string;
     storage?: number | null;
     count?: number | null;
+    discount?: number | null;
+    discountName?: string | null;
 }
 
 interface Payment {
-    // Define payment fields here if needed
+    paymentId: number;
+    orderId: number;
+    type: PaymentTypeEnum;
+    value: number;
+    receiveTime: Date;
+    giftCardId?: number | null;
+    giftCardCode?: string | null;
 }
 
 interface OrderItemsPayments {
@@ -91,7 +100,7 @@ const Receipt: React.FC = () => {
 
     if (!data) return <div>{ScriptResources.NoDataFound}</div>;
 
-    const { order, items, services } = data;
+    const { order, items, services, payments } = data;
 
     return (
         <div className="container mt-5">
@@ -103,8 +112,13 @@ const Receipt: React.FC = () => {
                     <p><strong>{ScriptResources.Status}</strong> {getOrderStatusString(order.status)}</p>
                     <p><strong>{ScriptResources.Employee}</strong> {order.createdByEmployeeName}</p>
                     <p><strong>{ScriptResources.ReceiveTime}</strong> {new Date(order.receiveTime).toLocaleString()}</p>
-                    <p><strong>{ScriptResources.TotalPrice}</strong> {order.totalPrice?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</p>
-                    <p><strong>{ScriptResources.TipAmount}</strong> {order.tipAmount?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</p>
+                    <p>
+                        <strong>{ScriptResources.TotalPrice}</strong> {order.totalPrice?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}
+                    </p>
+                    <p>
+                        <strong>{ScriptResources.TipAmount}</strong> {order.tipAmount?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}
+                    </p>
+                    <p><strong>{ScriptResources.Discount}</strong> {order.discountName ?? 'N/A'}</p>
                 </div>
             </div>
 
@@ -120,6 +134,7 @@ const Receipt: React.FC = () => {
                             <th>{ScriptResources.Tax}</th>
                             <th>{ScriptResources.AlcoholicBeverage}</th>
                             <th>{ScriptResources.Count}</th>
+                            <th>{ScriptResources.Discount}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -130,6 +145,33 @@ const Receipt: React.FC = () => {
                                 <td>{item.tax?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
                                 <td>{item.alcoholicBeverage ? ScriptResources.Yes : ScriptResources.No}</td>
                                 <td>{item.count ?? 'N/A'}</td>
+                                <td>{item.discountName ?? 'N/A'}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div className="card">
+                <div className="card-body">
+                    <h5 className="card-title">{ScriptResources.Payments}</h5>
+                    <table className="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>{ScriptResources.PaymentType}</th>
+                            <th>{ScriptResources.Value}</th>
+                            <th>{ScriptResources.GiftCardCode}</th>
+                            <th>{ScriptResources.ReceiveTime}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {payments.map(payment => (
+                            <tr key={payment.paymentId}>
+                                <td>{getPaymentTypeString(payment.type)}</td>
+                                <td>{payment.value?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
+                                <td>{payment.giftCardCode ?? 'N/A'}</td>
+                                <td>{new Date(payment.receiveTime).toLocaleString()}</td>
                             </tr>
                         ))}
                         </tbody>

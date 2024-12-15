@@ -6,7 +6,7 @@ import ScriptResources from "../../../assets/resources/strings.ts";
 import {Order} from "./Orders.tsx";
 import {getOrderStatusString, getPaymentTypeString, getYesNoString} from "../../../assets/Utils/utils.ts";
 import SelectDropdown from "../../Base/SelectDropdown.tsx";
-import {OrderStatusEnum} from "../../../assets/Models/FrontendModels.ts";
+import {OrderStatusEnum, PaymentMethodEnum} from "../../../assets/Models/FrontendModels.ts";
 import {Form} from 'react-bootstrap';
 import {Elements} from '@stripe/react-stripe-js';
 import {loadStripe} from '@stripe/stripe-js';
@@ -21,6 +21,8 @@ interface Item {
     receiveTime: string;
     storage: number | null;
     count: number | null;
+    discount: number | null;
+    discountName: string | null;
 }
 
 interface Service {
@@ -45,10 +47,12 @@ interface Payment {
     value: number;
 }
 
-enum PaymentMethodEnum {
-    Cash = 1,
-    GiftCard = 2,
-    Card = 3,
+interface Discount {
+    orderId: number;
+    discountId: number,
+    discountName: string,
+    value: number;
+    itemId: number | null; // Null for order-wide discounts
 }
 
 const OrderDetail: React.FC = () => {
@@ -69,6 +73,10 @@ const OrderDetail: React.FC = () => {
     const [giftCardCode, setGiftCardCode] = useState<string>('');
     const [tipType, setTipType] = useState<"percentage" | "fixed">("percentage");
     const [tipValue, setTipValue] = useState<number>(0);
+    const [selectedItemForDiscount, setSelectedItemForDiscount] = useState<number | null>(null); // for item-level discount
+    const [showDiscountModal, setShowDiscountModal] = useState(false);
+    const [showItemDiscountModal, setShowItemDiscountModal] = useState(false);
+    const [selectedDiscount, setSelectedDiscount] = useState<Discount | null>(null);
 
     const stripePromise = loadStripe('pk_test_51QUk2yJ37W5f2NTslpQJKoAg1uGzZWe7oJfoWAJqJW6APPYsOudx08XfcFBI9dbRXdmPPE1RvbUZo4eT5LQ12bLd00lNgxiIsW');
 
@@ -109,6 +117,36 @@ const OrderDetail: React.FC = () => {
             }
         }
     };
+    
+    const handleApplyDiscount = async (itemId: number | null) => {
+        console.log('Applying discount: ', selectedDiscount);
+        console.log('Order ID:', id);
+        if (itemId == null)
+        {
+            try {
+                await axios.put(
+                    `http://localhost:5114/api/orders/${id}/discount`,
+                    { orderId: Number(id), discountId: selectedDiscount, discountName: 'null', value: 1, itemId: null},
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            } catch (error) {
+                console.error(ScriptResources.ErrorApplyingDiscount, error);
+            }
+            setShowDiscountModal(false);
+        } else {
+            try {
+                await axios.put(
+                    `http://localhost:5114/api/orders/${id}/discount`,
+                    { orderId: Number(id), discountId: selectedDiscount, discountName: 'null', value: 1, itemId: itemId},
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            } catch (error) {
+                console.error(ScriptResources.ErrorApplyingDiscount, error);
+            }
+            setShowItemDiscountModal(false);
+        }
+        fetchItem();
+    }
 
     const handleAddService = async () => {
         console.log('Adding service:', selectedServiceId);
@@ -282,11 +320,7 @@ const OrderDetail: React.FC = () => {
                             </li>
                             <li className="list-group-item">
                                 <strong>{ScriptResources.DiscountPercentage}</strong>
-                                <p>{editedItem.order.discountPercentage ? editedItem.order.discountPercentage : '-'}</p>
-                            </li>
-                            <li className="list-group-item">
-                                <strong>{ScriptResources.DiscountFixed}</strong>
-                                <p>{editedItem.order.discountFixed ? editedItem.order.discountFixed : '-'}</p>
+                                <p>{editedItem.order.discountName ? editedItem.order.discountName : '-'}</p>
                             </li>
                             <li className="list-group-item">
                                 <strong>{ScriptResources.Refunded}</strong>
@@ -344,6 +378,13 @@ const OrderDetail: React.FC = () => {
                     >
                         {ScriptResources.ApplyTip}
                     </button>
+                    <button
+                        className="btn btn-primary m-3"
+                        onClick={() => setShowDiscountModal(true)}
+                        disabled={order.order.status != OrderStatusEnum.Open}
+                    >
+                        {ScriptResources.ApplyDiscount}
+                    </button>
                 </div>
             )}
             {order?.order && order?.order.status != OrderStatusEnum.Open && (
@@ -383,6 +424,7 @@ const OrderDetail: React.FC = () => {
                                 <th>{ScriptResources.ReceiveTime}</th>
                                 <th>{ScriptResources.Storage}</th>
                                 <th>{ScriptResources.Count}</th>
+                                <th>{ScriptResources.Discount}</th>
                                 <th>{ScriptResources.Actions}</th>
                             </tr>
                             </thead>
@@ -397,14 +439,24 @@ const OrderDetail: React.FC = () => {
                                     <td>{item.receiveTime}</td>
                                     <td>{item.storage ?? ScriptResources.NotAvailable}</td>
                                     <td>{item.count ?? ' '}</td>
+                                    <td>{item.discountName ?? ' '}</td>
                                     <td>
-                                <span
-                                    className="material-icons"
-                                    style={{ cursor: 'pointer', marginRight: '10px' }}
-                                    onClick={() => handleDeleteItem(item.itemId)}
-                                >
-                                    delete
-                                </span>
+                                        <span
+                                            className="material-icons"
+                                            style={{cursor: 'pointer', marginRight: '10px'}}
+                                            onClick={() => {
+                                                setSelectedItemForDiscount(item.itemId);
+                                                setShowItemDiscountModal(true)
+                                            }}>
+                                            attach_money
+                                        </span>
+                                        <span
+                                            className="material-icons"
+                                            style={{cursor: 'pointer', marginRight: '10px'}}
+                                            onClick={() => handleDelete(item.itemId)}
+                                        >
+                                            delete
+                                        </span>
                                     </td>
                                 </tr>
                             ))}
@@ -477,7 +529,7 @@ const OrderDetail: React.FC = () => {
             )}
 
             <div className="mt-3">
-                {order?.order.status === OrderStatusEnum.Open && (
+            {order?.order.status === OrderStatusEnum.Open && (
                     <div className="d-flex mb-3">
                         <button className="btn btn-primary me-2" onClick={() => handleClose()}>
                             {ScriptResources.Checkout}
@@ -541,8 +593,39 @@ const OrderDetail: React.FC = () => {
                 </div>
             )}
 
-            {/* Modal */}
-            {showServiceModal && (
+            {showDiscountModal && (
+                <div className="modal show d-block" style={{backgroundColor: "rgba(0,0,0,0.5)"}}>
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">{ScriptResources.AddDiscount}</h5>
+                                <button className="btn-close" onClick={() => setShowDiscountModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <SelectDropdown
+                                    endpoint="/AllDiscounts"
+                                    onSelect={(discount) => {
+                                        if (discount) {
+                                            setSelectedDiscount(discount.id);
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => {setShowDiscountModal(false)}}>
+                                    {ScriptResources.Cancel}
+                                </button>
+                                <button className="btn btn-primary" onClick={() => handleApplyDiscount(null)}>
+                                    {ScriptResources.ApplyDiscount}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+                        {/* Modal */}
+                        {showServiceModal && (
                 <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog">
                         <div className="modal-content">
@@ -582,6 +665,36 @@ const OrderDetail: React.FC = () => {
                 </div>
             )}
 
+            {showItemDiscountModal && (
+                <div className="modal show d-block" style={{backgroundColor: "rgba(0,0,0,0.5)"}}>
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">{ScriptResources.AddDiscount}</h5>
+                                <button className="btn-close" onClick={() => setShowItemDiscountModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <SelectDropdown
+                                    endpoint="/AllDiscounts"
+                                    onSelect={(discount) => {
+                                        if (discount) {
+                                            setSelectedDiscount(discount.id);
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => {setShowItemDiscountModal(false)}}>
+                                    {ScriptResources.Cancel}
+                                </button>
+                                <button className="btn btn-primary" onClick={() => handleApplyDiscount(selectedItemForDiscount)}>
+                                    {ScriptResources.ApplyDiscount}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {(order?.order.status === OrderStatusEnum.Closed || order?.order.status === OrderStatusEnum.Completed) && (
                 <div className="mt-4">

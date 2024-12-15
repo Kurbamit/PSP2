@@ -111,6 +111,14 @@ namespace ReactApp1.Server.Controllers.Domain
             return Ok();
         }
 
+        [HttpPut("orders/{orderId}/discount")]
+        public async Task<IActionResult> DiscountOrder([FromBody] DiscountModel discount)
+        {
+            await _orderService.DiscountOrder(discount);
+
+            return Ok();
+        }
+
         [HttpDelete("orders/{orderId}/items")]
         public async Task<IActionResult> RemoveItemFromOrder([FromBody] FullOrderModel order)
         {
