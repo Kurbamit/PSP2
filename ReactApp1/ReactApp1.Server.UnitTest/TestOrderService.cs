@@ -26,6 +26,8 @@ namespace ReactApp1.Server.UnitTest
             public readonly Mock<IPaymentRepository> PaymentRepository;
             public readonly Mock<IGiftCardRepository> GiftCardRepository;
             public readonly Mock<IPaymentService> PaymentService;
+            public readonly Mock<IServiceRepository> ServiceRepository;
+            public readonly Mock<IFullOrderServiceRepository> FullOrderServiceRepository;
             public readonly Mock<ILogger<OrderService>> Logger;
             
             public TestState()
@@ -37,10 +39,12 @@ namespace ReactApp1.Server.UnitTest
                 PaymentRepository = new Mock<IPaymentRepository>();
                 GiftCardRepository = new Mock<IGiftCardRepository>();
                 PaymentService = new Mock<IPaymentService>();
+                ServiceRepository = new Mock<IServiceRepository>();
+                FullOrderServiceRepository = new Mock<IFullOrderServiceRepository>();
                 Logger = new Mock<ILogger<OrderService>>();
 
-                OrderService = new OrderService(OrderRepository.Object, ItemRepository.Object,
-                    FullOrderRepository.Object, EmployeeRepository.Object, Logger.Object, PaymentRepository.Object,
+                OrderService = new OrderService(OrderRepository.Object, ItemRepository.Object, ServiceRepository.Object,
+                    FullOrderRepository.Object, FullOrderServiceRepository.Object, EmployeeRepository.Object, Logger.Object, PaymentRepository.Object,
                     GiftCardRepository.Object, PaymentService.Object);
             }
         }
