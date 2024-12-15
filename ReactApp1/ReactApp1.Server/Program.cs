@@ -118,7 +118,7 @@ builder.Services.AddScoped<PaymentIntentService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<RefundService>();
 builder.Services.AddScoped<IWorkingHoursService, WorkingHoursService>();
-builder.Services.AddScoped<ITaxService, TaxService>();
+builder.Services.AddScoped<ITaxService, TaxesService>();
 
 
 builder.Services.AddScoped<IReservationService>(provider =>

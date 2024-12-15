@@ -1,15 +1,15 @@
+using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
-using ReactApp1.Server.Services;
 
-namespace ReactApp1.Server.Data.Repositories
+namespace ReactApp1.Server.Services
 {
-    public class TaxService : ITaxService
+    public class TaxesService : ITaxService
     {
         private readonly ITaxRepository _taxRepository;
 
-        public TaxService(ITaxRepository taxRepository)
+        public TaxesService(ITaxRepository taxRepository)
         {
             _taxRepository = taxRepository;
         }
