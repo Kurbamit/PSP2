@@ -15,6 +15,8 @@ interface Service {
     serviceLength?: string;
     receiveTime?: string;
     count?: number | null;
+    discount?: number | null;
+    discountName?: string | null;
 }
 
 interface Item {
@@ -153,6 +155,35 @@ const Receipt: React.FC = () => {
                 </div>
             </div>
 
+            {/* Services Section */}
+            <div className="card mt-4">
+                <div className="card-body">
+                    <h5 className="card-title">{ScriptResources.Services}</h5>
+                    <table className="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{ScriptResources.Name}</th>
+                                <th>{ScriptResources.Cost}</th>
+                                <th>{ScriptResources.Tax}</th>
+                                <th>{ScriptResources.Count}</th>
+                                <th>{ScriptResources.Discount}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {services.map(service => (
+                                <tr key={service.serviceId}>
+                                    <td>{service.name}</td>
+                                    <td>{service.cost?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
+                                    <td>{service.tax?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
+                                    <td>{service.count ?? 'N/A'}</td>
+                                    <td>{service.discountName ?? 'N/A'}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div className="card">
                 <div className="card-body">
                     <h5 className="card-title">{ScriptResources.Payments}</h5>
@@ -179,32 +210,7 @@ const Receipt: React.FC = () => {
                 </div>
             </div>
 
-            {/* Services Section */}
-            <div className="card mt-4">
-                <div className="card-body">
-                    <h5 className="card-title">{ScriptResources.Services}</h5>
-                    <table className="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>{ScriptResources.Name}</th>
-                                <th>{ScriptResources.Cost}</th>
-                                <th>{ScriptResources.Tax}</th>
-                                <th>{ScriptResources.Count}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {services.map(service => (
-                                <tr key={service.serviceId}>
-                                    <td>{service.name}</td>
-                                    <td>{service.cost?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
-                                    <td>{service.tax?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
-                                    <td>{service.count ?? 'N/A'}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+
 
             <div className="d-flex justify-content-between mt-3">
                 <button className="btn btn-secondary" onClick={handleBackToList}>

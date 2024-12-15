@@ -41,6 +41,8 @@ namespace ReactApp1.Server.Models.Models.Domain
         public DateTime ReceiveTime { get; set; }
 
         public int? Count { get; set; }
+        public decimal? Discount { get; set; }
+        public string? DiscountName { get; set; }
 
         public void MapUpdate(Service existingModel)
         {

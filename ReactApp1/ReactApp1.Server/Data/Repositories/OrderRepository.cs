@@ -185,6 +185,7 @@ namespace ReactApp1.Server.Data.Repositories
                 sb.AppendLine($"- {service.Name} x{service.Count}");
                 sb.AppendLine($"  Cost: {service.Cost?.ToString("0.00") ?? "N/A"} EUR");
                 sb.AppendLine($"  Tax: {service.Tax?.ToString("0.00") ?? "N/A"} EUR");
+                sb.AppendLine($"  Discount: {service.DiscountName ?? "N/A"}");
                 sb.AppendLine(new string('-', 30));
             }
 

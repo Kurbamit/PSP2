@@ -109,6 +109,23 @@ namespace ReactApp1.Server.Data.Repositories
                 throw new DbUpdateException($"An error occurred while deleting fullOrderService (orderId = {fullOrder.OrderId}, serviceId = {fullOrder.ServiceId}) record to the database.", e);
             }
         }
+
+        public async Task UpdateFullOrderServiceDiscountAsync(FullOrderServiceModel fullOrderService)
+        {
+            var existingFullOrder = await _context.FullOrderServices
+                .Where(f => f.OrderId == fullOrderService.OrderId && f.ServiceId == fullOrderService.ServiceId)
+                .FirstOrDefaultAsync();
+
+            if (existingFullOrder == null)
+            {
+                _logger.LogError($"Service {fullOrderService.ServiceId} was not found in order {fullOrderService.OrderId}");
+                throw new ServiceNotFoundInOrderException(fullOrderService.OrderId, fullOrderService.ServiceId);
+            }
+
+            existingFullOrder.DiscountId = fullOrderService.DiscountId;
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
 

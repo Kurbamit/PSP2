@@ -33,6 +33,8 @@ interface Service {
     serviceLength: string;
     receiveTime: string;
     count: number | null;
+    discount: number | null;
+    discountName: string | null;
 }
 
 interface FullOrder {
@@ -53,6 +55,7 @@ interface Discount {
     discountName: string,
     value: number;
     itemId: number | null; // Null for order-wide discounts
+    serviceId: number | null; // Null if not applicable to services
 }
 
 const OrderDetail: React.FC = () => {
@@ -75,6 +78,7 @@ const OrderDetail: React.FC = () => {
     const [tipValue, setTipValue] = useState<number>(0);
     const [selectedItemForDiscount, setSelectedItemForDiscount] = useState<number | null>(null); // for item-level discount
     const [showDiscountModal, setShowDiscountModal] = useState(false);
+    const [showServiceDiscountModal, setShowServiceDiscountModal] = useState(false);
     const [showItemDiscountModal, setShowItemDiscountModal] = useState(false);
     const [selectedDiscount, setSelectedDiscount] = useState<Discount | null>(null);
 
@@ -118,35 +122,51 @@ const OrderDetail: React.FC = () => {
         }
     };
     
-    const handleApplyDiscount = async (itemId: number | null) => {
+    const handleApplyDiscount = async (itemId: number | null = null, serviceId: number | null = null) => {
         console.log('Applying discount: ', selectedDiscount);
         console.log('Order ID:', id);
-        if (itemId == null)
-        {
-            try {
-                await axios.put(
-                    `http://localhost:5114/api/orders/${id}/discount`,
-                    { orderId: Number(id), discountId: selectedDiscount, discountName: 'null', value: 1, itemId: null},
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-            } catch (error) {
-                console.error(ScriptResources.ErrorApplyingDiscount, error);
-            }
-            setShowDiscountModal(false);
-        } else {
-            try {
-                await axios.put(
-                    `http://localhost:5114/api/orders/${id}/discount`,
-                    { orderId: Number(id), discountId: selectedDiscount, discountName: 'null', value: 1, itemId: itemId},
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-            } catch (error) {
-                console.error(ScriptResources.ErrorApplyingDiscount, error);
-            }
-            setShowItemDiscountModal(false);
+
+        if (!selectedDiscount) {
+            console.error('No discount selected');
+            return;
         }
-        fetchItem();
-    }
+
+        try {
+            let payload: any = {
+                orderId: Number(id),
+                discountId: selectedDiscount,
+                discountName: 'null',
+                value: 1,
+                itemId: null,
+                serviceId: null,
+            };
+
+            if (itemId !== null) {
+                payload.itemId = itemId;
+            } else if (serviceId !== null) {
+                payload.serviceId = serviceId;
+            }
+
+            await axios.put(
+                `http://localhost:5114/api/orders/${id}/discount`,
+                payload,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            if (itemId !== null) {
+                setShowItemDiscountModal(false);
+            } else if (serviceId !== null) {
+                setShowServiceDiscountModal(false);
+            } else {
+                setShowDiscountModal(false); // For order-wide discounts
+            }
+
+            fetchItem(); // Refresh the order details
+        } catch (error) {
+            console.error(ScriptResources.ErrorApplyingDiscount, error);
+        }
+    };
+
 
     const handleAddService = async () => {
         console.log('Adding service:', selectedServiceId);
@@ -453,7 +473,7 @@ const OrderDetail: React.FC = () => {
                                         <span
                                             className="material-icons"
                                             style={{cursor: 'pointer', marginRight: '10px'}}
-                                            onClick={() => handleDelete(item.itemId)}
+                                            onClick={() => handleDeleteItem(item.itemId)}
                                         >
                                             delete
                                         </span>
@@ -495,6 +515,7 @@ const OrderDetail: React.FC = () => {
                                     <th>{ScriptResources.ServiceLength}</th>
                                     <th>{ScriptResources.ReceiveTime}</th>
                                     <th>{ScriptResources.Count}</th>
+                                    <th>{ScriptResources.Discount}</th>
                                     <th>{ScriptResources.Actions}</th>
                                 </tr>
                             </thead>
@@ -508,7 +529,17 @@ const OrderDetail: React.FC = () => {
                                         <td>{service.serviceLength}</td>
                                         <td>{service.receiveTime}</td>
                                         <td>{service.count ?? ' '}</td>
+                                        <td>{service.discountName ?? ' '}</td>
                                         <td>
+                                            <span
+                                                className="material-icons"
+                                                style={{ cursor: 'pointer', marginRight: '10px' }}
+                                                onClick={() => {
+                                                    setSelectedServiceId(service.serviceId);
+                                                    setShowServiceDiscountModal(true);
+                                                }}>
+                                                attach_money
+                                            </span>
                                             <span
                                                 className="material-icons"
                                                 style={{ cursor: 'pointer', marginRight: '10px' }}
@@ -517,6 +548,7 @@ const OrderDetail: React.FC = () => {
                                                 delete
                                             </span>
                                         </td>
+
                                     </tr>
                                 ))}
                             </tbody>
@@ -624,8 +656,39 @@ const OrderDetail: React.FC = () => {
                 </div>
             )}
 
-                        {/* Modal */}
-                        {showServiceModal && (
+            {showServiceDiscountModal && (
+                <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">{ScriptResources.AddDiscount}</h5>
+                                <button className="btn-close" onClick={() => setShowServiceDiscountModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <SelectDropdown
+                                    endpoint="/AllDiscounts"
+                                    onSelect={(discount) => {
+                                        if (discount) {
+                                            setSelectedDiscount(discount.id);
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowServiceDiscountModal(false)}>
+                                    {ScriptResources.Cancel}
+                                </button>
+                                <button className="btn btn-primary" onClick={() => handleApplyDiscount(null, selectedServiceId)}>
+                                    {ScriptResources.ApplyDiscount}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal */}
+            {showServiceModal && (
                 <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
                     <div className="modal-dialog">
                         <div className="modal-content">

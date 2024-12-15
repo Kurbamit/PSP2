@@ -132,6 +132,13 @@ namespace ReactApp1.Server.Services
                 if (service == null)
                     continue;
 
+                if (fullOrderService.DiscountId.HasValue)
+                {
+                    var discount = await GetDiscountById(fullOrderService.DiscountId.Value);
+                    service.Discount = discount.Value;
+                    service.DiscountName = discount.DiscountName + " (" + discount.Value + "%)";
+                }
+
                 service.Count = fullOrderService.Count;
                 orderServices.Add(service);
             }
@@ -172,6 +179,12 @@ namespace ReactApp1.Server.Services
             {
                 decimal serviceCost = service.Cost ?? 0;
                 decimal serviceCount = service.Count ?? 0;
+
+                // Apply discount to the item if it exists
+                if (service.Discount.HasValue)
+                {
+                    serviceCost -= serviceCost * (service.Discount.Value / 100);
+                }
 
                 totalPrice += serviceCost * serviceCount;
             }
@@ -521,6 +534,19 @@ namespace ReactApp1.Server.Services
                 fullOrder.DiscountId = discount.DiscountId;
 
                 await _fullOrderRepository.UpdateFullOrderDiscountAsync(fullOrder);
+            }
+            else if (discount.ServiceId.HasValue)
+            {
+                var fullOrderService = await _fullOrderServiceRepository.GetFullOrderServiceAsync(discount.OrderId, discount.ServiceId.Value);
+
+                if (fullOrderService == null)
+                {
+                    return;
+                }
+
+                fullOrderService.DiscountId = discount.DiscountId;
+
+                await _fullOrderServiceRepository.UpdateFullOrderServiceDiscountAsync(fullOrderService);
             }
             else
             {

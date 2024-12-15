@@ -10,6 +10,7 @@ public class Discount
     {
         Orders = new HashSet<Order>();
         Items = new HashSet<FullOrder>();
+        Services = new HashSet<FullOrderService>();
     }
     
     [Key]
@@ -41,4 +42,7 @@ public class Discount
     
     // If individual items can have discounts
     public virtual ICollection<FullOrder> Items { get; set; }
+
+    // If individual services can have discounts
+    public virtual ICollection<FullOrderService> Services { get; set; }
 }
