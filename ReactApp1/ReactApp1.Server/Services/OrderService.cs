@@ -121,6 +121,7 @@ namespace ReactApp1.Server.Services
                 if (service == null)
                     continue;
 
+                service.Count = fullOrderService.Count;
                 orderServices.Add(service);
             }
 

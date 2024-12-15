@@ -23,9 +23,20 @@ interface Item {
     count: number | null;
 }
 
+interface Service {
+    serviceId: number;
+    name: string;
+    cost: number;
+    tax: number;
+    serviceLength: string;
+    receiveTime: string;
+    count: number | null;
+}
+
 interface FullOrder {
     order: Order;
     items: Array<Item>;
+    services: Array<Service>;
     payments: Array<Payment>;
 }
 
@@ -47,7 +58,9 @@ const OrderDetail: React.FC = () => {
     const token = Cookies.get('authToken');
     const navigate = useNavigate();
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+    const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
     const [showItemModal, setShowItemModal] = useState(false);
+    const [showServiceModal, setShowServiceModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [showRefundModal, setShowRefundModal] = useState(false);
     const [count, setCount] = useState(1);
@@ -97,7 +110,27 @@ const OrderDetail: React.FC = () => {
         }
     };
 
-    const handleDelete = async (itemId: number) => {
+    const handleAddService = async () => {
+        console.log('Adding service:', selectedServiceId);
+        console.log('Order ID:', id);
+        if (setSelectedServiceId && id) {
+            try {
+                await axios.put(
+                    `http://localhost:5114/api/orders/${id}/services`,
+                    { orderId: Number(id), serviceId: selectedServiceId, count: count },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                setShowServiceModal(false);
+                setSelectedServiceId(null);
+                fetchItem();
+                setCount(1);
+            } catch (error) {
+                console.error(ScriptResources.ErrorAddingService, error);
+            }
+        };
+    }
+
+    const handleDeleteItem = async (itemId: number) => {
         if (id) {
             try {
                 await axios.delete(`http://localhost:5114/api/orders/${id}/items`, {
@@ -110,6 +143,20 @@ const OrderDetail: React.FC = () => {
             }
         }
     };
+
+    const handleDeleteService = async (serviceId: number) => {
+        if (id) {
+            try {
+                await axios.delete(`http://localhost:5114/api/orders/${id}/services`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    data: { orderId: Number(id), serviceId, count: 1 },
+                });
+                fetchItem();
+            } catch (error) {
+                console.error(ScriptResources.ErrorDeletingService, error);
+            }
+        }
+    }
     
     const handleClose = async () => {
         if (id) {
@@ -354,7 +401,7 @@ const OrderDetail: React.FC = () => {
                                 <span
                                     className="material-icons"
                                     style={{ cursor: 'pointer', marginRight: '10px' }}
-                                    onClick={() => handleDelete(item.itemId)}
+                                    onClick={() => handleDeleteItem(item.itemId)}
                                 >
                                     delete
                                 </span>
@@ -366,6 +413,65 @@ const OrderDetail: React.FC = () => {
                     ) : (
                         // Show empty table message when there are no items
                         <p>{ScriptResources.NoItems}</p>
+                    )}
+                </div>
+            )}
+
+            {/* Render Services Table */}
+            {editedItem && (
+                <div className="mt-4">
+                    <h3>{ScriptResources.Services}</h3>
+
+                    {/* Show AddService button */}
+                    {order?.order.status === OrderStatusEnum.Open && (
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            <button className="btn btn-primary" onClick={() => setShowServiceModal(true)}>
+                                {ScriptResources.AddService}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Render table only if there are services */}
+                    {editedItem.services.length > 0 ? (
+                        <table className="table table-striped table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>{ScriptResources.ServiceId}</th>
+                                    <th>{ScriptResources.Name}</th>
+                                    <th>{ScriptResources.Cost}</th>
+                                    <th>{ScriptResources.Tax}</th>
+                                    <th>{ScriptResources.ServiceLength}</th>
+                                    <th>{ScriptResources.ReceiveTime}</th>
+                                    <th>{ScriptResources.Count}</th>
+                                    <th>{ScriptResources.Actions}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {editedItem.services.map((service) => (
+                                    <tr key={service.serviceId}>
+                                        <td>{service.serviceId}</td>
+                                        <td>{service.name}</td>
+                                        <td>{service.cost}</td>
+                                        <td>{service.tax}</td>
+                                        <td>{service.serviceLength}</td>
+                                        <td>{service.receiveTime}</td>
+                                        <td>{service.count ?? ' '}</td>
+                                        <td>
+                                            <span
+                                                className="material-icons"
+                                                style={{ cursor: 'pointer', marginRight: '10px' }}
+                                                onClick={() => handleDeleteService(service.serviceId)}
+                                            >
+                                                delete
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        // Show empty table message when there are no services
+                        <p>{ScriptResources.NoServices}</p>
                     )}
                 </div>
             )}
@@ -434,6 +540,48 @@ const OrderDetail: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            {/* Modal */}
+            {showServiceModal && (
+                <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">{ScriptResources.AddNewService}</h5>
+                                <button className="btn-close" onClick={() => setShowServiceModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <SelectDropdown
+                                    endpoint="/AllServices"
+                                    onSelect={(service) => {
+                                        if (service) {
+                                            setSelectedServiceId(service.id);
+                                        }
+                                    }}
+                                />
+                                <Form.Group className="mb-3" controlId="service-count">
+                                    <Form.Label>{ScriptResources.SelectCount}</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        value={count}
+                                        onChange={(e) => setCount(Number(e.target.value))}
+                                        min="1"
+                                    />
+                                </Form.Group>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => { setShowServiceModal(false); setCount(1) }}>
+                                    {ScriptResources.Cancel}
+                                </button>
+                                <button className="btn btn-primary" onClick={handleAddService}>
+                                    {ScriptResources.Add}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             {(order?.order.status === OrderStatusEnum.Closed || order?.order.status === OrderStatusEnum.Completed) && (
                 <div className="mt-4">

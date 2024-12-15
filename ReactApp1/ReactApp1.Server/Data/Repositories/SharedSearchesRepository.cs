@@ -25,5 +25,18 @@ namespace ReactApp1.Server.Data.Repositories
 
             return result;
         }
+
+        public async Task<List<SharedService>> GetAllServices(int establishmentId, string? search)
+        {
+            var result = await _context.Services
+                .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
+                .Select(f => new SharedService()
+                {
+                    Id = f.ServiceId,
+                    Name = f.Name == null ? "None" : f.Name
+                }).OrderBy(f => f.Name.ToLower()).ToListAsync();
+
+            return result;
+        }
     }
 }

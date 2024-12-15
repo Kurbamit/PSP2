@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from "js-cookie";
-import {useNavigate, useParams} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ScriptResources from "../../../assets/resources/strings.ts";
 import { Order } from "./Orders.tsx";
-import {getOrderStatusString} from "../../../assets/Utils/utils.ts";
+import { getOrderStatusString } from "../../../assets/Utils/utils.ts";
 
+interface Service {
+    serviceId: number;
+    name: string;
+    cost?: number | null;
+    tax?: number | null;
+    serviceLength?: string;
+    receiveTime?: string;
+    count?: number | null;
+}
 
 interface Item {
     itemId: number;
@@ -25,6 +34,7 @@ interface Payment {
 interface OrderItemsPayments {
     order: Order;
     items: Item[];
+    services: Service[];
     payments: Payment[];
 }
 
@@ -57,7 +67,6 @@ const Receipt: React.FC = () => {
     const handleBackToList = () => {
         navigate(`/orders/${id}`);
     };
-    
     const handleDownload = async () => {
         try {
             const response = await axios.get(`http://localhost:5114/api/orders/${id}/download`, {
@@ -82,7 +91,7 @@ const Receipt: React.FC = () => {
 
     if (!data) return <div>{ScriptResources.NoDataFound}</div>;
 
-    const { order, items } = data;
+    const { order, items, services } = data;
 
     return (
         <div className="container mt-5">
@@ -99,6 +108,7 @@ const Receipt: React.FC = () => {
                 </div>
             </div>
 
+            {/* Items Section */}
             <div className="card">
                 <div className="card-body">
                     <h5 className="card-title">{ScriptResources.Items}</h5>
@@ -126,6 +136,34 @@ const Receipt: React.FC = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Services Section */}
+            <div className="card mt-4">
+                <div className="card-body">
+                    <h5 className="card-title">{ScriptResources.Services}</h5>
+                    <table className="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{ScriptResources.Name}</th>
+                                <th>{ScriptResources.Cost}</th>
+                                <th>{ScriptResources.Tax}</th>
+                                <th>{ScriptResources.Count}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {services.map(service => (
+                                <tr key={service.serviceId}>
+                                    <td>{service.name}</td>
+                                    <td>{service.cost?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
+                                    <td>{service.tax?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
+                                    <td>{service.count ?? 'N/A'}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div className="d-flex justify-content-between mt-3">
                 <button className="btn btn-secondary" onClick={handleBackToList}>
                     {ScriptResources.BackToTheMainList}
