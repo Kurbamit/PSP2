@@ -170,7 +170,9 @@ const ScriptResources = {
     ApplyTip: 'Apply tip',
     Tip: 'Tip',
     TipAmount: 'Tip amount',
-
+    AddDiscount: 'Add discount',
+    ApplyDiscount: 'Apply discount',
+    ErrorApplyingDiscount: 'Error applying discount',
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {
