@@ -25,5 +25,18 @@ namespace ReactApp1.Server.Data.Repositories
 
             return result;
         }
+        
+        public async Task<List<SharedItem>> GetAllDiscounts(int establishmentId, string? search)
+        {
+            var result = await _context.Discounts
+                .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
+                .Select(f => new SharedItem()
+                {
+                    Id = f.DiscountId,
+                    Name = f.Name == null ? "None" : f.Name + " - " + f.Percentage + "%"
+                }).OrderBy(f => f.Name.ToLower()).ToListAsync();
+
+            return result;
+        }
     }
 }
