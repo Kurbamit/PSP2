@@ -23,6 +23,7 @@ public class AppDbContext : DbContext
     public DbSet<Reservation> Reservations { get; set; }
     public DbSet<WorkingHours> WorkingHours { get; set; }
     public DbSet<Service> Services { get; set; }
+    public DbSet<Discount> Discounts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -112,6 +113,10 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasMany(d => d.Discounts)
+                .WithOne(d => d.Establishment)
+                .HasForeignKey(d => d.EstablishmentId);
         });
 
         modelBuilder.Entity<EstablishmentAddress>(entity =>
@@ -177,6 +182,10 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(d => d.Discount)
+                .WithMany(d => d.Orders)
+                .HasForeignKey(d => d.DiscountId);
         });
 
         modelBuilder.Entity<FullOrder>(entity =>
@@ -192,6 +201,10 @@ public class AppDbContext : DbContext
             entity.HasOne(e => e.CreatedByEmployee)
                 .WithMany(f => f.FullOrders)
                 .HasForeignKey(f => f.CreatedByEmployeeId);
+
+            entity.HasOne(d => d.Discount)
+                .WithMany(d => d.Items)
+                .HasForeignKey(d => d.DiscountId);
         });
 
         modelBuilder.Entity<Payment>(entity =>

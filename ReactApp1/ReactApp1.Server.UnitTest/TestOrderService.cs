@@ -27,6 +27,7 @@ namespace ReactApp1.Server.UnitTest
             public readonly Mock<IGiftCardRepository> GiftCardRepository;
             public readonly Mock<IPaymentService> PaymentService;
             public readonly Mock<ILogger<OrderService>> Logger;
+            public readonly Mock<IDiscountRepository> DiscountRepository;
             
             public TestState()
             {
@@ -38,10 +39,11 @@ namespace ReactApp1.Server.UnitTest
                 GiftCardRepository = new Mock<IGiftCardRepository>();
                 PaymentService = new Mock<IPaymentService>();
                 Logger = new Mock<ILogger<OrderService>>();
+                DiscountRepository = new Mock<IDiscountRepository>();
 
                 OrderService = new OrderService(OrderRepository.Object, ItemRepository.Object,
                     FullOrderRepository.Object, EmployeeRepository.Object, Logger.Object, PaymentRepository.Object,
-                    GiftCardRepository.Object, PaymentService.Object);
+                    GiftCardRepository.Object, PaymentService.Object, DiscountRepository.Object);
             }
         }
 
@@ -50,7 +52,7 @@ namespace ReactApp1.Server.UnitTest
             var output = new TestState();
             
             // Set up default input values for service methods
-            output.FullOrder = new FullOrderModel(1, 101, 2);
+            output.FullOrder = new FullOrderModel(1, 101, 2, null);
             output.Storage = new StorageModel(1, 2, 101, 1000);
             
             
@@ -210,7 +212,7 @@ namespace ReactApp1.Server.UnitTest
         {
             // arrange
             var state = BuildTestState();
-            state.FullOrder = new FullOrderModel(1, 101, 1001);
+            state.FullOrder = new FullOrderModel(1, 101, 1001, null);
             state.Storage = new StorageModel(1, 2, 101, 1000);
             
             state.ItemRepository

@@ -5,4 +5,5 @@ namespace ReactApp1.Server.Data.Repositories;
 public interface ISharedSearchesRepository
 {
     public Task<List<SharedItem>> GetAllItems(int establishmentId, string? search);
+    public Task<List<SharedItem>> GetAllDiscounts(int establishmentId, string? search);
 }

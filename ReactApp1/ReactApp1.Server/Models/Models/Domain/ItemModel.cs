@@ -35,6 +35,9 @@ public class ItemModel
     public  int? Storage { get; set; }
     
     public int? Count { get; set; }
+    
+    public decimal? Discount { get; set; }
+    public string? DiscountName { get; set; }
 
     public void MapUpdate(Item existingItem)
     {

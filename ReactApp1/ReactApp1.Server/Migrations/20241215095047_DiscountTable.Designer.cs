@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReactApp1.Server.Data;
@@ -11,9 +12,11 @@ using ReactApp1.Server.Data;
 namespace ReactApp1.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241215095047_DiscountTable")]
+    partial class DiscountTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -355,6 +358,9 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ExpirationDate");
 
+                    b.Property<int?>("PaymentId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("ReceiveTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -365,6 +371,8 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique();
+
+                    b.HasIndex("PaymentId");
 
                     b.ToTable("GiftCard");
                 });
@@ -823,6 +831,13 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("ReactApp1.Server.Models.GiftCard", b =>
+                {
+                    b.HasOne("ReactApp1.Server.Models.Payment", null)
+                        .WithMany("GiftCards")
+                        .HasForeignKey("PaymentId");
+                });
+
             modelBuilder.Entity("ReactApp1.Server.Models.Item", b =>
                 {
                     b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
@@ -1006,6 +1021,11 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("FullOrders");
 
                     b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("ReactApp1.Server.Models.Payment", b =>
+                {
+                    b.Navigation("GiftCards");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Reservation", b =>

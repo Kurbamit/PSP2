@@ -23,3 +23,9 @@ export enum YesNoEnum {
     No = 0,
     Yes = 1
 }
+
+export enum PaymentMethodEnum {
+    Cash = 1,
+    GiftCard = 2,
+    Card = 3,
+}

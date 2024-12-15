@@ -12,6 +12,7 @@ public class Establishment
         Employees = new HashSet<Employee>();
         Orders = new HashSet<Order>();
         Items = new HashSet<Item>();
+        Discounts = new HashSet<Discount>();
     }
     
     [Key]
@@ -39,4 +40,6 @@ public class Establishment
     public virtual ICollection<Order> Orders { get; set; }
     
     public virtual ICollection<Item> Items { get; set; }
+    
+    public virtual ICollection<Discount> Discounts { get; set; }
 }

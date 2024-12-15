@@ -78,6 +78,16 @@ namespace ReactApp1.Server.Data.Repositories
                 .Select(o => new OrderModel(o))
                 .FirstOrDefaultAsync();
 
+            if (order.DiscountId.HasValue)
+            {
+                var discount = await _context.Discounts
+                    .Where(discount => discount.DiscountId == order.DiscountId)
+                    .FirstOrDefaultAsync();
+
+                order.DiscountPercentage = discount.Percentage;
+                order.DiscountName = discount.Name + " (" + discount.Percentage + "%)";
+            }
+            
             return order;
         }
         
@@ -136,6 +146,10 @@ namespace ReactApp1.Server.Data.Repositories
                 existingOrder.PaymentId = order.PaymentId;
                 existingOrder.Refunded = order.Refunded;
                 existingOrder.ReservationId = order.ReservationId;
+                if (order.DiscountId.HasValue)
+                {
+                    existingOrder.DiscountId = order.DiscountId.Value;
+                }
             }
         }
 
@@ -151,6 +165,7 @@ namespace ReactApp1.Server.Data.Repositories
             sb.AppendLine($"Receive Time: {order.Order.ReceiveTime:yyyy-MM-dd HH:mm:ss}");
             sb.AppendLine($"Total Price: {order.Order.TotalPrice?.ToString("0.00") ?? "N/A"} EUR");
             sb.AppendLine($"Tip: {order.Order.TipAmount?.ToString("0.00") ?? "N/A"} EUR");
+            sb.AppendLine($"Discount: {order.Order.DiscountName ?? "N/A"}");
             sb.AppendLine(new string('-', 30));
             sb.AppendLine("ITEMS:");
 
@@ -160,10 +175,26 @@ namespace ReactApp1.Server.Data.Repositories
                 sb.AppendLine($"  Cost: {item.Cost?.ToString("0.00") ?? "N/A"} EUR");
                 sb.AppendLine($"  Tax: {item.Tax?.ToString("0.00") ?? "N/A"} EUR");
                 sb.AppendLine($"  Alcoholic: {(item.AlcoholicBeverage ? "Yes" : "No")}");
+                sb.AppendLine($"  Discount: {item.DiscountName ?? "N/A"}");
                 sb.AppendLine(new string('-', 30));
             }
+            sb.AppendLine("PAYMENTS:");
+            foreach (var payment in order.Payments)
+            {
+                sb.AppendLine($"  Payment type: {((PaymentTypeEnum)payment.Type).ToString()}");
+                sb.AppendLine($"  Amount: {payment.Value.ToString("0.00")} EUR");
+                if (string.IsNullOrWhiteSpace(payment.GiftCardCode))
+                {
+                    sb.AppendLine("  Gift Card: N/A");
+                }
+                else
+                {
+                    sb.AppendLine($"  Gift Card: {payment.GiftCardCode}");
+                }
+                sb.AppendLine($"  Receive Time: {payment.ReceiveTime:yyyy-MM-dd HH:mm:ss}");
+            }
 
-            sb.AppendLine("Thank you for your order!");
+            sb.AppendLine("\nThank you for your order!");
 
             // Convert the receipt string to bytes
             var receiptBytes = Encoding.UTF8.GetBytes(sb.ToString());

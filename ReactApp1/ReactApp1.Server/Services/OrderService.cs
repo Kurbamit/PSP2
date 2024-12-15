@@ -19,10 +19,12 @@ namespace ReactApp1.Server.Services
         private readonly IGiftCardRepository _giftcardRepository;
         private readonly ILogger<OrderService> _logger;
         private readonly IPaymentService _paymentService;
+        private readonly IDiscountRepository _discountRepository;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, 
             IFullOrderRepository fullOrderRepository, IEmployeeRepository employeeRepository, ILogger<OrderService> logger,
-            IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository, IPaymentService paymentService)
+            IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository, IPaymentService paymentService,
+            IDiscountRepository discountRepository)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
@@ -32,6 +34,7 @@ namespace ReactApp1.Server.Services
             _giftcardRepository = giftcardRepository;
             _logger = logger;
             _paymentService = paymentService;
+            _discountRepository = discountRepository;
         }
         
         public async Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId, int? establishmentId)
@@ -75,7 +78,7 @@ namespace ReactApp1.Server.Services
 
             var orderItems = await GetOrderItems(orderId);
 
-            var orderWithTotalPrice = CalculateTotalPriceForOrder(order, orderItems);
+            var orderWithTotalPrice = await CalculateTotalPriceForOrder(order, orderItems);
 
             var orderPayments = await GetOrderPayments(orderId);
 
@@ -96,19 +99,33 @@ namespace ReactApp1.Server.Services
                 if(item == null)
                     continue;
                 
+                if (fullOrder.DiscountId.HasValue)
+                {
+                    var discount = await GetDiscountById(fullOrder.DiscountId.Value);
+                    item.Discount = discount.Value;
+                    item.DiscountName = discount.DiscountName + " (" + discount.Value + "%)";
+                }
+                
                 item.Count = fullOrder.Count;
                 orderItems.Add(item);
             }
 
             return orderItems;
         }
+
+        private async Task<DiscountModel> GetDiscountById(int discountId)
+        {
+            var discount = await _discountRepository.GetDiscountAsync(discountId);
+            return discount;
+        }
+        
         private async Task<List<PaymentModel>> GetOrderPayments(int orderId)
         {
             var payments = await _paymentRepository.GetPaymentsByOrderIdAsync(orderId);
             return payments;
         }
 
-        private OrderModel CalculateTotalPriceForOrder(OrderModel order, List<ItemModel> orderItems)
+        private async Task<OrderModel> CalculateTotalPriceForOrder(OrderModel order, List<ItemModel> orderItems)
         {
             decimal totalPrice = 0;
             foreach (var item in orderItems)
@@ -116,10 +133,22 @@ namespace ReactApp1.Server.Services
                 decimal itemCost = item.Cost ?? 0;
                 decimal itemCount = item.Count ?? 0;
 
+                // Apply discount to the item if it exists
+                if (item.Discount.HasValue)
+                {
+                    itemCost -= itemCost * (item.Discount.Value / 100);
+                }
                 
                 totalPrice += itemCost * itemCount;
             }
 
+            // Apply discount to the total price
+            if (order.DiscountId.HasValue)
+            {
+                var discount = await GetDiscountById(order.DiscountId.Value);
+                totalPrice -= totalPrice * (discount.Value / 100);
+            }
+            
             if (order.TipFixed != null)
             {
                 totalPrice += (order.TipFixed ?? 0);
@@ -127,15 +156,13 @@ namespace ReactApp1.Server.Services
             }
             else if (order.TipPercentage != null)
             {
-                decimal tip = Math.Round(totalPrice * ((order.TipPercentage ?? 0) / 100), 2);
+                decimal tip = totalPrice * ((order.TipPercentage ?? 0) / 100);
                 totalPrice += tip;
                 order.TipAmount = tip;
             }
 
-            // TODO: Apply discount and taxes to the total price
-
-            order.TotalPrice = totalPrice;
-
+            order.TotalPrice = Math.Round(totalPrice, 2);
+            
             return order;
         }
         private OrderModel CalculateTotalPaidAndLeftToPayForOrder(OrderModel order, List<PaymentModel> orderPayments)
@@ -404,6 +431,37 @@ namespace ReactApp1.Server.Services
             }
 
             await _orderRepository.UpdateOrderAsync(order);
+        }
+
+        public async Task DiscountOrder(DiscountModel discount)
+        {
+            // If discount applied to a specific item in the order
+            if (discount.ItemId.HasValue)
+            {
+                var fullOrder = await _fullOrderRepository.GetFullOrderAsync(discount.OrderId, discount.ItemId.Value);
+
+                if (fullOrder == null)
+                {
+                    return;
+                }
+                
+                fullOrder.DiscountId = discount.DiscountId;
+
+                await _fullOrderRepository.UpdateFullOrderDiscountAsync(fullOrder);
+            }
+            else
+            {
+                var order = await GetOrderIfExistsAndStatusIs(discount.OrderId, (int)OrderStatusEnum.Open, "DiscountOrder");
+
+                if (order == null)
+                {
+                    return;
+                }
+
+                order.DiscountId = discount.DiscountId;
+
+                await _orderRepository.UpdateOrderAsync(order);
+            }
         }
     }
 }

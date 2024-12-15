@@ -27,6 +27,7 @@ export interface Order {
     totalPaid: number | null;
     leftToPay: number | null;
     tipAmount: number | null;
+    discountName: string | null;
 }
 
 const Orders: React.FC = () => {
