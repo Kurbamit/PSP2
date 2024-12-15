@@ -30,6 +30,10 @@ namespace ReactApp1.Server.Data.Repositories
         {
             var result = await _context.Discounts
                 .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
+                .Where(f => 
+                    (!f.ValidFrom.HasValue || f.ValidFrom.Value <= DateTime.UtcNow) &&
+                    (!f.ValidTo.HasValue || f.ValidTo.Value >= DateTime.UtcNow)
+                )
                 .Select(f => new SharedItem()
                 {
                     Id = f.DiscountId,
