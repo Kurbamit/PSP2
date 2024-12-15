@@ -40,6 +40,8 @@ namespace ReactApp1.Server.Models.Models.Domain
         /// </summary>
         public DateTime ReceiveTime { get; set; }
 
+        public int? Count { get; set; }
+
         public void MapUpdate(Service existingModel)
         {
             existingModel.Name = Name;

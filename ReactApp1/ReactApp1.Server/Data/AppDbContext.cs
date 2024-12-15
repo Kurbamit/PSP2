@@ -18,6 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<Storage> Storages { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<FullOrder> FullOrders { get; set; }
+    public DbSet<FullOrderService> FullOrderServices { get; set; }
     public DbSet<Payment> Payments { get; set; }
     public DbSet<GiftCard> GiftCards { get; set; }
     public DbSet<Reservation> Reservations { get; set; }

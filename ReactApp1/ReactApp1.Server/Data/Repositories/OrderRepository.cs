@@ -163,6 +163,15 @@ namespace ReactApp1.Server.Data.Repositories
                 sb.AppendLine(new string('-', 30));
             }
 
+            sb.AppendLine("SERVICES:");
+            foreach (var service in order.Services)
+            {
+                sb.AppendLine($"- {service.Name} x{service.Count}");
+                sb.AppendLine($"  Cost: {service.Cost?.ToString("0.00") ?? "N/A"} EUR");
+                sb.AppendLine($"  Tax: {service.Tax?.ToString("0.00") ?? "N/A"} EUR");
+                sb.AppendLine(new string('-', 30));
+            }
+
             sb.AppendLine("Thank you for your order!");
 
             // Convert the receipt string to bytes

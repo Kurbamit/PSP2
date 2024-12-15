@@ -8,6 +8,7 @@ namespace ReactApp1.Server.Data.Repositories
     {
         Task<PaginatedResult<Service>> GetAllServicesAsync(int pageNumber, int pageSize);
         Task<ServiceModel?> GetServiceByIdAsync(int employeeId);
+        Task<ServiceModel?> GetServiceByIdFromFullOrderAsync(int serviceId, int orderId);
         Task<Service> AddServiceAsync(ServiceModel service);
         Task UpdateServiceAsync(ServiceModel service);
         Task DeleteServiceAsync(int serviceId);

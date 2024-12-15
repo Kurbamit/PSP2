@@ -51,6 +51,16 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok();
         }
+
+        [HttpPut("orders/{orderId}/services")]
+        public async Task<IActionResult> AddServiceToOrder([FromBody] FullOrderServiceModel order)
+        {
+            var userId = User.GetUserId();
+
+            await _orderService.AddServiceToOrder(order, userId);
+
+            return Ok();
+        }
         
         // This endpoint can also be used to apply a discount
         [HttpPut("orders/{orderId}")]
@@ -105,6 +115,14 @@ namespace ReactApp1.Server.Controllers.Domain
         public async Task<IActionResult> RemoveItemFromOrder([FromBody] FullOrderModel order)
         {
             await _orderService.RemoveItemFromOrder(order);
+
+            return Ok();
+        }
+
+        [HttpDelete("orders/{orderId}/services")]
+        public async Task<IActionResult> RemoveServiceFromOrder([FromBody] FullOrderServiceModel order)
+        {
+            await _orderService.RemoveServiceFromOrder(order);
 
             return Ok();
         }

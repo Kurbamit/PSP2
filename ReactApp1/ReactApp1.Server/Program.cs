@@ -98,6 +98,7 @@ builder.Services.AddScoped<IEstablishmentRepository, EstablishmentRepository>();
 builder.Services.AddScoped<ISharedSearchesRepository, SharedSearchesRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IFullOrderRepository, FullOrderRepository>();
+builder.Services.AddScoped<IFullOrderServiceRepository, FullOrderServiceRepository>();
 builder.Services.AddScoped<IGiftCardRepository, GiftCardRepository>();
 builder.Services.AddScoped<IWorkingHoursRepository, WorkingHoursRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
