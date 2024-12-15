@@ -58,8 +58,6 @@ const OrderDetail: React.FC = () => {
     const [giftCardCode, setGiftCardCode] = useState<string>('');
     const [tipType, setTipType] = useState<"percentage" | "fixed">("percentage");
     const [tipValue, setTipValue] = useState<number>(0);
-    const [discountId, setDiscountId] = useState<number | null>(null);
-    const [discountValue, setDiscountValue] = useState<number>(0);
     const [selectedItemForDiscount, setSelectedItemForDiscount] = useState<number | null>(null); // for item-level discount
     const [showDiscountModal, setShowDiscountModal] = useState(false);
     const [showItemDiscountModal, setShowItemDiscountModal] = useState(false);
