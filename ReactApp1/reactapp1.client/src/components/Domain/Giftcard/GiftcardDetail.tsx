@@ -3,6 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
+import moment from 'moment';
 
 interface GiftCard {
     giftCardId?: number;
@@ -96,14 +97,18 @@ const GiftCardDetail: React.FC = () => {
     const handleSave = async () => {
         try {
             if (editedGiftCard) {
+                const formattedGiftCard = {
+                    ...editedGiftCard,
+                    expirationDate: moment(`${editedGiftCard.expirationDate}T00:00:00`).toISOString(),
+                };
                 if (isNewGiftCard) {
-                    const response = await axios.post(`http://localhost:5114/api/giftcards`, editedGiftCard, {
+                    const response = await axios.post(`http://localhost:5114/api/giftcards`, formattedGiftCard, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     const createdGiftCardId: number = response.data;
                     navigate(`/giftcards/${createdGiftCardId}`);
                 } else {
-                    await axios.put(`http://localhost:5114/api/giftcards/${editedGiftCard.giftCardId}`, editedGiftCard, {
+                    await axios.put(`http://localhost:5114/api/giftcards/${editedGiftCard.giftCardId}`, formattedGiftCard, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                 }

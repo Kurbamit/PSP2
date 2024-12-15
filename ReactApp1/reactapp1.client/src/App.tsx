@@ -95,7 +95,7 @@ function InnerApp({
                     <Route path="/reservations/new" element={<ReservationDetail /> } />
                     <Route path="/reservations/:id" element={<ReservationDetail />} />
                     <Route path="/giftcards" element={<Giftcards />} />
-                    <Route path="/giftcards/:new" element={<GiftcardDetail />} />
+                    <Route path="/giftcards/new" element={<GiftcardDetail />} />
                     <Route path="/giftcards/:id" element={<GiftcardDetail />} />
                     <Route path="/receipt/:id" element={<Receipt />} />
                     <Route path="/items" element={<Items />} />
