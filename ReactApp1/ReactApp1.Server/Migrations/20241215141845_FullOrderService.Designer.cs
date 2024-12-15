@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReactApp1.Server.Data;
@@ -11,9 +12,11 @@ using ReactApp1.Server.Data;
 namespace ReactApp1.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241215141845_FullOrderService")]
+    partial class FullOrderService
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,47 +38,6 @@ namespace ReactApp1.Server.Migrations
                     b.HasIndex("ItemsItemId");
 
                     b.ToTable("FullOrderItem");
-                });
-
-            modelBuilder.Entity("ReactApp1.Server.Models.Discount", b =>
-                {
-                    b.Property<int>("DiscountId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("DiscountId");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("DiscountId"));
-
-                    b.Property<int>("EstablishmentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("EstablishmentId");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("Name");
-
-                    b.Property<decimal>("Percentage")
-                        .HasColumnType("numeric")
-                        .HasColumnName("Percentage");
-
-                    b.Property<DateTime>("ReceiveTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ReceiveTime");
-
-                    b.Property<DateTime?>("ValidFrom")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ValidFrom");
-
-                    b.Property<DateTime?>("ValidTo")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ValidTo");
-
-                    b.HasKey("DiscountId");
-
-                    b.HasIndex("EstablishmentId");
-
-                    b.ToTable("Discount");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Employee", b =>
@@ -297,10 +259,6 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("CreatedByEmployeeId");
 
-                    b.Property<int?>("DiscountId")
-                        .HasColumnType("integer")
-                        .HasColumnName("DiscountId");
-
                     b.Property<int>("ItemId")
                         .HasColumnType("integer")
                         .HasColumnName("ItemId");
@@ -324,8 +282,6 @@ namespace ReactApp1.Server.Migrations
                     b.HasKey("FullOrderId");
 
                     b.HasIndex("CreatedByEmployeeId");
-
-                    b.HasIndex("DiscountId");
 
                     b.HasIndex("OrderId");
 
@@ -351,10 +307,6 @@ namespace ReactApp1.Server.Migrations
                     b.Property<int?>("CreatedByEmployeeId")
                         .HasColumnType("integer")
                         .HasColumnName("CreatedByEmployeeId");
-
-                    b.Property<int?>("DiscountId")
-                        .HasColumnType("integer")
-                        .HasColumnName("DiscountId");
 
                     b.Property<string>("Name")
                         .HasColumnType("text")
@@ -383,8 +335,6 @@ namespace ReactApp1.Server.Migrations
                     b.HasKey("FullOrderId");
 
                     b.HasIndex("CreatedByEmployeeId");
-
-                    b.HasIndex("DiscountId");
 
                     b.HasIndex("OrderId");
 
@@ -494,10 +444,6 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("DiscountFixed");
 
-                    b.Property<int?>("DiscountId")
-                        .HasColumnType("integer")
-                        .HasColumnName("DiscountId");
-
                     b.Property<decimal?>("DiscountPercentage")
                         .HasColumnType("numeric")
                         .HasColumnName("DiscountPercentage");
@@ -539,8 +485,6 @@ namespace ReactApp1.Server.Migrations
                     b.HasKey("OrderId");
 
                     b.HasIndex("CreatedByEmployeeId");
-
-                    b.HasIndex("DiscountId");
 
                     b.HasIndex("EstablishmentId");
 
@@ -820,17 +764,6 @@ namespace ReactApp1.Server.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ReactApp1.Server.Models.Discount", b =>
-                {
-                    b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
-                        .WithMany("Discounts")
-                        .HasForeignKey("EstablishmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Establishment");
-                });
-
             modelBuilder.Entity("ReactApp1.Server.Models.Employee", b =>
                 {
                     b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
@@ -870,10 +803,6 @@ namespace ReactApp1.Server.Migrations
                         .WithMany("FullOrders")
                         .HasForeignKey("CreatedByEmployeeId");
 
-                    b.HasOne("ReactApp1.Server.Models.Discount", "Discount")
-                        .WithMany("Items")
-                        .HasForeignKey("DiscountId");
-
                     b.HasOne("ReactApp1.Server.Models.Order", "Order")
                         .WithMany("FullOrders")
                         .HasForeignKey("OrderId")
@@ -881,8 +810,6 @@ namespace ReactApp1.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedByEmployee");
-
-                    b.Navigation("Discount");
 
                     b.Navigation("Order");
                 });
@@ -893,10 +820,6 @@ namespace ReactApp1.Server.Migrations
                         .WithMany()
                         .HasForeignKey("CreatedByEmployeeId");
 
-                    b.HasOne("ReactApp1.Server.Models.Discount", "Discount")
-                        .WithMany("Services")
-                        .HasForeignKey("DiscountId");
-
                     b.HasOne("ReactApp1.Server.Models.Order", "Order")
                         .WithMany("FullOrderServices")
                         .HasForeignKey("OrderId")
@@ -904,8 +827,6 @@ namespace ReactApp1.Server.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedByEmployee");
-
-                    b.Navigation("Discount");
 
                     b.Navigation("Order");
                 });
@@ -933,10 +854,6 @@ namespace ReactApp1.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ReactApp1.Server.Models.Discount", "Discount")
-                        .WithMany("Orders")
-                        .HasForeignKey("DiscountId");
-
                     b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
                         .WithMany("Orders")
                         .HasForeignKey("EstablishmentId");
@@ -946,8 +863,6 @@ namespace ReactApp1.Server.Migrations
                         .HasForeignKey("ReactApp1.Server.Models.Order", "ReservationId");
 
                     b.Navigation("CreatedByEmployee");
-
-                    b.Navigation("Discount");
 
                     b.Navigation("Establishment");
 
@@ -1053,15 +968,6 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("EstablishmentAddress");
                 });
 
-            modelBuilder.Entity("ReactApp1.Server.Models.Discount", b =>
-                {
-                    b.Navigation("Items");
-
-                    b.Navigation("Orders");
-
-                    b.Navigation("Services");
-                });
-
             modelBuilder.Entity("ReactApp1.Server.Models.Employee", b =>
                 {
                     b.Navigation("EmployeeAddress")
@@ -1076,8 +982,6 @@ namespace ReactApp1.Server.Migrations
 
             modelBuilder.Entity("ReactApp1.Server.Models.Establishment", b =>
                 {
-                    b.Navigation("Discounts");
-
                     b.Navigation("Employees");
 
                     b.Navigation("EstablishmentAddress");

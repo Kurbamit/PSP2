@@ -53,6 +53,24 @@ namespace ReactApp1.Server.Data.Repositories
             return service;
         }
 
+
+        public async Task<ServiceModel?> GetServiceByIdFromFullOrderAsync(int serviceId, int orderId)
+        {
+            var service = await _context.FullOrderServices
+                .Where(f => f.ServiceId == serviceId && f.OrderId == orderId)
+                .Select(f => new ServiceModel()
+                {
+                    ServiceId = f.ServiceId,
+                    Name = f.Name,
+                    Cost = f.Cost,
+                    Tax = f.Tax,
+                    ServiceLength = f.ServiceLength,
+                    ReceiveTime = f.ReceiveTime
+                }).FirstOrDefaultAsync();
+
+            return service;
+        }
+
         public async Task<Service> AddServiceAsync(ServiceModel service)
         {
             try

@@ -65,6 +65,8 @@ public class Order
     public virtual Discount Discount { get; set; }
     
     public virtual ICollection<FullOrder> FullOrders { get; set; }
+
+    public virtual ICollection<FullOrderService> FullOrderServices { get; set; }
     
     public virtual ICollection<Payment> Payments { get; set; }
 }

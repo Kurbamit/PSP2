@@ -9,8 +9,10 @@ public interface IOrderService
     Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize);
     Task<OrderItemsPayments> GetOrderById(int orderId);
     Task AddItemToOrder(FullOrderModel fullOrder, int? userId);
+    Task AddServiceToOrder(FullOrderServiceModel fullOrderServiceModel, int? userId);
     Task UpdateOrder(OrderModel order);
     Task RemoveItemFromOrder(FullOrderModel fullOrder);
+    Task RemoveServiceFromOrder(FullOrderServiceModel fullOrderService);
     Task CloseOrder(int orderId);
     Task CancelOrder(int orderId);
     Task RefundOrder(int orderId);

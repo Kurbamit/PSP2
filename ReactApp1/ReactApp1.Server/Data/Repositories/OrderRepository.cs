@@ -178,6 +178,17 @@ namespace ReactApp1.Server.Data.Repositories
                 sb.AppendLine($"  Discount: {item.DiscountName ?? "N/A"}");
                 sb.AppendLine(new string('-', 30));
             }
+
+            sb.AppendLine("SERVICES:");
+            foreach (var service in order.Services)
+            {
+                sb.AppendLine($"- {service.Name} x{service.Count}");
+                sb.AppendLine($"  Cost: {service.Cost?.ToString("0.00") ?? "N/A"} EUR");
+                sb.AppendLine($"  Tax: {service.Tax?.ToString("0.00") ?? "N/A"} EUR");
+                sb.AppendLine($"  Discount: {service.DiscountName ?? "N/A"}");
+                sb.AppendLine(new string('-', 30));
+            }
+
             sb.AppendLine("PAYMENTS:");
             foreach (var payment in order.Payments)
             {

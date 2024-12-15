@@ -9,6 +9,8 @@ namespace ReactApp1.Server.Models.Models.Domain
         
         // If discount applied to a specific item in the order
         public int? ItemId { get; set; }
+
+        // If discount applied to a specific service in the order
+        public int? ServiceId { get; set; }
     }
 }
-

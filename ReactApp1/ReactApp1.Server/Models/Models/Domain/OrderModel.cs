@@ -56,12 +56,14 @@ public class OrderItemsPayments
 {
     public OrderModel Order { get; set; }
     public List<ItemModel> Items { get; set; }
+    public List<ServiceModel> Services { get; set; }
     public List<PaymentModel> Payments { get; set; }
 
-    public OrderItemsPayments(OrderModel? order, List<ItemModel>? items, List<PaymentModel> payments)
+    public OrderItemsPayments(OrderModel? order, List<ItemModel>? items, List<ServiceModel>? services, List<PaymentModel> payments)
     {
         Order = order ?? new OrderModel();
         Items = items ?? new List<ItemModel>();
+        Services = services ?? new List<ServiceModel>();
         Payments = payments ?? new List<PaymentModel>();
     }
 }

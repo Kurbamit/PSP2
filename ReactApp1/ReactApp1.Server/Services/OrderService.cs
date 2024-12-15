@@ -3,6 +3,7 @@ using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Exceptions.ItemExceptions;
 using ReactApp1.Server.Exceptions.OrderExceptions;
 using ReactApp1.Server.Exceptions.StorageExceptions;
+using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
@@ -13,7 +14,9 @@ namespace ReactApp1.Server.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IItemRepository _itemRepository;
+        private readonly IServiceRepository _serviceRepository;
         private readonly IFullOrderRepository _fullOrderRepository;
+        private readonly IFullOrderServiceRepository _fullOrderServiceRepository;
         private readonly IEmployeeRepository _employeeRepository;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IGiftCardRepository _giftcardRepository;
@@ -21,14 +24,16 @@ namespace ReactApp1.Server.Services
         private readonly IPaymentService _paymentService;
         private readonly IDiscountRepository _discountRepository;
 
-        public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, 
-            IFullOrderRepository fullOrderRepository, IEmployeeRepository employeeRepository, ILogger<OrderService> logger,
-            IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository, IPaymentService paymentService,
+        public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, IServiceRepository serviceRepository,
+            IFullOrderRepository fullOrderRepository, IFullOrderServiceRepository fullOrderServiceRepository, IEmployeeRepository employeeRepository,
+            ILogger<OrderService> logger, IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository, IPaymentService paymentService,
             IDiscountRepository discountRepository)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
+            _serviceRepository = serviceRepository;
             _fullOrderRepository = fullOrderRepository;
+            _fullOrderServiceRepository = fullOrderServiceRepository;
             _employeeRepository = employeeRepository;
             _paymentRepository = paymentRepository;
             _giftcardRepository = giftcardRepository;
@@ -47,7 +52,7 @@ namespace ReactApp1.Server.Services
             
             var emptyOrder = await _orderRepository.AddEmptyOrderAsync(createdByEmployeeId.Value, establishmentId.Value);
 
-            return new OrderItemsPayments(emptyOrder, null, null);
+            return new OrderItemsPayments(emptyOrder, null, null, null);
         }
         
         public async Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize)
@@ -69,7 +74,7 @@ namespace ReactApp1.Server.Services
             if (order == null)
             {
                 _logger.LogInformation($"Order with id: {orderId} not found");
-                return new OrderItemsPayments(null, null, null);
+                return new OrderItemsPayments(null, null, null, null);
             }
             
             var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
@@ -78,13 +83,15 @@ namespace ReactApp1.Server.Services
 
             var orderItems = await GetOrderItems(orderId);
 
-            var orderWithTotalPrice = await CalculateTotalPriceForOrder(order, orderItems);
+            var orderServices = await GetOrderServices(orderId);
+            
+            var orderWithTotalPrice = await CalculateTotalPriceForOrder(order, orderItems, orderServices);
 
             var orderPayments = await GetOrderPayments(orderId);
 
             var orderWithTotalPaidAndLeftToPay = CalculateTotalPaidAndLeftToPayForOrder(orderWithTotalPrice, orderPayments);
 
-            return new OrderItemsPayments(orderWithTotalPaidAndLeftToPay, orderItems, orderPayments);
+            return new OrderItemsPayments(orderWithTotalPaidAndLeftToPay, orderItems, orderServices, orderPayments);
         }
         
         private async Task<List<ItemModel>> GetOrderItems(int orderId)
@@ -112,6 +119,32 @@ namespace ReactApp1.Server.Services
 
             return orderItems;
         }
+        
+        private async Task<List<ServiceModel>> GetOrderServices(int orderId)
+        {
+            var fullOrderServices = await _fullOrderServiceRepository.GetOrderServicesAsync(orderId);
+
+            var orderServices = new List<ServiceModel>();
+            foreach (var fullOrderService in fullOrderServices)
+            {
+                var service = await _serviceRepository.GetServiceByIdFromFullOrderAsync(fullOrderService.ServiceId, orderId);
+
+                if (service == null)
+                    continue;
+
+                if (fullOrderService.DiscountId.HasValue)
+                {
+                    var discount = await GetDiscountById(fullOrderService.DiscountId.Value);
+                    service.Discount = discount.Value;
+                    service.DiscountName = discount.DiscountName + " (" + discount.Value + "%)";
+                }
+
+                service.Count = fullOrderService.Count;
+                orderServices.Add(service);
+            }
+
+            return orderServices;
+        }
 
         private async Task<DiscountModel> GetDiscountById(int discountId)
         {
@@ -125,7 +158,7 @@ namespace ReactApp1.Server.Services
             return payments;
         }
 
-        private async Task<OrderModel> CalculateTotalPriceForOrder(OrderModel order, List<ItemModel> orderItems)
+        private async Task<OrderModel> CalculateTotalPriceForOrder(OrderModel order, List<ItemModel> orderItems, List<ServiceModel> orderServices)
         {
             decimal totalPrice = 0;
             foreach (var item in orderItems)
@@ -142,13 +175,26 @@ namespace ReactApp1.Server.Services
                 totalPrice += itemCost * itemCount;
             }
 
+            foreach (var service in orderServices)
+            {
+                decimal serviceCost = service.Cost ?? 0;
+                decimal serviceCount = service.Count ?? 0;
+
+                // Apply discount to the item if it exists
+                if (service.Discount.HasValue)
+                {
+                    serviceCost -= serviceCost * (service.Discount.Value / 100);
+                }
+
+                totalPrice += serviceCost * serviceCount;
+            }
+
             // Apply discount to the total price
             if (order.DiscountId.HasValue)
             {
                 var discount = await GetDiscountById(order.DiscountId.Value);
                 totalPrice -= totalPrice * (discount.Value / 100);
             }
-            
             if (order.TipFixed != null)
             {
                 totalPrice += (order.TipFixed ?? 0);
@@ -220,6 +266,23 @@ namespace ReactApp1.Server.Services
                 }
             }
         }
+
+        public async Task AddServiceToOrder(FullOrderServiceModel fullOrderServiceModel, int? userId)
+        {
+            if (!userId.HasValue)
+            {
+                _logger.LogError("Failed to add item to order: invalid or expired access token");
+                throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
+            }
+            
+            var existingFullOrderService = await _fullOrderServiceRepository.GetFullOrderServiceAsync(fullOrderServiceModel.OrderId, fullOrderServiceModel.ServiceId);
+
+            var task = existingFullOrderService != null
+                ? _fullOrderServiceRepository.UpdateServiceInOrderCountAsync(fullOrderServiceModel)
+                : _fullOrderServiceRepository.AddServiceToOrderAsync(fullOrderServiceModel, userId.Value);
+
+            await task;
+        }
         
         public async Task RemoveItemFromOrder(FullOrderModel fullOrder)
         {
@@ -251,7 +314,30 @@ namespace ReactApp1.Server.Services
             // Otherwise, delete the item from the order
             await  _fullOrderRepository.DeleteItemFromOrderAsync(fullOrder);
         }
-        
+
+        public async Task RemoveServiceFromOrder(FullOrderServiceModel fullOrderService)
+        {
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(fullOrderService.OrderId, (int)OrderStatusEnum.Open, "RemoveItemFromOrder");
+            if (existingOrderWithOpenStatus == null)
+                return;
+
+            var existingFullOrderService = await _fullOrderServiceRepository.GetFullOrderServiceAsync(fullOrderService.OrderId, fullOrderService.ServiceId);
+            if (existingFullOrderService == null)
+            {
+                _logger.LogError($"The specified service {fullOrderService.ServiceId} is not linked to the given order {fullOrderService.OrderId}");
+                throw new ItemNotFoundInOrderException(fullOrderService.ServiceId, fullOrderService.OrderId);
+            }
+
+            if (fullOrderService.Count < existingFullOrderService.Count)
+            {
+                fullOrderService.Count = -fullOrderService.Count;
+                _logger.LogInformation($"Updating service count {fullOrderService.Count}");
+                await _fullOrderServiceRepository.UpdateServiceInOrderCountAsync(fullOrderService);
+                return;
+            }
+            await _fullOrderServiceRepository.DeleteServiceFromOrderAsync(fullOrderService);
+        }
+
         public async Task UpdateOrder(OrderModel order)
         {
             var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(order.OrderId, (int)OrderStatusEnum.Open, "UpdateOrder");
@@ -448,6 +534,19 @@ namespace ReactApp1.Server.Services
                 fullOrder.DiscountId = discount.DiscountId;
 
                 await _fullOrderRepository.UpdateFullOrderDiscountAsync(fullOrder);
+            }
+            else if (discount.ServiceId.HasValue)
+            {
+                var fullOrderService = await _fullOrderServiceRepository.GetFullOrderServiceAsync(discount.OrderId, discount.ServiceId.Value);
+
+                if (fullOrderService == null)
+                {
+                    return;
+                }
+
+                fullOrderService.DiscountId = discount.DiscountId;
+
+                await _fullOrderServiceRepository.UpdateFullOrderServiceDiscountAsync(fullOrderService);
             }
             else
             {
