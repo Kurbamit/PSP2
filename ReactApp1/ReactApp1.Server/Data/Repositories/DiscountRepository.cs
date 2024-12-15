@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ReactApp1.Server.Models.Models.Domain;
 
 namespace ReactApp1.Server.Data.Repositories
 {
@@ -13,11 +14,16 @@ namespace ReactApp1.Server.Data.Repositories
             _logger = logger;
         }
         
-        public async Task<decimal> GetDiscountAsync(int discountId)
+        public async Task<DiscountModel> GetDiscountAsync(int discountId)
         {
             return await _context.Discounts
                 .Where(d => d.DiscountId == discountId)
-                .Select(d => d.Percentage)
+                .Select(d => new DiscountModel()
+                {
+                    DiscountId = d.DiscountId,
+                    DiscountName = d.Name,
+                    Value = d.Percentage,
+                })
                 .FirstOrDefaultAsync();
         }
     }

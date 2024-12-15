@@ -78,6 +78,16 @@ namespace ReactApp1.Server.Data.Repositories
                 .Select(o => new OrderModel(o))
                 .FirstOrDefaultAsync();
 
+            if (order.DiscountId.HasValue)
+            {
+                var discount = await _context.Discounts
+                    .Where(discount => discount.DiscountId == order.DiscountId)
+                    .FirstOrDefaultAsync();
+
+                order.DiscountPercentage = discount.Percentage;
+                order.DiscountName = discount.Name + " (" + discount.Percentage + "%)";
+            }
+            
             return order;
         }
         

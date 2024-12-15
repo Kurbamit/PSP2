@@ -19,6 +19,7 @@ public class OrderModel
     public decimal? LeftToPay { get; set; }
     public decimal? TipAmount { get; set; }
     public int? DiscountId { get; set; }
+    public string? DiscountName { get; set; }
 
     public OrderModel()
     {

@@ -21,6 +21,8 @@ interface Item {
     receiveTime: string;
     storage: number | null;
     count: number | null;
+    discount: number | null;
+    discountName: string | null;
 }
 
 interface FullOrder {
@@ -271,11 +273,7 @@ const OrderDetail: React.FC = () => {
                             </li>
                             <li className="list-group-item">
                                 <strong>{ScriptResources.DiscountPercentage}</strong>
-                                <p>{editedItem.order.discountPercentage ? editedItem.order.discountPercentage : '-'}</p>
-                            </li>
-                            <li className="list-group-item">
-                                <strong>{ScriptResources.DiscountFixed}</strong>
-                                <p>{editedItem.order.discountFixed ? editedItem.order.discountFixed : '-'}</p>
+                                <p>{editedItem.order.discountName ? editedItem.order.discountName : '-'}</p>
                             </li>
                             <li className="list-group-item">
                                 <strong>{ScriptResources.Refunded}</strong>
@@ -379,6 +377,7 @@ const OrderDetail: React.FC = () => {
                                 <th>{ScriptResources.ReceiveTime}</th>
                                 <th>{ScriptResources.Storage}</th>
                                 <th>{ScriptResources.Count}</th>
+                                <th>{ScriptResources.Discount}</th>
                                 <th>{ScriptResources.Actions}</th>
                             </tr>
                             </thead>
@@ -393,6 +392,7 @@ const OrderDetail: React.FC = () => {
                                     <td>{item.receiveTime}</td>
                                     <td>{item.storage ?? ScriptResources.NotAvailable}</td>
                                     <td>{item.count ?? ' '}</td>
+                                    <td>{item.discountName ?? ' '}</td>
                                     <td>
                                         <span
                                             className="material-icons"
