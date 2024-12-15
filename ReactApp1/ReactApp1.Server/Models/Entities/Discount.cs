@@ -14,7 +14,7 @@ public class Discount
     
     [Key]
     [Column("DiscountId")]
-    public int GiftCardId { get; set; }
+    public int DiscountId { get; set; }
     
     [Column("Name")]
     public string Name { get; set; }

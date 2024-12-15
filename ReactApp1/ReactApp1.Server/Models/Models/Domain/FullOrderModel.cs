@@ -5,20 +5,22 @@ public class FullOrderModel
     public int OrderId { get; set; }
     public int ItemId { get; set; }
     public int Count { get; set; }
+    public int? DiscountId { get; set; }
     
     public FullOrderModel()
     {
     }
     
-    public FullOrderModel(int order, int itemId, int count)
+    public FullOrderModel(int order, int itemId, int count, int? discountId)
     {
         OrderId = order;
         ItemId = itemId;
         Count = count;
+        DiscountId = discountId;
     }
     
     public FullOrderModel(FullOrder fullOrder)
-        : this(fullOrder.OrderId, fullOrder.ItemId, fullOrder.Count)
+        : this(fullOrder.OrderId, fullOrder.ItemId, fullOrder.Count, fullOrder.DiscountId)
     {
         
     }

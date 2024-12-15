@@ -18,6 +18,7 @@ public class OrderModel
     public decimal? TotalPaid { get; set; }
     public decimal? LeftToPay { get; set; }
     public decimal? TipAmount { get; set; }
+    public int? DiscountId { get; set; }
 
     public OrderModel()
     {
@@ -25,7 +26,7 @@ public class OrderModel
     
     public OrderModel(int orderId, int status, int createdByEmployeeId, DateTime receiveTime, 
         decimal? discountPercentage, decimal? discountFixed, decimal? tipPercentage, decimal? tipFixed, int? paymentId, 
-        bool refunded, int? reservationId)
+        bool refunded, int? reservationId, int? discountId)
     {
         OrderId = orderId;
         Status = status;
@@ -38,12 +39,13 @@ public class OrderModel
         PaymentId = paymentId;
         Refunded = refunded;
         ReservationId = reservationId;
+        DiscountId = discountId;
     }
     
     public OrderModel(Order order)
     : this(order.OrderId, order.Status, order.CreatedByEmployeeId, order.ReceiveTime, 
         order.DiscountPercentage, order.DiscountFixed, order.TipPercentage, order.TipFixed, order.PaymentId, 
-        order.Refunded, order.ReservationId)
+        order.Refunded, order.ReservationId, order.DiscountId)
     {
         
     }

@@ -136,6 +136,10 @@ namespace ReactApp1.Server.Data.Repositories
                 existingOrder.PaymentId = order.PaymentId;
                 existingOrder.Refunded = order.Refunded;
                 existingOrder.ReservationId = order.ReservationId;
+                if (order.DiscountId.HasValue)
+                {
+                    existingOrder.DiscountId = order.DiscountId.Value;
+                }
             }
         }
 
