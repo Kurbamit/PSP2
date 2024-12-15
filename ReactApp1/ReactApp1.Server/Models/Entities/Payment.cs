@@ -8,7 +8,7 @@ public class Payment
 {
     public Payment()
     {
-        GiftCards = new HashSet<GiftCard>();
+
     }
     
     [Key]
@@ -35,6 +35,7 @@ public class Payment
     
     [ForeignKey(nameof(OrderId))]
     public virtual Order Order { get; set; }
-    
-    public virtual ICollection<GiftCard> GiftCards { get; set; }
+
+    [ForeignKey(nameof(GiftCardId))]
+    public virtual GiftCard Giftcard { get; set; }
 }
