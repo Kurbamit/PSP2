@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Migrations;
 using ReactApp1.Server.Models;
@@ -27,14 +28,14 @@ namespace ReactApp1.Server.Services
             _smsClient = new Client(apiKey);
         }
 
-        public Task<PaginatedResult<Reservation>> GetAllReservations(int pageSize, int pageNumber)
+        public Task<PaginatedResult<Reservation>> GetAllReservations(int pageSize, int pageNumber, IPrincipal user)
         {
-            return _reservationRepository.GetAllReservationsAsync(pageSize, pageNumber);
+            return _reservationRepository.GetAllReservationsAsync(pageSize, pageNumber, user);
         }
 
-        public Task<ReservationModel?> GetReservationById(int reservationId)
+        public Task<ReservationModel?> GetReservationById(int reservationId, IPrincipal user)
         {
-            return _reservationRepository.GetReservationByIdAsync(reservationId);
+            return _reservationRepository.GetReservationByIdAsync(reservationId, user);
         }
 
         public async Task<Reservation> CreateNewReservation(ReservationModel reservation, int? createdByEmployeeId)
@@ -74,9 +75,9 @@ namespace ReactApp1.Server.Services
             return _reservationRepository.UpdateReservationAsync(reservation);
         }
 
-        public async Task DeleteReservation(int reservationId)
+        public async Task DeleteReservation(int reservationId, IPrincipal user)
         {
-            var reservation = await _reservationRepository.GetReservationByIdAsync(reservationId);
+            var reservation = await _reservationRepository.GetReservationByIdAsync(reservationId, user);
 
             var smsParams = new SmsParams
             {
@@ -96,7 +97,7 @@ namespace ReactApp1.Server.Services
                 _logger.LogWarning("Failed to send SMS.");
             }
 
-            await _reservationRepository.DeleteReservationAsync(reservationId);
+            await _reservationRepository.DeleteReservationAsync(reservationId, user);
 
             return;
         }

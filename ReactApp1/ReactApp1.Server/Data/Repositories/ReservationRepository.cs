@@ -1,4 +1,6 @@
+using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
+using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
@@ -16,12 +18,13 @@ namespace ReactApp1.Server.Data.Repositories
             _context = context;
         }
 
-        public async Task<PaginatedResult<Reservation>> GetAllReservationsAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedResult<Reservation>> GetAllReservationsAsync(int pageNumber, int pageSize, IPrincipal user)
         {
-            var totalReservations = await _context.Set<Reservation>().CountAsync();
+            var totalReservations = await _context.Set<Reservation>().FilterByAuthorizedUser(user).CountAsync();
             var totalPages = (int)Math.Ceiling(totalReservations / (double)pageSize);
 
             var reservations = await _context.Set<Reservation>()
+                .FilterByAuthorizedUser(user)
                 .OrderBy(reservation => reservation.ReservationId)
                 .Paginate(pageNumber, pageSize)
                 .ToListAsync();
@@ -35,9 +38,10 @@ namespace ReactApp1.Server.Data.Repositories
             };
         }
 
-        public async Task<ReservationModel?> GetReservationByIdAsync(int reservationId)
+        public async Task<ReservationModel?> GetReservationByIdAsync(int reservationId, IPrincipal user)
         {
             var reservation = await _context.Reservations
+                .FilterByAuthorizedUser(user)
                 .Where(f => f.ReservationId == reservationId)
                 .Select(f => new ReservationModel()
                 {
@@ -51,6 +55,12 @@ namespace ReactApp1.Server.Data.Repositories
                     ServiceId = f.ServiceId,
                     CustomerPhoneNumber = f.CustomerPhoneNumber
                 }).FirstOrDefaultAsync();
+
+            if (reservation == null)
+            {
+                throw new AuthorizationException();
+            }
+            
             return reservation;
         }
 
@@ -103,7 +113,7 @@ namespace ReactApp1.Server.Data.Repositories
             }
         }
 
-        public async Task DeleteReservationAsync(int reservationId)
+        public async Task DeleteReservationAsync(int reservationId, IPrincipal user)
         {
             try
             {
