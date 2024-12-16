@@ -9,7 +9,8 @@ public class Tax
 {
     public Tax()
     {
-            
+        ServiceTax = new HashSet<ServiceTax>();
+        ItemTax = new HashSet<ItemTax>();
     }
 
     [Key]
@@ -20,6 +21,8 @@ public class Tax
     [Column("Description")]
     public string Description { get; set; }
 
+    public virtual ICollection<ServiceTax> ServiceTax { get; set; }
+    public virtual ICollection<ItemTax> ItemTax { get; set; }
 
 }
 

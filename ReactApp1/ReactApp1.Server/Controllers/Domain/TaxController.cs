@@ -52,6 +52,14 @@ namespace ReactApp1.Server.Controllers
             return NoContent();
         }
 
+        [HttpDelete("tax/{taxId}")]
+        public async Task<IActionResult> DeleteTax(int taxId)
+        {
+            await _taxService.DeleteTax(taxId);
+
+            return NoContent();
+        }
+
         [HttpPost("tax/item")]
         public async Task<IActionResult> AddItemTax([FromBody] ItemTaxModel itemTax)
         {

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ReactApp1.Server.Exceptions.ItemExceptions;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Migrations;
 using ReactApp1.Server.Models;
@@ -86,6 +87,22 @@ namespace ReactApp1.Server.Data.Repositories
             catch (DbUpdateException e)
             {
                 throw new Exception($"An error occurred while updating the service: {tax.TaxId}.", e);
+            }
+        }
+        public async Task DeleteTaxAsync(int taxId)
+        {
+            try
+            {
+                _context.Set<Tax>().Remove(new Tax
+                {
+                    TaxId = taxId
+                });
+
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                throw new Exception($"An error occurred while deleting the tax {taxId} from the database.", e);
             }
         }
         public async Task AddItemTaxAsync(ItemTaxModel tax)

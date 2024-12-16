@@ -34,7 +34,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("ItemsItemId");
 
-                    b.ToTable("FullOrderItem");
+                    b.ToTable("FullOrderItem", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Discount", b =>
@@ -75,7 +75,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("EstablishmentId");
 
-                    b.ToTable("Discount");
+                    b.ToTable("Discount", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Employee", b =>
@@ -143,7 +143,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("EstablishmentId");
 
-                    b.ToTable("Employee");
+                    b.ToTable("Employee", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.EmployeeAddress", b =>
@@ -195,7 +195,7 @@ namespace ReactApp1.Server.Migrations
                     b.HasIndex("EmployeeId")
                         .IsUnique();
 
-                    b.ToTable("EmployeeAddress");
+                    b.ToTable("EmployeeAddress", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Establishment", b =>
@@ -223,7 +223,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasKey("EstablishmentId");
 
-                    b.ToTable("Establishment");
+                    b.ToTable("Establishment", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.EstablishmentAddress", b =>
@@ -270,7 +270,7 @@ namespace ReactApp1.Server.Migrations
                     b.HasIndex("EstablishmentId")
                         .IsUnique();
 
-                    b.ToTable("EstablishmentAddress");
+                    b.ToTable("EstablishmentAddress", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.FullOrder", b =>
@@ -325,7 +325,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("FullOrder");
+                    b.ToTable("FullOrder", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.FullOrderService", b =>
@@ -380,7 +380,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("FullOrderService");
+                    b.ToTable("FullOrderService", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.GiftCard", b =>
@@ -417,7 +417,7 @@ namespace ReactApp1.Server.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("GiftCard");
+                    b.ToTable("GiftCard", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Item", b =>
@@ -462,7 +462,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("EstablishmentId");
 
-                    b.ToTable("Item");
+                    b.ToTable("Item", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.ItemTax", b =>
@@ -479,7 +479,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("TaxId");
 
-                    b.ToTable("ItemTax");
+                    b.ToTable("ItemTax", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Order", b =>
@@ -552,7 +552,7 @@ namespace ReactApp1.Server.Migrations
                     b.HasIndex("ReservationId")
                         .IsUnique();
 
-                    b.ToTable("Order");
+                    b.ToTable("Order", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Payment", b =>
@@ -595,7 +595,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Payment");
+                    b.ToTable("Payment", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Reservation", b =>
@@ -652,7 +652,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("Reservation");
+                    b.ToTable("Reservation", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Service", b =>
@@ -696,7 +696,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("FullOrderServiceFullOrderId");
 
-                    b.ToTable("Service");
+                    b.ToTable("Service", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.ServiceTax", b =>
@@ -713,7 +713,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("TaxId");
 
-                    b.ToTable("ServiceTax");
+                    b.ToTable("ServiceTax", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Storage", b =>
@@ -744,7 +744,7 @@ namespace ReactApp1.Server.Migrations
                     b.HasIndex("ItemId")
                         .IsUnique();
 
-                    b.ToTable("Storage");
+                    b.ToTable("Storage", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Tax", b =>
@@ -767,7 +767,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasKey("TaxId");
 
-                    b.ToTable("Tax");
+                    b.ToTable("Tax", (string)null);
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.TestModel", b =>
@@ -796,7 +796,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasKey("GuidId");
 
-                    b.ToTable("Test", t =>
+                    b.ToTable("Test", null, t =>
                         {
                             t.HasComment("Table for testing purposes");
                         });
@@ -843,7 +843,7 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasIndex("EstablishmentAddressId");
 
-                    b.ToTable("WorkingHours");
+                    b.ToTable("WorkingHours", (string)null);
                 });
 
             modelBuilder.Entity("FullOrderItem", b =>

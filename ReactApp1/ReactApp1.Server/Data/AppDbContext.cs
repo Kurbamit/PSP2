@@ -295,7 +295,31 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ServiceTax>()
             .HasKey(it => new { it.ServiceId, it.TaxId });
 
+        modelBuilder.Entity<ServiceTax>()
+            .HasOne<Service>(st => st.Service)
+            .WithMany(s => s.ServiceTax)
+            .HasForeignKey(st => st.ServiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ServiceTax>()
+            .HasOne<Tax>(st => st.Tax)
+            .WithMany(t => t.ServiceTax)
+            .HasForeignKey(st => st.TaxId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<ItemTax>()
             .HasKey(it => new { it.ItemId, it.TaxId });
+
+        modelBuilder.Entity<ItemTax>()
+            .HasOne<Item>(it => it.Item)
+            .WithMany(i => i.ItemTax)
+            .HasForeignKey(it => it.ItemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ItemTax>()
+            .HasOne<Tax>(it => it.Tax)
+            .WithMany(t => t.ItemTax)
+            .HasForeignKey(it => it.TaxId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

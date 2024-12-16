@@ -9,6 +9,7 @@ public class Item
     public Item()
     {
         FullOrders = new HashSet<FullOrder>();
+        ItemTax = new HashSet<ItemTax>();
     }
     
     [Key]
@@ -44,4 +45,5 @@ public class Item
     public virtual Establishment Establishment { get; set; }
     
     public virtual ICollection<FullOrder> FullOrders { get; set; }
+    public virtual ICollection<ItemTax> ItemTax { get; set; }
 }

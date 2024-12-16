@@ -184,6 +184,16 @@ const ScriptResources = {
     NoTaxes: 'No taxes',
     Taxes: 'Taxes',
     AddTax: 'Add tax',
+    TaxesList: 'Taxes list',
+    TaxId: 'Tax Id',
+    Description: 'Description',
+    ErrorFetchingTaxes: 'Error fetching taxes',
+    TaxInformation: 'Tax information',
+    CreateNewTax: 'Create new tax',
+    EditTax: 'Edit tax',
+    NewTaxInformation: 'New tax information',
+    FailedToDeleteTax: 'Failed to delete tax',
+
 
 };
 
