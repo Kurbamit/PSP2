@@ -3,6 +3,8 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
+import { Button, Modal } from "react-bootstrap";
+import SelectDropdown from "../../Base/SelectDropdown.tsx";
 
 interface Service {
     serviceId?: number;
@@ -13,6 +15,11 @@ interface Service {
     tax?: number;
     receiveTime: string;
 }
+interface Tax {
+    taxId: number;
+    percentage: number;
+    description: string;
+}
 
 const ServiceDetail: React.FC = () => {
     const [service, setService] = useState<Service | null>(null);
@@ -22,6 +29,9 @@ const ServiceDetail: React.FC = () => {
     const token = Cookies.get('authToken');
     const navigate = useNavigate();
     const [error, setError] = useState('');
+    const [serviceTaxes, setServiceTaxes] = useState<Tax[]>([]);
+    const [showTaxModal, setShowTaxModal] = useState(false);
+    const [selectedTaxId, setSelectedTaxId] = useState<number | null>(null);
 
     const isNewService = !id;
 
@@ -34,6 +44,7 @@ const ServiceDetail: React.FC = () => {
                     });
                     setService(response.data);
                     setEditedService(response.data);
+                    getTaxes();
                 } catch (error) {
                     console.error(ScriptResources.ErrorFetchingServices, error);
                 }
@@ -142,6 +153,44 @@ const ServiceDetail: React.FC = () => {
         }
     };
 
+    const getTaxes = async () => {
+        const response = await axios.get(`http://localhost:5114/api/tax/service/${id}/`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        setServiceTaxes(response.data);
+    }
+
+    const handleAddTax = async () => {
+        try {
+            await axios.post(`http://localhost:5114/api/tax/service`, {
+                serviceId: service?.serviceId,
+                taxId: selectedTaxId,
+            }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            getTaxes()
+            setShowTaxModal(false);
+        } catch (error) {
+            console.error("Error adding tax:", error);
+        }
+    };
+
+    const handleDeleteTax = async (taxId: number) => {
+        try {
+            await axios.delete(`http://localhost:5114/api/tax/service`, {
+                headers: { Authorization: `Bearer ${token}` },
+                data: {
+                    serviceId: service?.serviceId,
+                    taxId: taxId
+                },
+            });
+            getTaxes();
+        } catch (error) {
+            console.error("Error deleting tax:", error);
+        }
+    };
+
     return (
         <div className="container">
             <h2 className="mb-4">{isNewService ? 'Create New Service' : 'Service Detail'}</h2>
@@ -199,17 +248,6 @@ const ServiceDetail: React.FC = () => {
                                 />
                             </li>
                             <li className="list-group-item">
-                                <strong>{ScriptResources.Tax}</strong>{' '}
-                                <input
-                                    type="number"
-                                    name="tax"
-                                    value={editedService.tax || ''}
-                                    onChange={handleInputChange}
-                                    className="form-control"
-                                    disabled={!isEditing}
-                                />
-                            </li>
-                            <li className="list-group-item">
                                 <strong>{ScriptResources.ReceiveTime}</strong> {new Date(editedService.receiveTime).toLocaleString()}
                             </li>
                         </ul>
@@ -241,6 +279,34 @@ const ServiceDetail: React.FC = () => {
                             )}
                         </div>
                     </div>
+                    <div className="mt-4 mb-3">
+                        <h5>{ScriptResources.Taxes}</h5>
+                        <ul className="list-group list-group-flush">
+                            {serviceTaxes.length > 0 ? (
+                                serviceTaxes.map((tax) => (
+                                    <li key={tax.taxId} className="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{tax.description}</strong>: {tax.percentage}%
+                                        </div>
+                                        <button
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => handleDeleteTax(tax.taxId)}
+                                        >
+                                            {ScriptResources.Delete}
+                                        </button>
+                                    </li>
+                                ))
+                            ) : (
+                                <li className="list-group-item">{ScriptResources.NoTaxes}</li>
+                            )}
+                        </ul>
+                        <button
+                            className="btn btn-primary mt-3"
+                            onClick={() => setShowTaxModal(true)}
+                        >
+                            {ScriptResources.AddNewTax}
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div>{ScriptResources.Loading}</div>
@@ -248,6 +314,31 @@ const ServiceDetail: React.FC = () => {
             <button className="btn btn-secondary mt-3" onClick={handleBackToList}>
                 {ScriptResources.BackToTheMainList}
             </button>
+
+            <Modal show={showTaxModal} onHide={() => setShowTaxModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{ScriptResources.AddNewTax}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <SelectDropdown
+                        endpoint="/AllTaxes"
+                        onSelect={(tax) => {
+                            if (tax) {
+                                setSelectedTaxId(tax.id);
+                            }
+                        }}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowTaxModal(false)}>
+                        {ScriptResources.Cancel}
+                    </Button>
+                    <Button variant="primary" onClick={handleAddTax}>
+                        {ScriptResources.AddTax}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </div>
     );
 };

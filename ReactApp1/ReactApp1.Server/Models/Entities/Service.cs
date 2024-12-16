@@ -6,6 +6,11 @@ namespace ReactApp1.Server.Models;
 [Table("Service")]
 public class Service
 {
+    public Service()
+    {
+        ServiceTax = new HashSet<ServiceTax>();
+    }
+
     [Key]
     [Column("ServiceId")]
     public int ServiceId { get; set; }
@@ -26,9 +31,8 @@ public class Service
     [Column("Cost")]
     public decimal? Cost { get; set; }
 
-    [Column("Tax")]
-    public decimal? Tax { get; set; }
-
     [ForeignKey(nameof(EstablishmentId))]
     public virtual Establishment Establishment { get; set; }
+
+    public virtual ICollection<ServiceTax> ServiceTax { get; set; }
 }

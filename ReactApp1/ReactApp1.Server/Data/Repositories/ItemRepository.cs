@@ -46,7 +46,6 @@ namespace ReactApp1.Server.Data.Repositories
                     ItemId = f.ItemId,
                     Name = f.Name,
                     Cost = f.Cost,
-                    Tax = f.Tax,
                     AlcoholicBeverage = f.AlcoholicBeverage,
                     ReceiveTime = f.ReceiveTime,
                     Storage = f.Storage == null ? null : f.Storage.Count
@@ -69,7 +68,6 @@ namespace ReactApp1.Server.Data.Repositories
                     ItemId = f.ItemId,
                     Name = f.Name,
                     Cost = f.Cost,
-                    Tax = f.Tax,
                     AlcoholicBeverage = f.AlcoholicBeverage,
                     ReceiveTime = f.ReceiveTime,
                 }).FirstOrDefaultAsync();
@@ -96,7 +94,6 @@ namespace ReactApp1.Server.Data.Repositories
                 {
                     Name = item.Name,
                     Cost = item.Cost,
-                    Tax = item.Tax,
                     AlcoholicBeverage = item.AlcoholicBeverage,
                     ReceiveTime = DateTime.UtcNow,
                     EstablishmentId = establishmentId,

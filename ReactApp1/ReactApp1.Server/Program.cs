@@ -104,6 +104,9 @@ builder.Services.AddScoped<IWorkingHoursRepository, WorkingHoursRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
+builder.Services.AddScoped<ITaxRepository, TaxRepository>();
+builder.Services.AddScoped<IFullOrderTaxRepository, FullOrderTaxRepository>();
+builder.Services.AddScoped<IFullOrderServiceTaxRepository, FullOrderServiceTaxRepository>();
 
 // Register Services
 builder.Services.AddScoped<IItemService, ItemService>();
@@ -117,6 +120,7 @@ builder.Services.AddScoped<PaymentIntentService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<RefundService>();
 builder.Services.AddScoped<IWorkingHoursService, WorkingHoursService>();
+builder.Services.AddScoped<ITaxService, TaxesService>();
 
 
 builder.Services.AddScoped<IReservationService>(provider =>

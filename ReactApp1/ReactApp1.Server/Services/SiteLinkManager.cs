@@ -20,6 +20,7 @@ namespace ReactApp1.Server.Services
                     new NavigationItem { Path = "/inventory", Label = "Inventory" },
                     new NavigationItem { Path = "/services", Label = "Services" },
                     new NavigationItem { Path = "/employees", Label = "Employees" },
+                    new NavigationItem { Path = "/taxes", Label = "Taxes" },
                     new NavigationItem { Path = "/giftcards", Label = "Giftcards" },
 
                     new NavigationItem

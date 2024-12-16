@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReactApp1.Server.Data;
@@ -11,9 +12,11 @@ using ReactApp1.Server.Data;
 namespace ReactApp1.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241216110455_MadeServiceTaxAndItemTaxToHaveCompositeKeys")]
+    partial class MadeServiceTaxAndItemTaxToHaveCompositeKeys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -381,60 +384,6 @@ namespace ReactApp1.Server.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("FullOrderService");
-                });
-
-            modelBuilder.Entity("ReactApp1.Server.Models.FullOrderServiceTax", b =>
-                {
-                    b.Property<int>("FullOrderServiceTaxId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("FullOrderServiceTaxId");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("FullOrderServiceTaxId"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("Description");
-
-                    b.Property<int>("FullOrderServiceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("FullOrderId");
-
-                    b.Property<decimal>("Percentage")
-                        .HasColumnType("numeric")
-                        .HasColumnName("Percentage");
-
-                    b.HasKey("FullOrderServiceTaxId");
-
-                    b.ToTable("FullOrderServiceTax");
-                });
-
-            modelBuilder.Entity("ReactApp1.Server.Models.FullOrderTax", b =>
-                {
-                    b.Property<int>("FullOrderTaxId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("FullOrderTaxId");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("FullOrderTaxId"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("Description");
-
-                    b.Property<int>("FullOrderId")
-                        .HasColumnType("integer")
-                        .HasColumnName("FullOrderId");
-
-                    b.Property<decimal>("Percentage")
-                        .HasColumnType("numeric")
-                        .HasColumnName("Percentage");
-
-                    b.HasKey("FullOrderTaxId");
-
-                    b.ToTable("FullOrderTax");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.GiftCard", b =>
@@ -1023,13 +972,13 @@ namespace ReactApp1.Server.Migrations
             modelBuilder.Entity("ReactApp1.Server.Models.ItemTax", b =>
                 {
                     b.HasOne("ReactApp1.Server.Models.Item", "Item")
-                        .WithMany("ItemTax")
+                        .WithMany()
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ReactApp1.Server.Models.Tax", "Tax")
-                        .WithMany("ItemTax")
+                        .WithMany()
                         .HasForeignKey("TaxId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1132,13 +1081,13 @@ namespace ReactApp1.Server.Migrations
             modelBuilder.Entity("ReactApp1.Server.Models.ServiceTax", b =>
                 {
                     b.HasOne("ReactApp1.Server.Models.Service", "Service")
-                        .WithMany("ServiceTax")
+                        .WithMany()
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ReactApp1.Server.Models.Tax", "Tax")
-                        .WithMany("ServiceTax")
+                        .WithMany()
                         .HasForeignKey("TaxId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1229,8 +1178,6 @@ namespace ReactApp1.Server.Migrations
 
             modelBuilder.Entity("ReactApp1.Server.Models.Item", b =>
                 {
-                    b.Navigation("ItemTax");
-
                     b.Navigation("Storage");
                 });
 
@@ -1247,18 +1194,6 @@ namespace ReactApp1.Server.Migrations
                 {
                     b.Navigation("Order")
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ReactApp1.Server.Models.Service", b =>
-                {
-                    b.Navigation("ServiceTax");
-                });
-
-            modelBuilder.Entity("ReactApp1.Server.Models.Tax", b =>
-                {
-                    b.Navigation("ItemTax");
-
-                    b.Navigation("ServiceTax");
                 });
 #pragma warning restore 612, 618
         }

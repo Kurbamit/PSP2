@@ -7,31 +7,35 @@ import { Order } from "./Orders.tsx";
 import {getOrderStatusString, getPaymentTypeString} from "../../../assets/Utils/utils.ts";
 import {PaymentTypeEnum} from "../../../assets/Models/FrontendModels.ts";
 
-interface Service {
-    serviceId: number;
-    name: string;
-    cost?: number | null;
-    tax?: number | null;
-    serviceLength?: string;
-    receiveTime?: string;
-    count?: number | null;
-    discount?: number | null;
-    discountName?: string | null;
-}
-
 interface Item {
     itemId: number;
     name: string;
-    cost?: number | null;
-    tax?: number | null;
+    cost: number;
+    taxes: Tax[] | null;
     alcoholicBeverage: boolean;
     receiveTime: string;
-    storage?: number | null;
-    count?: number | null;
-    discount?: number | null;
-    discountName?: string | null;
+    storage: number | null;
+    count: number | null;
+    discount: number | null;
+    discountName: string | null;
 }
 
+interface Service {
+    serviceId: number;
+    name: string;
+    cost: number;
+    taxes: Tax[] | null;
+    serviceLength: string;
+    receiveTime: string;
+    count: number | null;
+    discount: number | null;
+    discountName: string | null;
+}
+interface Tax {
+    taxId?: number;
+    percentage: number;
+    description: string;
+}
 interface Payment {
     paymentId: number;
     orderId: number;
@@ -144,7 +148,19 @@ const Receipt: React.FC = () => {
                             <tr key={item.itemId}>
                                 <td>{item.name}</td>
                                 <td>{item.cost?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
-                                <td>{item.tax?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
+                                <td>
+                                    {item.taxes && item.taxes.length > 0 ? (
+                                        <ul>
+                                            {item.taxes.map((tax, index) => (
+                                                <li key={index}>
+                                                    {tax.description} ({tax.percentage}%)
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <span>{ScriptResources.NoTaxes}</span>
+                                    )}
+                                </td>
                                 <td>{item.alcoholicBeverage ? ScriptResources.Yes : ScriptResources.No}</td>
                                 <td>{item.count ?? 'N/A'}</td>
                                 <td>{item.discountName ?? 'N/A'}</td>
@@ -174,7 +190,19 @@ const Receipt: React.FC = () => {
                                 <tr key={service.serviceId}>
                                     <td>{service.name}</td>
                                     <td>{service.cost?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
-                                    <td>{service.tax?.toFixed(2) ?? 'N/A'} {ScriptResources.Euro}</td>
+                                    <td>
+                                        {service.taxes && service.taxes.length > 0 ? (
+                                            <ul>
+                                                {service.taxes.map((tax, index) => (
+                                                    <li key={index}>
+                                                        {tax.description} ({tax.percentage}%)
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <span>{ScriptResources.NoTaxes}</span>
+                                        )}
+                                    </td>
                                     <td>{service.count ?? 'N/A'}</td>
                                     <td>{service.discountName ?? 'N/A'}</td>
                                 </tr>

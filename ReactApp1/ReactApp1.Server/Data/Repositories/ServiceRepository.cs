@@ -45,7 +45,6 @@ namespace ReactApp1.Server.Data.Repositories
                     Name = f.Name,
                     EstablishmentId = f.EstablishmentId,
                     Cost = f.Cost,
-                    Tax = f.Tax,
                     ServiceLength = f.ServiceLength,
                     ReceiveTime = f.ReceiveTime
                 }).FirstOrDefaultAsync();
@@ -63,7 +62,6 @@ namespace ReactApp1.Server.Data.Repositories
                     ServiceId = f.ServiceId,
                     Name = f.Name,
                     Cost = f.Cost,
-                    Tax = f.Tax,
                     ServiceLength = f.ServiceLength,
                     ReceiveTime = f.ReceiveTime
                 }).FirstOrDefaultAsync();
@@ -81,7 +79,6 @@ namespace ReactApp1.Server.Data.Repositories
                     EstablishmentId = service.EstablishmentId,
                     ServiceLength = service.ServiceLength,
                     Cost = service.Cost,
-                    Tax = service.Tax,
                     ReceiveTime = service.ReceiveTime
                 };
 

@@ -1,7 +1,10 @@
+using ReactApp1.Server.Migrations;
+
 namespace ReactApp1.Server.Models.Models.Domain;
 
 public class FullOrderServiceModel
 {
+    public int FullOrderServiceId { get; set; }
     public int OrderId { get; set; }
     public int ServiceId { get; set; }
     public int Count { get; set; }
@@ -11,8 +14,9 @@ public class FullOrderServiceModel
     {
     }
 
-    public FullOrderServiceModel(int order, int serviceId, int count, int? discountId)
+    public FullOrderServiceModel(int fullOrderServiceId, int order, int serviceId, int count, int? discountId)
     {
+        FullOrderServiceId = fullOrderServiceId;
         OrderId = order;
         ServiceId = serviceId;
         Count = count;
@@ -20,7 +24,7 @@ public class FullOrderServiceModel
     }
 
     public FullOrderServiceModel(FullOrderService fullOrderService)
-        : this(fullOrderService.OrderId, fullOrderService.ServiceId, fullOrderService.Count, fullOrderService.DiscountId)
+        : this(fullOrderService.FullOrderId, fullOrderService.OrderId, fullOrderService.ServiceId, fullOrderService.Count, fullOrderService.DiscountId)
     {
 
     }
