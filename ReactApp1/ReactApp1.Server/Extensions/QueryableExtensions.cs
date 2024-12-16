@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using System.Security.Principal;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
+using ReactApp1.Server.Models.Models.Domain;
 
 namespace ReactApp1.Server.Extensions
 {
@@ -87,6 +88,20 @@ namespace ReactApp1.Server.Extensions
         /// <param name="user"></param>
         /// <returns></returns>
         public static IQueryable<Service> FilterByAuthorizedUser(this IQueryable<Service> source, IPrincipal user)
+        {
+            if (user.GetUserTitle() == TitleEnum.MasterAdmin)
+                return source;
+
+            return source.Where(f => f.EstablishmentId == user.GetUserEstablishmentId());
+        }
+        
+        /// <summary>
+        /// Discount filter by authorized user
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public static IQueryable<Discount> FilterByAuthorizedUser(this IQueryable<Discount> source, IPrincipal user)
         {
             if (user.GetUserTitle() == TitleEnum.MasterAdmin)
                 return source;
