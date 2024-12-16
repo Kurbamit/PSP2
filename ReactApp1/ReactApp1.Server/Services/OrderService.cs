@@ -149,6 +149,8 @@ namespace ReactApp1.Server.Services
                     service.DiscountName = discount.DiscountName + " (" + discount.Value + "%)";
                 }
 
+                service.Taxes = await _fullOrderServiceTaxRepository.GetFullOrderServiceTaxesAsync(fullOrderService.FullOrderServiceId);
+
                 service.Count = fullOrderService.Count;
                 orderServices.Add(service);
             }
@@ -308,11 +310,32 @@ namespace ReactApp1.Server.Services
             
             var existingFullOrderService = await _fullOrderServiceRepository.GetFullOrderServiceAsync(fullOrderServiceModel.OrderId, fullOrderServiceModel.ServiceId);
 
-            var task = existingFullOrderService != null
-                ? _fullOrderServiceRepository.UpdateServiceInOrderCountAsync(fullOrderServiceModel)
-                : _fullOrderServiceRepository.AddServiceToOrderAsync(fullOrderServiceModel, userId.Value);
+            if (existingFullOrderService != null)
+            {
+                await _fullOrderServiceRepository.UpdateServiceInOrderCountAsync(fullOrderServiceModel);
+            }
+            else
+            {
+                await _fullOrderServiceRepository.AddServiceToOrderAsync(fullOrderServiceModel, userId.Value);
 
-            await task;
+                //refetch to get back the id
+                existingFullOrderService = await _fullOrderServiceRepository.GetFullOrderServiceAsync(fullOrderServiceModel.OrderId, fullOrderServiceModel.ServiceId);
+
+                //Save tax historic data
+                var taxes = await _taxService.GetServiceTaxes(fullOrderServiceModel.ServiceId);
+
+                foreach (var tax in taxes)
+                {
+                    var fullOrderTax = new FullOrderServiceTaxModel
+                    {
+                        FullOrderServiceId = existingFullOrderService.FullOrderServiceId,
+                        Percentage = tax.Percentage,
+                        Description = tax.Description
+                    };
+
+                    await _fullOrderServiceTaxRepository.AddItemToFullOrderServiceTaxAsync(fullOrderTax);
+                }
+            }
         }
         
         public async Task RemoveItemFromOrder(FullOrderModel fullOrder)

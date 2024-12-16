@@ -38,7 +38,6 @@ namespace ReactApp1.Server.Data.Repositories
             }
         }
 
-        // Method to delete a specific tax from a service within an order
         public async Task DeleteItemFromFullOrderServiceTaxAsync(FullOrderServiceTaxModel fullOrderServiceTax)
         {
             try
@@ -57,7 +56,6 @@ namespace ReactApp1.Server.Data.Repositories
             }
         }
 
-        // Method to add a new tax to a service within an order
         public async Task AddItemToFullOrderServiceTaxAsync(FullOrderServiceTaxModel fullOrderServiceTax)
         {
             try
