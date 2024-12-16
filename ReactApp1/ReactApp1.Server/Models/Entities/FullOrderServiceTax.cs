@@ -25,8 +25,5 @@ public class FullOrderServiceTax
     [Column("Description")]
     public string Description { get; set; }
 
-    [ForeignKey(nameof(FullOrderServiceId))]
-    public virtual FullOrderService FullOrderService { get; set; }
-
 
 }

@@ -25,11 +25,14 @@ namespace ReactApp1.Server.Services
         private readonly IPaymentService _paymentService;
         private readonly IDiscountRepository _discountRepository;
         private readonly ITaxService _taxService;
+        private readonly IFullOrderTaxRepository _fullOrderTaxRepository;
+        private readonly IFullOrderServiceTaxRepository _fullOrderServiceTaxRepository;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, IServiceRepository serviceRepository,
             IFullOrderRepository fullOrderRepository, IFullOrderServiceRepository fullOrderServiceRepository, IEmployeeRepository employeeRepository,
             ILogger<OrderService> logger, IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository, IPaymentService paymentService,
-            IDiscountRepository discountRepository, ITaxService taxService)
+            IDiscountRepository discountRepository, ITaxService taxService, IFullOrderTaxRepository fullOrderTaxRepository,
+            IFullOrderServiceTaxRepository fullOrderServiceTaxRepository)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
@@ -43,6 +46,8 @@ namespace ReactApp1.Server.Services
             _paymentService = paymentService;
             _discountRepository = discountRepository;
             _taxService = taxService;
+            _fullOrderTaxRepository = fullOrderTaxRepository;
+            _fullOrderServiceTaxRepository = fullOrderServiceTaxRepository;
         }
         
         public async Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId, int? establishmentId)
@@ -94,16 +99,6 @@ namespace ReactApp1.Server.Services
 
             var orderWithTotalPaidAndLeftToPay = CalculateTotalPaidAndLeftToPayForOrder(orderWithTotalPrice, orderPayments);
             
-            foreach (var item in orderItems)
-            {
-                item.Taxes = await _taxService.GetItemTaxes(item.ItemId);
-            }
-
-            foreach (var service in orderServices)
-            {
-                service.Taxes = await _taxService.GetServiceTaxes(service.ServiceId);
-            }
-
             return new OrderItemsPayments(orderWithTotalPaidAndLeftToPay, orderItems, orderServices, orderPayments);
         }
         
@@ -125,7 +120,9 @@ namespace ReactApp1.Server.Services
                     item.Discount = discount.Value;
                     item.DiscountName = discount.DiscountName + " (" + discount.Value + "%)";
                 }
-                
+
+                item.Taxes = await _fullOrderTaxRepository.GetFullOrderItemTaxesAsync(fullOrder.FullOrderId);
+          
                 item.Count = fullOrder.Count;
                 orderItems.Add(item);
             }
@@ -253,15 +250,36 @@ namespace ReactApp1.Server.Services
             
             // Reduce reserved item count in storage
             await _itemRepository.AddStorageAsync(fullOrder.ItemId, -fullOrder.Count);
-            
-            var task = existingFullOrder != null
-                // If the item is already in the order (fullOrder record which links the order with the item exists in the database)
-                // update its quantity by adding new count to existing count
-                ? _fullOrderRepository.UpdateItemInOrderCountAsync(fullOrder)
-                // Otherwise, create a new record for it
-                : _fullOrderRepository.AddItemToOrderAsync(fullOrder, userId.Value);
-            
-            await task;
+
+            // If the item is already in the order (fullOrder record which links the order with the item exists in the database)
+            // update its quantity by adding new count to existing count
+            // Otherwise, create a new record for it
+            if (existingFullOrder != null)
+            {
+                await _fullOrderRepository.UpdateItemInOrderCountAsync(fullOrder);
+            }
+            else
+            {
+                await _fullOrderRepository.AddItemToOrderAsync(fullOrder, userId.Value);
+
+                //refetch to get back the id
+                existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
+
+                //Save tax historic data
+                var taxes = await _taxService.GetItemTaxes(fullOrder.ItemId);
+
+                foreach(var tax in taxes)
+                {
+                    var fullOrderTax = new FullOrderTaxModel
+                    {
+                        FullOrderId = existingFullOrder.FullOrderId,
+                        Percentage = tax.Percentage,
+                        Description = tax.Description
+                    };
+
+                    await _fullOrderTaxRepository.AddItemToFullOrderTaxAsync(fullOrderTax);
+                }
+            }
 
             async Task ItemIsAvailableInStorage()
             {

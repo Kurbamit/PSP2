@@ -2,6 +2,7 @@ namespace ReactApp1.Server.Models.Models.Domain;
 
 public class FullOrderModel
 {
+    public int FullOrderId { get; set; }
     public int OrderId { get; set; }
     public int ItemId { get; set; }
     public int Count { get; set; }
@@ -11,8 +12,9 @@ public class FullOrderModel
     {
     }
     
-    public FullOrderModel(int order, int itemId, int count, int? discountId)
+    public FullOrderModel(int fullOrderId, int order, int itemId, int count, int? discountId)
     {
+        FullOrderId = fullOrderId;
         OrderId = order;
         ItemId = itemId;
         Count = count;
@@ -20,7 +22,7 @@ public class FullOrderModel
     }
     
     public FullOrderModel(FullOrder fullOrder)
-        : this(fullOrder.OrderId, fullOrder.ItemId, fullOrder.Count, fullOrder.DiscountId)
+        : this(fullOrder.FullOrderId, fullOrder.OrderId, fullOrder.ItemId, fullOrder.Count, fullOrder.DiscountId)
     {
         
     }
