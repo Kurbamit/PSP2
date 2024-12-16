@@ -193,7 +193,18 @@ const ScriptResources = {
     EditTax: 'Edit tax',
     NewTaxInformation: 'New tax information',
     FailedToDeleteTax: 'Failed to delete tax',
-
+    ErrorFetchingGiftCards: 'Error fetching giftcards',
+    ErrorDeletingGiftCard: 'Error deleting giftcard',
+    GiftCardsList: 'Giftcard list',
+    GiftCardId: 'Giftcard ID',
+    ExpirationDate: 'Expiration date',
+    Code: 'Code',
+    ErrorFetchingGiftCard: 'Error fetching giftcard',
+    AmountMustBeGreaterThanZero: 'Amount must be greater than zero',
+    CodeIsRequired: 'Code is required',
+    ErrorSavingGiftCard: 'Error saving giftcard',
+    CreateNewGiftCard: 'Create new giftcard',
+    GiftCardDetail: 'Giftcard details',
 
 };
 

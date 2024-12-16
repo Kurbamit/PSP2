@@ -65,11 +65,19 @@ namespace ReactApp1.Server.Data.Repositories
 
             return giftCard;
         }
-        public async Task AddGiftCardAsync(GiftCard giftCard)
+        public async Task AddGiftCardAsync(GiftCardModel giftCard)
         {
             try
             {
-                await _context.Set<GiftCard>().AddAsync(giftCard);
+                var newGiftCard = new GiftCard()
+                {
+                    GiftCardId = giftCard.GiftCardId,
+                    ExpirationDate = giftCard.ExpirationDate,
+                    Amount = giftCard.Amount,
+                    Code = giftCard.Code,
+                };
+
+                await _context.GiftCards.AddAsync(newGiftCard);
                 await _context.SaveChangesAsync();
 
             }   
