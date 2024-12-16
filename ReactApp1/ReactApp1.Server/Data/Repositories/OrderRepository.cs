@@ -203,6 +203,7 @@ namespace ReactApp1.Server.Data.Repositories
                     sb.AppendLine($"  Gift Card: {payment.GiftCardCode}");
                 }
                 sb.AppendLine($"  Receive Time: {payment.ReceiveTime:yyyy-MM-dd HH:mm:ss}");
+                sb.AppendLine(new string('-', 30));
             }
 
             sb.AppendLine("\nThank you for your order!");
