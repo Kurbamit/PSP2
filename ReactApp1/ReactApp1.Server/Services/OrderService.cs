@@ -183,7 +183,12 @@ namespace ReactApp1.Server.Services
                 {
                     itemCost -= itemCost * (item.Discount.Value / 100);
                 }
-                
+
+                foreach(var tax in item.Taxes)
+                {
+                    totalPrice += ((tax.Percentage / 100 * itemCost) * itemCount);
+                }
+
                 totalPrice += itemCost * itemCount;
             }
 
@@ -196,6 +201,11 @@ namespace ReactApp1.Server.Services
                 if (service.Discount.HasValue)
                 {
                     serviceCost -= serviceCost * (service.Discount.Value / 100);
+                }
+
+                foreach (var tax in service.Taxes)
+                {
+                    totalPrice += ((tax.Percentage / 100 * serviceCost) * serviceCount);
                 }
 
                 totalPrice += serviceCost * serviceCount;
