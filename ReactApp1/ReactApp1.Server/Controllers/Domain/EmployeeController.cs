@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models.Models.Domain;
@@ -24,10 +25,11 @@ namespace ReactApp1.Server.Controllers.Domain
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpGet("employees")]
         public async Task<IActionResult> GetEmployees(int pageNumber, int pageSize)
         {
-            var employees = await _employeeService.GetAllEmployees(pageNumber, pageSize);
+            var employees = await _employeeService.GetAllEmployees(pageNumber, pageSize, User);
 
             return Ok(employees);
         }
@@ -37,10 +39,11 @@ namespace ReactApp1.Server.Controllers.Domain
         /// </summary>
         /// <param name="employeeId"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpGet("employees/{employeeId}")]
         public async Task<IActionResult> GetEmployees(int employeeId)
         {
-            var employee = await _employeeService.GetEmployeeById(employeeId);
+            var employee = await _employeeService.GetEmployeeById(employeeId, User);
 
             return Ok(employee);
         }
@@ -50,13 +53,14 @@ namespace ReactApp1.Server.Controllers.Domain
         /// </summary>
         /// <returns></returns>
         /// <exception cref="UnauthorizedAccessException"></exception>
+        [Authorize]
         [HttpGet("employees/current")]
         public async Task<IActionResult> GetCurrentEmployee()
         {
             var userId = User.GetUserId();
             if (userId.HasValue)
             {
-                var employee = await _employeeService.GetEmployeeById(userId.Value);
+                var employee = await _employeeService.GetEmployeeById(userId.Value, User);
                 return Ok(employee);
             }
             else
@@ -70,6 +74,7 @@ namespace ReactApp1.Server.Controllers.Domain
         /// </summary>
         /// <param name="employee"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpPost("employees")]
         public async Task<IActionResult> CreateEmployee([FromBody] EmployeeModel employee)
         {
@@ -84,6 +89,7 @@ namespace ReactApp1.Server.Controllers.Domain
         /// </summary>
         /// <param name="employee"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpPut("employees/{employeeId}")]
         public async Task<IActionResult> UpdateEmployee([FromBody] EmployeeModel employee)
         {
@@ -97,6 +103,7 @@ namespace ReactApp1.Server.Controllers.Domain
         /// </summary>
         /// <param name="employeeId"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpDelete("employees/{employeeId}")]
         public async Task<IActionResult> DeleteEmployee(int employeeId)
         {

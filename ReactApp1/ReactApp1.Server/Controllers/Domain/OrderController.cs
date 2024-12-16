@@ -19,7 +19,7 @@ namespace ReactApp1.Server.Controllers.Domain
         [HttpGet("orders")]
         public async Task<IActionResult> GetOrders([FromQuery] int pageNumber, int pageSize)
         {
-            var orders = await _orderService.GetAllOrders(pageNumber, pageSize);
+            var orders = await _orderService.GetAllOrders(pageNumber, pageSize, User);
             
             return Ok(orders);
         }
@@ -27,7 +27,7 @@ namespace ReactApp1.Server.Controllers.Domain
         [HttpGet("orders/{orderId}")]
         public async Task<IActionResult> GetOrders(int orderId)
         {
-            var order = await _orderService.GetOrderById(orderId);
+            var order = await _orderService.GetOrderById(orderId, User);
             
             return Ok(order);
         }
@@ -90,7 +90,7 @@ namespace ReactApp1.Server.Controllers.Domain
         [HttpPut("orders/{orderId}/pay")]
         public async Task<IActionResult> PayOrder([FromBody] PaymentModel payment)
         {
-            await _orderService.PayOrder(payment);
+            await _orderService.PayOrder(payment, User);
 
             return Ok();
         }
@@ -138,7 +138,7 @@ namespace ReactApp1.Server.Controllers.Domain
         [HttpGet("orders/{orderId}/download")]
         public async Task<IActionResult> DownloadReceipt(int orderId)
         {
-            var receipt = await _orderService.DownloadReceipt(orderId);
+            var receipt = await _orderService.DownloadReceipt(orderId, User);
 
             return File(receipt, "text/plain", $"Receipt_Order{orderId}.txt");
         }

@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Exceptions.ItemExceptions;
@@ -55,12 +56,12 @@ namespace ReactApp1.Server.Services
             return new OrderItemsPayments(emptyOrder, null, null, null);
         }
         
-        public async Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize)
+        public async Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize, IPrincipal user)
         {
             var orders = await _orderRepository.GetAllOrdersAsync(pageNumber, pageSize);
             foreach (var order in orders.Items)
             {
-                var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
+                var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId, user);
                 if(employee != null)
                     order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
             }
@@ -68,7 +69,7 @@ namespace ReactApp1.Server.Services
             return orders;
         }
 
-        public async Task<OrderItemsPayments> GetOrderById(int orderId)
+        public async Task<OrderItemsPayments> GetOrderById(int orderId, IPrincipal user)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
             if (order == null)
@@ -77,7 +78,7 @@ namespace ReactApp1.Server.Services
                 return new OrderItemsPayments(null, null, null, null);
             }
             
-            var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
+            var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId, user);
             if(employee != null)
                 order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
 
@@ -396,9 +397,9 @@ namespace ReactApp1.Server.Services
 
             await _orderRepository.UpdateOrderAsync(existingOrderWithOpenStatus);
         }
-        public async Task PayOrder(PaymentModel payment)
+        public async Task PayOrder(PaymentModel payment, IPrincipal user)
         {
-            var existingOrderWithClosedStatus = (await GetOrderById(payment.OrderId)).Order;
+            var existingOrderWithClosedStatus = (await GetOrderById(payment.OrderId, user)).Order;
 
             if (existingOrderWithClosedStatus == null)
                 return;
@@ -480,9 +481,9 @@ namespace ReactApp1.Server.Services
             await _orderRepository.UpdateOrderAsync(order);
         }
 
-        public async Task<byte[]> DownloadReceipt(int orderId)
+        public async Task<byte[]> DownloadReceipt(int orderId, IPrincipal user)
         {
-            var order = await GetOrderById(orderId);
+            var order = await GetOrderById(orderId, user);
             if (order.Order == null)
             {
                 _logger.LogError($"Failed to download receipt: Order {orderId} not found");

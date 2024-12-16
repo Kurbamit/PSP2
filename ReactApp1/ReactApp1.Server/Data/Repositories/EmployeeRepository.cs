@@ -1,4 +1,6 @@
+using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
+using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
@@ -16,12 +18,13 @@ namespace ReactApp1.Server.Data.Repositories
             _context = context;
         }
         
-        public async Task<PaginatedResult<Employee>> GetAllEmployeesAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedResult<Employee>> GetAllEmployeesAsync(int pageNumber, int pageSize, IPrincipal user)
         {
             var totalItems = await _context.Set<Employee>().CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             
             var employees = await _context.Set<Employee>()
+                .FilterByAuthorizedUser(user)
                 .OrderBy(employee => employee.EmployeeId)
                 .Paginate(pageNumber, pageSize)
                 .ToListAsync();
@@ -35,10 +38,11 @@ namespace ReactApp1.Server.Data.Repositories
             };
         }
 
-        public async Task<EmployeeModel?> GetEmployeeByIdAsync(int employeeId)
+        public async Task<EmployeeModel?> GetEmployeeByIdAsync(int employeeId, IPrincipal user)
         {
             var employee = await _context.Employees
                 .Where(f => f.EmployeeId == employeeId)
+                .FilterByAuthorizedUser(user)
                 .Select(f => new EmployeeModel()
                 {
                     EmployeeId = f.EmployeeId,
@@ -57,6 +61,11 @@ namespace ReactApp1.Server.Data.Repositories
                     HouseNumber = f.EmployeeAddress.HouseNumber,
                     ReceiveTime = f.ReceiveTime
                 }).FirstOrDefaultAsync();
+
+            if (employee == null)
+            {
+                throw new AuthorizationException();
+            }
             
             return employee;
         }

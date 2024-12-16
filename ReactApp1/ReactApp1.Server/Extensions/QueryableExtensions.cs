@@ -1,4 +1,7 @@
 using System.Linq.Expressions;
+using System.Security.Principal;
+using ReactApp1.Server.Models;
+using ReactApp1.Server.Models.Enums;
 
 namespace ReactApp1.Server.Extensions
 {
@@ -19,6 +22,14 @@ namespace ReactApp1.Server.Extensions
             }
 
             return source;
+        }
+
+        public static IQueryable<Employee> FilterByAuthorizedUser(this IQueryable<Employee> source, IPrincipal user)
+        {
+            if (user.GetUserTitle() == TitleEnum.MasterAdmin)
+                return source;
+
+            return source.Where(f => f.EstablishmentId == user.GetUserEstablishmentId());
         }
     }
 }
