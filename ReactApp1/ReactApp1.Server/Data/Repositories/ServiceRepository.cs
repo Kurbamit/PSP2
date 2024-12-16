@@ -1,4 +1,6 @@
+using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
+using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
@@ -16,12 +18,13 @@ namespace ReactApp1.Server.Data.Repositories
             _context = context;
         }
 
-        public async Task<PaginatedResult<Service>> GetAllServicesAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedResult<Service>> GetAllServicesAsync(int pageNumber, int pageSize, IPrincipal user)
         {
-            var totalItems = await _context.Set<Service>().CountAsync();
+            var totalItems = await _context.Set<Service>().FilterByAuthorizedUser(user).CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
             var services = await _context.Set<Service>()
+                .FilterByAuthorizedUser(user)
                 .OrderBy(service => service.ServiceId)
                 .Paginate(pageNumber, pageSize)
                 .ToListAsync();
@@ -35,9 +38,10 @@ namespace ReactApp1.Server.Data.Repositories
             };
         }
 
-        public async Task<ServiceModel?> GetServiceByIdAsync(int serviceId)
+        public async Task<ServiceModel?> GetServiceByIdAsync(int serviceId, IPrincipal user)
         {
             var service = await _context.Services
+                .FilterByAuthorizedUser(user)
                 .Where(f => f.ServiceId == serviceId)
                 .Select(f => new ServiceModel()
                 {
@@ -49,6 +53,11 @@ namespace ReactApp1.Server.Data.Repositories
                     ServiceLength = f.ServiceLength,
                     ReceiveTime = f.ReceiveTime
                 }).FirstOrDefaultAsync();
+
+            if (service == null)
+            {
+                throw new AuthorizationException();
+            }
 
             return service;
         }
