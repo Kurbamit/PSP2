@@ -55,7 +55,7 @@ namespace ReactApp1.Server.Data.Repositories
 
         public async Task<PaginatedResult<OrderModel>> GetAllOrdersAsync(int pageNumber, int pageSize, IPrincipal user)
         {
-            var totalOrders = await _context.Orders.CountAsync();
+            var totalOrders = await _context.Orders.FilterByAuthorizedUser(user).CountAsync();
             var totalPages = (int)Math.Ceiling(totalOrders / (double)pageSize);
 
             var orders = await _context.Orders

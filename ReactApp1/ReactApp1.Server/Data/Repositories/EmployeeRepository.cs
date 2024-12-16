@@ -20,7 +20,7 @@ namespace ReactApp1.Server.Data.Repositories
         
         public async Task<PaginatedResult<Employee>> GetAllEmployeesAsync(int pageNumber, int pageSize, IPrincipal user)
         {
-            var totalItems = await _context.Set<Employee>().CountAsync();
+            var totalItems = await _context.Set<Employee>().FilterByAuthorizedUser(user).CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             
             var employees = await _context.Set<Employee>()

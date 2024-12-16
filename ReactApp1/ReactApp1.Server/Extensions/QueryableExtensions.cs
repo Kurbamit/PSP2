@@ -51,5 +51,13 @@ namespace ReactApp1.Server.Extensions
 
             return source.Where(f => f.EstablishmentId == user.GetUserEstablishmentId());
         }
+        
+        public static IQueryable<Item> FilterByAuthorizedUser(this IQueryable<Item> source, IPrincipal user)
+        {
+            if (user.GetUserTitle() == TitleEnum.MasterAdmin)
+                return source;
+
+            return source.Where(f => f.EstablishmentId == user.GetUserEstablishmentId());
+        }
     }
 }
