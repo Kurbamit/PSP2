@@ -13,7 +13,6 @@ interface Service {
     establishmentId: number;
     serviceLength: string;
     cost?: number;
-    tax?: number;
     receiveTime: string;
 }
 
@@ -83,7 +82,6 @@ const Services: React.FC = () => {
                         <th>{ScriptResources.EstablishmentId}</th>
                         <th>{ScriptResources.ServiceLength}</th>
                         <th>{ScriptResources.Cost}</th>
-                        <th>{ScriptResources.Tax}</th>
                         <th>{ScriptResources.ReceiveTime}</th>
                         <th>{ScriptResources.Actions}</th>
                     </tr>
@@ -96,7 +94,6 @@ const Services: React.FC = () => {
                             <td>{service.establishmentId}</td>
                             <td>{service.serviceLength}</td>
                             <td>{service.cost ? `$${service.cost.toFixed(2)}` : ScriptResources.NotAvailable}</td>
-                            <td>{service.tax ? `$${service.tax.toFixed(2)}` : ScriptResources.NotAvailable}</td>
                             <td>{new Date(service.receiveTime).toLocaleString()}</td>
                             <td style={{ display: 'flex', justifyContent: 'space-around' }}>
                                 <span
