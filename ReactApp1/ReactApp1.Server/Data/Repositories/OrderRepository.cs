@@ -173,7 +173,6 @@ namespace ReactApp1.Server.Data.Repositories
             {
                 sb.AppendLine($"- {item.Name} x{item.Count}");
                 sb.AppendLine($"  Cost: {item.Cost?.ToString("0.00") ?? "N/A"} EUR");
-                sb.AppendLine($"  Tax: {item.Tax?.ToString("0.00") ?? "N/A"} EUR");
                 sb.AppendLine($"  Alcoholic: {(item.AlcoholicBeverage ? "Yes" : "No")}");
                 sb.AppendLine($"  Discount: {item.DiscountName ?? "N/A"}");
                 sb.AppendLine(new string('-', 30));
@@ -184,7 +183,6 @@ namespace ReactApp1.Server.Data.Repositories
             {
                 sb.AppendLine($"- {service.Name} x{service.Count}");
                 sb.AppendLine($"  Cost: {service.Cost?.ToString("0.00") ?? "N/A"} EUR");
-                sb.AppendLine($"  Tax: {service.Tax?.ToString("0.00") ?? "N/A"} EUR");
                 sb.AppendLine($"  Discount: {service.DiscountName ?? "N/A"}");
                 sb.AppendLine(new string('-', 30));
             }

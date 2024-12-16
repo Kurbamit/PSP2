@@ -51,11 +51,11 @@ namespace ReactApp1.Server.Services
         {
             return _taxRepository.RemoveServiceTaxAsync(tax);
         }
-        public Task<List<Tax>> GetItemTaxes(int itemId)
+        public Task<List<TaxModel>> GetItemTaxes(int itemId)
         {
             return _taxRepository.GetItemTaxesAsync(itemId);
         }
-        public Task<List<Tax>> GetServiceTaxes(int serviceId)
+        public Task<List<TaxModel>> GetServiceTaxes(int serviceId)
         {
             return _taxRepository.GetServiceTaxesAsync(serviceId);
         }

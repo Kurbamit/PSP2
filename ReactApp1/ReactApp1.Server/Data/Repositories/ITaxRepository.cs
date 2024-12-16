@@ -15,8 +15,8 @@ namespace ReactApp1.Server.Data.Repositories
         Task AddServiceTaxAsync(ServiceTaxModel tax);
         Task RemoveItemTaxAsync(ItemTaxModel tax);
         Task RemoveServiceTaxAsync(ServiceTaxModel tax);
-        Task<List<Tax>> GetItemTaxesAsync(int itemId);
-        Task<List<Tax>> GetServiceTaxesAsync(int serviceId);
+        Task<List<TaxModel>> GetItemTaxesAsync(int itemId);
+        Task<List<TaxModel>> GetServiceTaxesAsync(int serviceId);
 
     }
 }

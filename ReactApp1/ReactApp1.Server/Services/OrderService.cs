@@ -7,6 +7,7 @@ using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
+using Stripe;
 
 namespace ReactApp1.Server.Services
 {
@@ -23,11 +24,12 @@ namespace ReactApp1.Server.Services
         private readonly ILogger<OrderService> _logger;
         private readonly IPaymentService _paymentService;
         private readonly IDiscountRepository _discountRepository;
+        private readonly ITaxService _taxService;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, IServiceRepository serviceRepository,
             IFullOrderRepository fullOrderRepository, IFullOrderServiceRepository fullOrderServiceRepository, IEmployeeRepository employeeRepository,
             ILogger<OrderService> logger, IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository, IPaymentService paymentService,
-            IDiscountRepository discountRepository)
+            IDiscountRepository discountRepository, ITaxService taxService)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
@@ -40,6 +42,7 @@ namespace ReactApp1.Server.Services
             _logger = logger;
             _paymentService = paymentService;
             _discountRepository = discountRepository;
+            _taxService = taxService;
         }
         
         public async Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId, int? establishmentId)
@@ -90,6 +93,16 @@ namespace ReactApp1.Server.Services
             var orderPayments = await GetOrderPayments(orderId);
 
             var orderWithTotalPaidAndLeftToPay = CalculateTotalPaidAndLeftToPayForOrder(orderWithTotalPrice, orderPayments);
+            
+            foreach (var item in orderItems)
+            {
+                item.Taxes = await _taxService.GetItemTaxes(item.ItemId);
+            }
+
+            foreach (var service in orderServices)
+            {
+                service.Taxes = await _taxService.GetServiceTaxes(service.ServiceId);
+            }
 
             return new OrderItemsPayments(orderWithTotalPaidAndLeftToPay, orderItems, orderServices, orderPayments);
         }

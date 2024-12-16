@@ -183,20 +183,30 @@ namespace ReactApp1.Server.Data.Repositories
                 throw new Exception($"An error occurred while deleting the service tax {tax.TaxId} from the database.", e);
             }
         }
-        public async Task<List<Tax>> GetItemTaxesAsync(int itemId)
+        public async Task<List<TaxModel>> GetItemTaxesAsync(int itemId)
         {
             var taxes = await _context.Set<ItemTax>()
                 .Where(it => it.ItemId == itemId)
-                .Select(it => it.Tax)
+                .Select(it => new TaxModel
+                {
+                    TaxId = it.Tax.TaxId,
+                    Percentage = it.Tax.Percentage,
+                    Description = it.Tax.Description
+                })
                 .ToListAsync();
 
             return taxes;
         }
-        public async Task<List<Tax>> GetServiceTaxesAsync(int serviceId)
+        public async Task<List<TaxModel>> GetServiceTaxesAsync(int serviceId)
         {
             var taxes = await _context.Set<ServiceTax>()
                 .Where(it => it.ServiceId == serviceId)
-                .Select(it => it.Tax)
+                .Select(it => new TaxModel
+                {
+                    TaxId = it.Tax.TaxId,
+                    Percentage = it.Tax.Percentage,
+                    Description = it.Tax.Description
+                })
                 .ToListAsync();
 
             return taxes;
