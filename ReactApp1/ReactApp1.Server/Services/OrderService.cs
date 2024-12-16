@@ -181,12 +181,12 @@ namespace ReactApp1.Server.Services
                 // Apply discount to the item if it exists
                 if (item.Discount.HasValue)
                 {
-                    itemCost -= itemCost * (item.Discount.Value / 100);
+                    itemCost -= Math.Round(itemCost * (item.Discount.Value / 100), 2);
                 }
 
                 foreach(var tax in item.Taxes)
                 {
-                    totalPrice += ((tax.Percentage / 100 * itemCost) * itemCount);
+                    totalPrice += (Math.Round(tax.Percentage / 100 * itemCost, 2) * itemCount);
                 }
 
                 totalPrice += itemCost * itemCount;
@@ -200,12 +200,12 @@ namespace ReactApp1.Server.Services
                 // Apply discount to the item if it exists
                 if (service.Discount.HasValue)
                 {
-                    serviceCost -= serviceCost * (service.Discount.Value / 100);
+                    serviceCost -= Math.Round(serviceCost * (service.Discount.Value / 100), 2);
                 }
 
                 foreach (var tax in service.Taxes)
                 {
-                    totalPrice += ((tax.Percentage / 100 * serviceCost) * serviceCount);
+                    totalPrice += (Math.Round(tax.Percentage / 100 * serviceCost, 2) * serviceCount);
                 }
 
                 totalPrice += serviceCost * serviceCount;
@@ -215,8 +215,9 @@ namespace ReactApp1.Server.Services
             if (order.DiscountId.HasValue)
             {
                 var discount = await GetDiscountById(order.DiscountId.Value);
-                totalPrice -= totalPrice * (discount.Value / 100);
+                totalPrice -= Math.Round(totalPrice * (discount.Value / 100), 2);
             }
+
             if (order.TipFixed != null)
             {
                 totalPrice += (order.TipFixed ?? 0);
@@ -224,7 +225,7 @@ namespace ReactApp1.Server.Services
             }
             else if (order.TipPercentage != null)
             {
-                decimal tip = totalPrice * ((order.TipPercentage ?? 0) / 100);
+                decimal tip = Math.Round(totalPrice * ((order.TipPercentage ?? 0) / 100), 2);
                 totalPrice += tip;
                 order.TipAmount = tip;
             }
