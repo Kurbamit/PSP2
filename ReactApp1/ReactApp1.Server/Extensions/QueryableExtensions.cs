@@ -24,7 +24,27 @@ namespace ReactApp1.Server.Extensions
             return source;
         }
 
+        /// <summary>
+        /// Employee filter by authorized user
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public static IQueryable<Employee> FilterByAuthorizedUser(this IQueryable<Employee> source, IPrincipal user)
+        {
+            if (user.GetUserTitle() == TitleEnum.MasterAdmin)
+                return source;
+
+            return source.Where(f => f.EstablishmentId == user.GetUserEstablishmentId());
+        }
+        
+        /// <summary>
+        /// Order filter by authorized user
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public static IQueryable<Order> FilterByAuthorizedUser(this IQueryable<Order> source, IPrincipal user)
         {
             if (user.GetUserTitle() == TitleEnum.MasterAdmin)
                 return source;

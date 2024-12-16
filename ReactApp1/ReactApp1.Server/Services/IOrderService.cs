@@ -9,16 +9,16 @@ public interface IOrderService
     Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId, int? establishmentId);
     Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize, IPrincipal user);
     Task<OrderItemsPayments> GetOrderById(int orderId, IPrincipal user);
-    Task AddItemToOrder(FullOrderModel fullOrder, int? userId);
-    Task AddServiceToOrder(FullOrderServiceModel fullOrderServiceModel, int? userId);
-    Task UpdateOrder(OrderModel order);
-    Task RemoveItemFromOrder(FullOrderModel fullOrder);
-    Task RemoveServiceFromOrder(FullOrderServiceModel fullOrderService);
-    Task CloseOrder(int orderId);
-    Task CancelOrder(int orderId);
-    Task RefundOrder(int orderId);
-    Task TipOrder(TipModel tip);
-    Task DiscountOrder(DiscountModel discount);
+    Task AddItemToOrder(FullOrderModel fullOrder, int? userId, IPrincipal user);
+    Task AddServiceToOrder(FullOrderServiceModel fullOrderServiceModel, int? userId, IPrincipal user);
+    Task UpdateOrder(OrderModel order, IPrincipal user);
+    Task RemoveItemFromOrder(FullOrderModel fullOrder, IPrincipal user);
+    Task RemoveServiceFromOrder(FullOrderServiceModel fullOrderService, IPrincipal user);
+    Task CloseOrder(int orderId, IPrincipal user);
+    Task CancelOrder(int orderId, IPrincipal user);
+    Task RefundOrder(int orderId, IPrincipal user);
+    Task TipOrder(TipModel tip, IPrincipal user);
+    Task DiscountOrder(DiscountModel discount, IPrincipal user);
     Task PayOrder(PaymentModel payment, IPrincipal user);
     Task<byte[]> DownloadReceipt(int orderId, IPrincipal user);
 }
