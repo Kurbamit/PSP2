@@ -10,10 +10,10 @@ namespace ReactApp1.Server.Data.Repositories
         Task<TaxModel?> GetTaxById(int taxId);
         Task AddTax(TaxModel tax);
         Task UpdateTax(TaxModel tax);
-        Task AddItemTax(ItemTax tax);
-        Task AddServiceTax(ServiceTax tax);
-        Task RemoveItemTax(ItemTax tax);
-        Task RemoveServiceTax(ServiceTax tax);
+        Task AddItemTax(ItemTaxModel tax);
+        Task AddServiceTax(ServiceTaxModel tax);
+        Task RemoveItemTax(ItemTaxModel tax);
+        Task RemoveServiceTax(ServiceTaxModel tax);
         Task<List<Tax>> GetItemTaxes(int itemId);
         Task<List<Tax>> GetServiceTaxes(int serviceId);
 

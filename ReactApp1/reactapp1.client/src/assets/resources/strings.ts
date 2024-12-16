@@ -180,6 +180,11 @@ const ScriptResources = {
     ErrorApplyingDiscount: 'Error applying discount',
     Discount: 'Discount:',
     Value: 'Value',
+    AddNewTax: 'Add new tax',
+    NoTaxes: 'No taxes',
+    Taxes: 'Taxes',
+    AddTax: 'Add tax',
+
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {

@@ -3,16 +3,21 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
-import {Button, Modal} from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
+import SelectDropdown from "../../Base/SelectDropdown.tsx";
 
 interface Item {
     itemId?: number; // Make itemId optional for new items
     name: string;
     cost: number;
-    tax: number;
     alcoholicBeverage: boolean;
     receiveTime: string;
     storage: number | null;
+}
+interface Tax {
+    taxId: number;
+    percentage: number;
+    description: string;
 }
 
 const ItemDetail: React.FC = () => {
@@ -27,6 +32,9 @@ const ItemDetail: React.FC = () => {
     const [showModal, setShowModal] = useState(false);
     const [storageValue, setStorageValue] = useState<number | ''>('');
     const [modalMode, setModalMode] = useState<'add' | 'deduct'>('add');
+    const [itemTaxes, setItemTaxes] = useState<Tax[]>([]);
+    const [showTaxModal, setShowTaxModal] = useState(false);
+    const [selectedTaxId, setSelectedTaxId] = useState<number | null>(null);
 
     const isNewItem = !id; // Check if it's a new item by absence of id
 
@@ -39,6 +47,8 @@ const ItemDetail: React.FC = () => {
                     });
                     setItem(response.data);
                     setEditedItem(response.data); // Initialize edited item with fetched data
+                    getTaxes();
+
                 } catch (error) {
                     console.error(ScriptResources.ErrorFetchingItems, error);
                 }
@@ -48,7 +58,6 @@ const ItemDetail: React.FC = () => {
             const emptyItem: Item = {
                 name: '',
                 cost: 0,
-                tax: 0,
                 alcoholicBeverage: false,
                 receiveTime: new Date().toISOString(),
                 storage: null,
@@ -89,9 +98,6 @@ const ItemDetail: React.FC = () => {
             }
             if (editedItem.cost <= 0) {
                 errorMessages.push(ScriptResources.CostMustBeGreaterThanZero);
-            }
-            if (editedItem.tax < 0) {
-                errorMessages.push(ScriptResources.TaxCannotBeNegative);
             }
             if (editedItem.storage !== null && editedItem.storage < 0) {
                 errorMessages.push(ScriptResources.StorageCannotBeEmpty);
@@ -192,6 +198,43 @@ const ItemDetail: React.FC = () => {
         }
     };
 
+    const getTaxes = async () => {
+        const response = await axios.get(`http://localhost:5114/api/tax/item/${id}/`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        setItemTaxes(response.data);
+    }
+
+    const handleAddTax = async () => {
+        try {
+            await axios.post(`http://localhost:5114/api/tax/item`, {
+                itemId: item?.itemId,
+                taxId: selectedTaxId,
+            }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            
+            getTaxes()
+            setShowTaxModal(false);
+        } catch (error) {
+            console.error("Error adding tax:", error);
+        }
+    };
+
+    const handleDeleteTax = async (taxId: number) => {
+        try {
+            await axios.delete(`http://localhost:5114/api/tax/item`, {
+                headers: { Authorization: `Bearer ${token}` },
+                data: {
+                    itemId: item?.itemId,
+                    taxId: taxId
+                },
+            });
+            getTaxes();
+        } catch (error) {
+            console.error("Error deleting tax:", error);
+        }
+    };
     return (
         <div className="container">
             <h2 className="mb-4">{isNewItem ? 'Create New Item' : 'Item Detail'}</h2>
@@ -221,17 +264,6 @@ const ItemDetail: React.FC = () => {
                                     type="number"
                                     name="cost"
                                     value={editedItem.cost || ''}
-                                    onChange={handleInputChange}
-                                    className="form-control"
-                                    disabled={!isEditing}
-                                />
-                            </li>
-                            <li className="list-group-item">
-                                <strong>{ScriptResources.Tax}</strong>{' '}
-                                <input
-                                    type="number"
-                                    name="tax"
-                                    value={editedItem.tax || ''}
                                     onChange={handleInputChange}
                                     className="form-control"
                                     disabled={!isEditing}
@@ -293,6 +325,34 @@ const ItemDetail: React.FC = () => {
                             )}
                         </div>
                     </div>
+                    <div className="mt-4 mb-3">
+                        <h5>{ScriptResources.Taxes}</h5>
+                        <ul className="list-group list-group-flush">
+                            {itemTaxes.length > 0 ? (
+                                itemTaxes.map((tax) => (
+                                    <li key={tax.taxId} className="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{tax.description}</strong>: {tax.percentage}%
+                                        </div>
+                                        <button
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => handleDeleteTax(tax.taxId)}
+                                        >
+                                            {ScriptResources.Delete}
+                                        </button>
+                                    </li>
+                                ))
+                            ) : (
+                                <li className="list-group-item">{ScriptResources.NoTaxes}</li>
+                            )}
+                        </ul>
+                        <button
+                            className="btn btn-primary mt-3"
+                            onClick={() => setShowTaxModal(true)}
+                        >
+                            {ScriptResources.AddNewTax}
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div>{ScriptResources.Loading}</div>
@@ -324,6 +384,30 @@ const ItemDetail: React.FC = () => {
                     </Button>
                     <Button variant="primary" onClick={handleSaveStorage}>
                         {ScriptResources.Save}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showTaxModal} onHide={() => setShowTaxModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{ScriptResources.AddNewTax}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <SelectDropdown
+                        endpoint="/AllTaxes"
+                        onSelect={(tax) => {
+                            if (tax) {
+                                setSelectedTaxId(tax.id);
+                            }
+                        }}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowTaxModal(false)}>
+                        {ScriptResources.Cancel}
+                    </Button>
+                    <Button variant="primary" onClick={handleAddTax}>
+                        {ScriptResources.AddTax}
                     </Button>
                 </Modal.Footer>
             </Modal>

@@ -53,7 +53,7 @@ namespace ReactApp1.Server.Controllers
         }
 
         [HttpPost("tax/item")]
-        public async Task<IActionResult> AddItemTax([FromBody] ItemTax itemTax)
+        public async Task<IActionResult> AddItemTax([FromBody] ItemTaxModel itemTax)
         {
             await _taxService.AddItemTax(itemTax);
 
@@ -61,7 +61,7 @@ namespace ReactApp1.Server.Controllers
         }
 
         [HttpPost("tax/service")]
-        public async Task<IActionResult> AddServiceTax([FromBody] ServiceTax serviceTax)
+        public async Task<IActionResult> AddServiceTax([FromBody] ServiceTaxModel serviceTax)
         {
             await _taxService.AddServiceTax(serviceTax);
 
@@ -69,7 +69,7 @@ namespace ReactApp1.Server.Controllers
         }
 
         [HttpDelete("tax/item")]
-        public async Task<IActionResult> RemoveItemTax([FromBody] ItemTax itemTax)
+        public async Task<IActionResult> RemoveItemTax([FromBody] ItemTaxModel itemTax)
         {
             await _taxService.RemoveItemTax(itemTax);
 
@@ -77,7 +77,7 @@ namespace ReactApp1.Server.Controllers
         }
 
         [HttpDelete("tax/service")]
-        public async Task<IActionResult> RemoveServiceTax([FromBody] ServiceTax serviceTax)
+        public async Task<IActionResult> RemoveServiceTax([FromBody] ServiceTaxModel serviceTax)
         {
             await _taxService.RemoveServiceTax(serviceTax);
 

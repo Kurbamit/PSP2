@@ -12,8 +12,6 @@ public class ItemTax
         
     }
 
-    [Key]
-    public int ItemTaxId { get; set; }
     [Column("ItemId")]
     public int ItemId { get; set; }
 

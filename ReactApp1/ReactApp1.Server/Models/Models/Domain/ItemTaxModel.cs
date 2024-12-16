@@ -7,10 +7,8 @@ public class ItemTaxModel
         
     }
 
-    public int ItemTaxId { get; set; }
     public int ItemId { get; set; }
     public int TaxId { get; set; }
-
 
 
 }

@@ -12,8 +12,6 @@ public class ServiceTax
         
     }
 
-    [Key]
-    public int ServiceTaxId { get; set; }
     [Column("ServiceId")]
     public int ServiceId { get; set; }
 

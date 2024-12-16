@@ -54,7 +54,6 @@ namespace ReactApp1.Server.Data.Repositories
             {
                 var newTax = new Tax
                 {
-                    TaxId = tax.TaxId,
                     Description = tax.Description,
                     Percentage = tax.Percentage,
                 };
@@ -89,7 +88,7 @@ namespace ReactApp1.Server.Data.Repositories
                 throw new Exception($"An error occurred while updating the service: {tax.TaxId}.", e);
             }
         }
-        public async Task AddItemTaxAsync(ItemTax tax)
+        public async Task AddItemTaxAsync(ItemTaxModel tax)
         {
             try
             {
@@ -107,7 +106,7 @@ namespace ReactApp1.Server.Data.Repositories
                 throw new Exception("An error occurred while adding new item tax to the database.", e);
             }
         }
-        public async Task AddServiceTaxAsync(ServiceTax tax)
+        public async Task AddServiceTaxAsync(ServiceTaxModel tax)
         {
             try
             {
@@ -125,14 +124,19 @@ namespace ReactApp1.Server.Data.Repositories
                 throw new Exception("An error occurred while adding new service tax to the database.", e);
             }
         }
-        public async Task RemoveItemTaxAsync(ItemTax tax)
+        public async Task RemoveItemTaxAsync(ItemTaxModel tax)
         {
             try
             {
-                _context.Set<ItemTax>().Remove(new ItemTax
+                var itemTax = await _context.Set<ItemTax>()
+                    .FirstOrDefaultAsync(it => it.ItemId == tax.ItemId && it.TaxId == tax.TaxId);
+
+                if (itemTax == null)
                 {
-                    ItemTaxId = tax.ItemTaxId
-                });
+                    throw new Exception($"No ItemTax record found for ItemId {tax.ItemId} and TaxId {tax.TaxId}.");
+                }
+
+                _context.Set<ItemTax>().Remove(itemTax);
 
                 await _context.SaveChangesAsync();
             }
@@ -141,14 +145,19 @@ namespace ReactApp1.Server.Data.Repositories
                 throw new Exception($"An error occurred while deleting the item tax {tax.TaxId} from the database.", e);
             }
         }
-        public async Task RemoveServiceTaxAsync(ServiceTax tax)
+        public async Task RemoveServiceTaxAsync(ServiceTaxModel tax)
         {
             try
             {
-                _context.Set<ServiceTax>().Remove(new ServiceTax
+                var serviceTax = await _context.Set<ServiceTax>()
+                    .FirstOrDefaultAsync(it => it.ServiceId == tax.ServiceId && it.TaxId == tax.TaxId);
+
+                if (serviceTax == null)
                 {
-                    ServiceTaxId = tax.ServiceTaxId
-                });
+                    throw new Exception($"No ItemTax record found for ItemId {tax.ServiceId} and TaxId {tax.TaxId}.");
+                }
+
+                _context.Set<ServiceTax>().Remove(serviceTax);
 
                 await _context.SaveChangesAsync();
             }

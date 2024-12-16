@@ -30,19 +30,19 @@ namespace ReactApp1.Server.Services
         {
             return _taxRepository.UpdateTaxAsync(tax);
         }
-        public Task AddItemTax(ItemTax tax)
+        public Task AddItemTax(ItemTaxModel tax)
         {
             return _taxRepository.AddItemTaxAsync(tax);
         }
-        public Task AddServiceTax(ServiceTax tax)
+        public Task AddServiceTax(ServiceTaxModel tax)
         {
             return _taxRepository.AddServiceTaxAsync(tax);
         }
-        public Task RemoveItemTax(ItemTax tax)
+        public Task RemoveItemTax(ItemTaxModel tax)
         {
             return _taxRepository.RemoveItemTaxAsync(tax);
         }
-        public Task RemoveServiceTax(ServiceTax tax)
+        public Task RemoveServiceTax(ServiceTaxModel tax)
         {
             return _taxRepository.RemoveServiceTaxAsync(tax);
         }

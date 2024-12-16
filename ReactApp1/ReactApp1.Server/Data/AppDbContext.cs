@@ -292,38 +292,10 @@ public class AppDbContext : DbContext
             entity.Property(t => t.Description).HasMaxLength(255);
         });
 
-        modelBuilder.Entity<ServiceTax>(entity =>
-        {
-            entity.Property(st => st.ServiceTaxId)
-                .IsRequired()
-                .ValueGeneratedOnAdd();
+        modelBuilder.Entity<ServiceTax>()
+            .HasKey(it => new { it.ServiceId, it.TaxId });
 
-            entity.HasOne(st => st.Service)
-                  .WithMany()
-                  .HasForeignKey(st => st.ServiceId)
-                  .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(st => st.Tax)
-                  .WithMany()
-                  .HasForeignKey(st => st.TaxId)
-                  .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        modelBuilder.Entity<ItemTax>(entity =>
-        {
-            entity.Property(it => it.ItemTaxId)
-                .IsRequired()
-                .ValueGeneratedOnAdd();
-
-            entity.HasOne(it => it.Item)
-                  .WithMany()
-                  .HasForeignKey(it => it.ItemId)
-                  .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(it => it.Tax)
-                  .WithMany()
-                  .HasForeignKey(it => it.TaxId)
-                  .OnDelete(DeleteBehavior.Cascade);
-        });
+        modelBuilder.Entity<ItemTax>()
+            .HasKey(it => new { it.ItemId, it.TaxId });
     }
 }

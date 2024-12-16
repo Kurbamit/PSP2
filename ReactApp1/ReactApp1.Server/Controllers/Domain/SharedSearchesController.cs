@@ -44,5 +44,12 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok(result);
         }
+        [HttpGet("AllTaxes")]
+        public async Task<IActionResult> AllTaxes([FromQuery] string? search)
+        {
+            var result = await _sharedSearchesService.GetAllTaxes(search);
+
+            return Ok(result);
+        }
     }
 }

@@ -7,7 +7,6 @@ public class ServiceTaxModel
         
     }
 
-    public int ServiceTaxId { get; set; }
     public int ServiceId { get; set; }
     public int TaxId { get; set; }
 
