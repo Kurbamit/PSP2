@@ -30,7 +30,9 @@ namespace ReactApp1.Server.UnitTest
             public readonly Mock<IFullOrderServiceRepository> FullOrderServiceRepository;
             public readonly Mock<ILogger<OrderService>> Logger;
             public readonly Mock<IDiscountRepository> DiscountRepository;
-            
+            public readonly Mock<ITaxService> TaxService;
+            public readonly Mock<IFullOrderTaxRepository> FullOrderTaxRepository;
+            public readonly Mock<IFullOrderServiceTaxRepository> FullOrderServiceTaxRepository;
             public TestState()
             {
                 OrderRepository = new Mock<IOrderRepository>();
@@ -44,10 +46,15 @@ namespace ReactApp1.Server.UnitTest
                 FullOrderServiceRepository = new Mock<IFullOrderServiceRepository>();
                 Logger = new Mock<ILogger<OrderService>>();
                 DiscountRepository = new Mock<IDiscountRepository>();
+                TaxService = new Mock<ITaxService>();
+                FullOrderTaxRepository = new Mock<IFullOrderTaxRepository>();
+                FullOrderServiceTaxRepository = new Mock<IFullOrderServiceTaxRepository>();
+
 
                 OrderService = new OrderService(OrderRepository.Object, ItemRepository.Object, ServiceRepository.Object,
                     FullOrderRepository.Object, FullOrderServiceRepository.Object, EmployeeRepository.Object, Logger.Object, PaymentRepository.Object,
-                    GiftCardRepository.Object, PaymentService.Object, DiscountRepository.Object);
+                    GiftCardRepository.Object, PaymentService.Object, DiscountRepository.Object, TaxService.Object, FullOrderTaxRepository.Object,
+                    FullOrderServiceTaxRepository.Object);
             }
         }
 
@@ -56,7 +63,7 @@ namespace ReactApp1.Server.UnitTest
             var output = new TestState();
             
             // Set up default input values for service methods
-            output.FullOrder = new FullOrderModel(1, 101, 2, null);
+            output.FullOrder = new FullOrderModel(1, 1, 101, 2, null);
             output.Storage = new StorageModel(1, 2, 101, 1000);
             
             
@@ -103,7 +110,11 @@ namespace ReactApp1.Server.UnitTest
             output.FullOrderRepository
                 .Setup(x => x.AddItemToOrderAsync(It.IsAny<FullOrderModel>(), It.IsAny<int>()))
                 .Returns(Task.CompletedTask);
-            
+
+            output.TaxService
+                .Setup(x => x.GetItemTaxes(It.IsAny<int>()))
+                .ReturnsAsync(new List<TaxModel>());
+
             return output;
         }
         
@@ -216,7 +227,7 @@ namespace ReactApp1.Server.UnitTest
         {
             // arrange
             var state = BuildTestState();
-            state.FullOrder = new FullOrderModel(1, 101, 1001, null);
+            state.FullOrder = new FullOrderModel(1, 1, 101, 1001, null);
             state.Storage = new StorageModel(1, 2, 101, 1000);
             
             state.ItemRepository
