@@ -70,6 +70,7 @@ const OrderDetail: React.FC = () => {
     const token = Cookies.get('authToken');
     const navigate = useNavigate();
     const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+    const [selectedBaseItemId, setSelectedBaseItemId] = useState<number | null>(null);
     const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
     const [showItemModal, setShowItemModal] = useState(false);
     const [showServiceModal, setShowServiceModal] = useState(false);
@@ -119,6 +120,7 @@ const OrderDetail: React.FC = () => {
                 );
                 setShowItemModal(false); // Close the modal after adding the item
                 setSelectedItemId(null); // Reset the selected item
+                setSelectedBaseItemId(null);
                 fetchItem(); // Refresh the order details
                 setCount(1);
             } catch (error) {
@@ -622,17 +624,35 @@ const OrderDetail: React.FC = () => {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title">{ScriptResources.AddNewItem}</h5>
-                                <button className="btn-close" onClick={() => setShowItemModal(false)}></button>
+                                <button className="btn-close" onClick={() => { setShowItemModal(false); setCount(1); setSelectedItemId(null); setSelectedBaseItemId(null) }}></button>
                             </div>
                             <div className="modal-body">
-                                <SelectDropdown
-                                    endpoint="/AllItems"
-                                    onSelect={(item) => {
-                                        if (item) {
-                                            setSelectedItemId(item.id);
-                                        }
-                                    }}
-                                />
+                                <div>
+                                    {ScriptResources.SelectBaseItem }
+                                    <SelectDropdown
+                                        endpoint="/AllBaseItems"
+                                        onSelect={(item) => {
+                                            if (item) {
+                                                setSelectedBaseItemId(item.id);
+                                            }
+                                        }}
+                                        disabled={false}
+                                        />
+                                </div>
+                                {selectedBaseItemId && (
+                                    <div>
+                                        { ScriptResources.SelectItemVariation }
+                                        <SelectDropdown
+                                            endpoint={`/AllItemsVariations/${selectedBaseItemId}`}
+                                            onSelect={(item) => {
+                                                if (item) {
+                                                    setSelectedItemId(item.id);
+                                                }
+                                            }}
+                                            disabled={!selectedBaseItemId}
+                                        />
+                                    </div>
+                                )}
                                 <Form.Group className="mb-3" controlId="item-count">
                                     <Form.Label>{ScriptResources.SelectCount}</Form.Label>
                                     <Form.Control
@@ -644,7 +664,7 @@ const OrderDetail: React.FC = () => {
                                 </Form.Group>
                             </div>
                             <div className="modal-footer">
-                                <button className="btn btn-secondary" onClick={() => {setShowItemModal(false); setCount(1)}}>
+                                <button className="btn btn-secondary" onClick={() => { setShowItemModal(false); setCount(1); setSelectedItemId(null); setSelectedBaseItemId(null) }}>
                                     {ScriptResources.Cancel}
                                 </button>
                                 <button className="btn btn-primary" onClick={handleAddItem}>
@@ -672,6 +692,7 @@ const OrderDetail: React.FC = () => {
                                             setSelectedDiscount(discount.id);
                                         }
                                     }}
+                                    disabled={false}
                                 />
                             </div>
                             <div className="modal-footer">
@@ -703,6 +724,7 @@ const OrderDetail: React.FC = () => {
                                             setSelectedDiscount(discount.id);
                                         }
                                     }}
+                                    disabled={false}
                                 />
                             </div>
                             <div className="modal-footer">
@@ -735,6 +757,7 @@ const OrderDetail: React.FC = () => {
                                             setSelectedServiceId(service.id);
                                         }
                                     }}
+                                    disabled={false}
                                 />
                                 <Form.Group className="mb-3" controlId="service-count">
                                     <Form.Label>{ScriptResources.SelectCount}</Form.Label>
@@ -775,6 +798,7 @@ const OrderDetail: React.FC = () => {
                                             setSelectedDiscount(discount.id);
                                         }
                                     }}
+                                    disabled={false}
                                 />
                             </div>
                             <div className="modal-footer">

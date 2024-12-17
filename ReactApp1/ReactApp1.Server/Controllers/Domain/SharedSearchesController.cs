@@ -55,5 +55,34 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok(result);
         }
+        [HttpGet("AllBaseItemsForEdit")]
+        public async Task<IActionResult> AllBaseItemsForEdit([FromQuery] string? search)
+        {
+            var establishmentId = User.GetUserEstablishmentId();
+
+            var result = await _sharedSearchesService.GetAllBaseItemsForEdit(establishmentId, search, User);
+
+            return Ok(result);
+        }
+
+        [HttpGet("AllBaseItems")]
+        public async Task<IActionResult> AllBaseItems([FromQuery] string? search)
+        {
+            var establishmentId = User.GetUserEstablishmentId();
+
+            var result = await _sharedSearchesService.GetAllBaseItems(establishmentId, search, User);
+
+            return Ok(result);
+        }
+
+        [HttpGet("AllItemsVariations/{itemId}")]
+        public async Task<IActionResult> AllItemsVariations([FromQuery] string? search, int itemId)
+        {
+            var establishmentId = User.GetUserEstablishmentId();
+
+            var result = await _sharedSearchesService.GetAllItemsVariations(establishmentId, search, itemId, User);
+
+            return Ok(result);
+        }
     }
 }
