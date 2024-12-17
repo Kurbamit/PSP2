@@ -54,3 +54,9 @@ Here you can review all payments:
 1. url:  ```https://dashboard.stripe.com/test/payments```
 2. email: ```hanid66211@eoilup.com```
 3. password: ```Hanid66221...```
+
+### SMS
+Here you can view SMS dashboard:
+1. url: ```https://app.seven.io/```
+2. email: ```dzeferson132@gmail.com```
+3. password: ```!Bhe!fhTL8iApU~```
