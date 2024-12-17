@@ -131,7 +131,11 @@ namespace ReactApp1.Server.Data.Repositories
                     .Include(i => i.Storage)
                     .FirstOrDefaultAsync(i => i.ItemId == item.ItemId);
                 
-                
+                if (item.ItemId == item.BaseItemId)
+                {
+                    throw new Exception("Item can not be his base");
+                }
+
                 if (existingItem == null)
                 {
                     throw new KeyNotFoundException($"Item with ID {item.ItemId} not found.");

@@ -122,7 +122,6 @@ const ItemDetail: React.FC = () => {
 
     const handleFormSave = async () => {
         if (validateForm()) {
-            setEditedItem((prev) => (prev ? { ...prev, baseItemId: baseItemId } : null));
             await handleSave();
         }
     };
@@ -151,6 +150,8 @@ const ItemDetail: React.FC = () => {
             }
         } catch (error) {
             console.error(ScriptResources.ErrorSavingItem, error);
+        } finally {
+            setBaseItemId(item?.baseItemId ? item.baseItemId : 0)
         }
     };
 
@@ -291,7 +292,7 @@ const ItemDetail: React.FC = () => {
                                     endpoint="/AllItems" 
                                     onSelect={(item) => {
                                         if (item) {
-                                            setBaseItemId(item.id);
+                                            setEditedItem((prev) => (prev ? { ...prev, baseItemId: item.id } : null));
                                         }
                                     }}
                                     disabled={!isEditing} 
