@@ -67,5 +67,26 @@ namespace ReactApp1.Server.Data.Repositories
 
             return result;
         }
+        public async Task<List<SharedItem>> GetAllBaseItems(int establishmentId, string? search)
+        {
+            var result = await _context.Items
+                .Where(f => f.BaseItemId == 0)
+                .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
+                .Select(f => new SharedItem()
+                {
+                    Id = f.ItemId,
+                    Name = f.Name == null ? "None" : f.Name
+                }).OrderBy(f => f.Name.ToLower()).ToListAsync();
+
+            var newEntry = new SharedItem()
+            {
+                Id = 0,
+                Name = "Make item base item"
+            };
+
+            result.Insert(0, newEntry);
+
+            return result;
+        }
     }
 }

@@ -141,7 +141,7 @@ const ItemDetail: React.FC = () => {
                     });
                 }
 
-                const baseItemResponse = await axios.get(`http://localhost:5114/api/items/${baseItemId}`, {
+                const baseItemResponse = await axios.get(`http://localhost:5114/api/items/${editedItem.baseItemId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setBaseItem(baseItemResponse.data);
@@ -150,7 +150,6 @@ const ItemDetail: React.FC = () => {
             }
         } catch (error) {
             console.error(ScriptResources.ErrorSavingItem, error);
-        } finally {
             setBaseItemId(item?.baseItemId ? item.baseItemId : 0)
         }
     };
@@ -289,7 +288,7 @@ const ItemDetail: React.FC = () => {
                             <li className="list-group-item">
                                 <strong>{ScriptResources.BaseItem}</strong>
                                 <SelectDropdown
-                                    endpoint="/AllItems" 
+                                    endpoint="/AllBaseItems" 
                                     onSelect={(item) => {
                                         if (item) {
                                             setEditedItem((prev) => (prev ? { ...prev, baseItemId: item.id } : null));

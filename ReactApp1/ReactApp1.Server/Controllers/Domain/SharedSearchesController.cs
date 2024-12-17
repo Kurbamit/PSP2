@@ -51,5 +51,15 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok(result);
         }
+
+        [HttpGet("AllBaseItems")]
+        public async Task<IActionResult> AllBaseItems([FromQuery] string? search)
+        {
+            var establishmentId = User.GetUserEstablishmentId();
+
+            var result = await _sharedSearchesService.GetAllBaseItems(establishmentId, search);
+
+            return Ok(result);
+        }
     }
 }
