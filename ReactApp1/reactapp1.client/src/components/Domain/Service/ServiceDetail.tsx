@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import { useParams, useNavigate } from 'react-router-dom';
 import ScriptResources from "../../../assets/resources/strings.ts";
 import { Button, Modal } from "react-bootstrap";
+import { Form } from 'react-bootstrap';
 import SelectDropdown from "../../Base/SelectDropdown.tsx";
 
 interface Service {
@@ -14,6 +15,7 @@ interface Service {
     cost?: number;
     tax?: number;
     receiveTime: string;
+    assignedEmployeeId: number;
 }
 interface Tax {
     taxId: number;
@@ -32,6 +34,9 @@ const ServiceDetail: React.FC = () => {
     const [serviceTaxes, setServiceTaxes] = useState<Tax[]>([]);
     const [showTaxModal, setShowTaxModal] = useState(false);
     const [selectedTaxId, setSelectedTaxId] = useState<number | null>(null);
+    const [showEmployeeModal, setShowEmployeeModal] = useState(false);
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
+    const [selectedEmployeeName, setSelectedEmployeeName] = useState<string | null>(null);
 
     const isNewService = !id;
 
@@ -44,7 +49,17 @@ const ServiceDetail: React.FC = () => {
                     });
                     setService(response.data);
                     setEditedService(response.data);
+
                     getTaxes();
+
+                    if (response.data.assignedEmployeeId) {
+                        const employeeResponse = await axios.get(
+                            `http://localhost:5114/api/employees/${response.data.assignedEmployeeId}`,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        );
+                        setSelectedEmployeeId(response.data.assignedEmployeeId);
+                        setSelectedEmployeeName(employeeResponse.data.firstName + " " + employeeResponse.data.lastName);
+                    }
                 } catch (error) {
                     console.error(ScriptResources.ErrorFetchingServices, error);
                 }
@@ -58,6 +73,7 @@ const ServiceDetail: React.FC = () => {
                 cost: undefined,
                 tax: undefined,
                 receiveTime: new Date().toISOString(),
+                assignedEmployeeId: 0,
             };
             setService(emptyService);
             setEditedService(emptyService);
@@ -248,6 +264,24 @@ const ServiceDetail: React.FC = () => {
                                 />
                             </li>
                             <li className="list-group-item">
+                                <strong>{ScriptResources.AssignedEmployee}</strong>{' '}
+                                <input
+                                    type="text"
+                                    name="employee"
+                                    value={selectedEmployeeName || ''}
+                                    onChange={handleInputChange}
+                                    className="form-control"
+                                    disabled={true}
+                                />
+                            </li>
+                            {isEditing && (
+                                <div className="d-flex justify-content-center mt-3 mb-2">
+                                    <button className="btn btn-primary" onClick={() => setShowEmployeeModal(true)}>
+                                        {isNewService ? ScriptResources.AssignEmployee : ScriptResources.ReassignEmployee}
+                                    </button>
+                                </div>
+                            )}
+                            <li className="list-group-item">
                                 <strong>{ScriptResources.ReceiveTime}</strong> {new Date(editedService.receiveTime).toLocaleString()}
                             </li>
                         </ul>
@@ -313,6 +347,45 @@ const ServiceDetail: React.FC = () => {
                             </>
                         )
                     }
+
+                    {/* Modal */}
+                    {showEmployeeModal && (
+                        <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                            <div className="modal-dialog">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title">{ScriptResources.AssignEmployee}</h5>
+                                        <button className="btn-close" onClick={() => setShowEmployeeModal(false)}></button>
+                                    </div>
+                                    <div className="modal-body">
+                                        <SelectDropdown
+                                            endpoint="/AllEmployees"
+                                            onSelect={(employee) => {
+                                                if (employee) {
+                                                    setSelectedEmployeeId(employee.id);
+                                                    setSelectedEmployeeName(employee.name);
+                                                    if (editedService) {
+                                                        setEditedService({
+                                                            ...editedService,
+                                                            assignedEmployeeId: employee.id,
+                                                        });
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button className="btn btn-secondary" onClick={() => { setShowEmployeeModal(false); }}>
+                                            {ScriptResources.Cancel}
+                                        </button>
+                                        <button className="btn btn-primary" onClick={() => { setShowEmployeeModal(false); }}>
+                                            {ScriptResources.Assign}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             ) : (

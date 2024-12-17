@@ -8,6 +8,7 @@ namespace ReactApp1.Server.Services
         public Task<List<SharedItem>> GetAllItems(int? establishmentId, string? search, IPrincipal user);
         public Task<List<SharedService>> GetAllServices(int? establishmentId, string? search, IPrincipal user);
         public Task<List<SharedItem>> GetAllDiscounts(int? establishmentId, string? search, IPrincipal user);
+        public Task<List<SharedEmployee>> GetAllEmployees(int? establishmentId, string? search, IPrincipal user);
         public Task<List<SharedItem>> GetAllTaxes(string? search);
     }
 }

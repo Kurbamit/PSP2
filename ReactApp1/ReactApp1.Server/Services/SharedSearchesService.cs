@@ -48,6 +48,17 @@ namespace ReactApp1.Server.Services
             return await _sharedSearchesRepository.GetAllDiscounts(establishmentId.Value, search, user);
         }
 
+        public async Task<List<SharedEmployee>> GetAllEmployees(int? establishmentId, string? search, IPrincipal user)
+        {
+            if (!establishmentId.HasValue)
+            {
+                _logger.LogError("Failed to fetch all employees: invalid or expired access token");
+                throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
+            }
+
+            return await _sharedSearchesRepository.GetAllEmployees(establishmentId.Value, search, user);
+        }
+
         public async Task<List<SharedItem>> GetAllTaxes(string? search)
         {
             return await _sharedSearchesRepository.GetAllTaxes(search);

@@ -31,6 +31,11 @@ namespace ReactApp1.Server.Models.Models.Domain
         public decimal? Cost { get; set; }
 
         /// <summary>
+        /// Priskirto darbuotojo identifikatorius
+        /// </summary>
+        public int AssignedEmployeeId { get; set; }
+
+        /// <summary>
         /// Sukurimo/modifikavimo laikas
         /// </summary>
         public DateTime ReceiveTime { get; set; }
@@ -38,7 +43,7 @@ namespace ReactApp1.Server.Models.Models.Domain
         public int? Count { get; set; }
         public decimal? Discount { get; set; }
         public string? DiscountName { get; set; }
-        public List<TaxModel> Taxes { get; set; }
+        public List<TaxModel>? Taxes { get; set; }
 
         public void MapUpdate(Service existingModel)
         {
@@ -46,6 +51,7 @@ namespace ReactApp1.Server.Models.Models.Domain
             existingModel.EstablishmentId = this.EstablishmentId;
             existingModel.ServiceLength = this.ServiceLength;
             existingModel.Cost = this.Cost;
+            existingModel.AssignedEmployeeId = this.AssignedEmployeeId;
         }
     }
 }

@@ -50,7 +50,8 @@ namespace ReactApp1.Server.Data.Repositories
                     EstablishmentId = f.EstablishmentId,
                     Cost = f.Cost,
                     ServiceLength = f.ServiceLength,
-                    ReceiveTime = f.ReceiveTime
+                    ReceiveTime = f.ReceiveTime,
+                    AssignedEmployeeId = f.AssignedEmployeeId
                 }).FirstOrDefaultAsync();
 
             if (service == null)
@@ -72,7 +73,8 @@ namespace ReactApp1.Server.Data.Repositories
                     Name = f.Name,
                     Cost = f.Cost,
                     ServiceLength = f.ServiceLength,
-                    ReceiveTime = f.ReceiveTime
+                    ReceiveTime = f.ReceiveTime,
+                    AssignedEmployeeId = f.AssignedEmployeeId
                 }).FirstOrDefaultAsync();
 
             return service;
@@ -88,7 +90,8 @@ namespace ReactApp1.Server.Data.Repositories
                     EstablishmentId = service.EstablishmentId,
                     ServiceLength = service.ServiceLength,
                     Cost = service.Cost,
-                    ReceiveTime = service.ReceiveTime
+                    ReceiveTime = service.ReceiveTime,
+                    AssignedEmployeeId = service.AssignedEmployeeId
                 };
 
                 var serviceEntity = await _context.Services.AddAsync(newService);
