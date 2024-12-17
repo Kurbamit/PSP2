@@ -37,7 +37,8 @@ const ItemDetail: React.FC = () => {
     const [itemTaxes, setItemTaxes] = useState<Tax[]>([]);
     const [showTaxModal, setShowTaxModal] = useState(false);
     const [selectedTaxId, setSelectedTaxId] = useState<number | null>(null);
-     
+    const [baseItemId, setBaseItemId] = useState<number>(0);
+
     const isNewItem = !id; // Check if it's a new item by absence of id
 
     useEffect(() => {
@@ -91,10 +92,6 @@ const ItemDetail: React.FC = () => {
         }
     };
 
-    const handleBaseItemSelect = (id: number) => {
-        setEditedItem((prev) => (prev ? { ...prev, baseItemId: id } : null));
-    };
-
     // Toggle edit mode
     const toggleEditMode = () => {
         setIsEditing(!isEditing);
@@ -125,6 +122,7 @@ const ItemDetail: React.FC = () => {
 
     const handleFormSave = async () => {
         if (validateForm()) {
+            setEditedItem((prev) => (prev ? { ...prev, baseItemId: baseItemId } : null));
             await handleSave();
         }
     };
@@ -143,6 +141,12 @@ const ItemDetail: React.FC = () => {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                 }
+
+                const baseItemResponse = await axios.get(`http://localhost:5114/api/items/${baseItemId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                setBaseItem(baseItemResponse.data);
+
                 setIsEditing(false);
             }
         } catch (error) {
@@ -287,7 +291,7 @@ const ItemDetail: React.FC = () => {
                                     endpoint="/AllItems" 
                                     onSelect={(item) => {
                                         if (item) {
-                                            handleBaseItemSelect(item.id);
+                                            setBaseItemId(item.id);
                                         }
                                     }}
                                     disabled={!isEditing} 

@@ -630,6 +630,7 @@ const OrderDetail: React.FC = () => {
                                             setSelectedItemId(item.id);
                                         }
                                     }}
+                                    disabled={false}
                                 />
                                 <Form.Group className="mb-3" controlId="item-count">
                                     <Form.Label>{ScriptResources.SelectCount}</Form.Label>
@@ -670,6 +671,7 @@ const OrderDetail: React.FC = () => {
                                             setSelectedDiscount(discount.id);
                                         }
                                     }}
+                                    disabled={false}
                                 />
                             </div>
                             <div className="modal-footer">
@@ -701,6 +703,7 @@ const OrderDetail: React.FC = () => {
                                             setSelectedDiscount(discount.id);
                                         }
                                     }}
+                                    disabled={false}
                                 />
                             </div>
                             <div className="modal-footer">
@@ -733,6 +736,7 @@ const OrderDetail: React.FC = () => {
                                             setSelectedServiceId(service.id);
                                         }
                                     }}
+                                    disabled={false}
                                 />
                                 <Form.Group className="mb-3" controlId="service-count">
                                     <Form.Label>{ScriptResources.SelectCount}</Form.Label>
@@ -773,6 +777,7 @@ const OrderDetail: React.FC = () => {
                                             setSelectedDiscount(discount.id);
                                         }
                                     }}
+                                    disabled={false}
                                 />
                             </div>
                             <div className="modal-footer">
