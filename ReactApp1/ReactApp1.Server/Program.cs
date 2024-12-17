@@ -10,6 +10,7 @@ using ReactApp1.Server.Middlewares;
 using ReactApp1.Server.Models.Models.Base;
 using Serilog;
 using Stripe;
+using DiscountService = Stripe.DiscountService;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -121,6 +122,7 @@ builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<RefundService>();
 builder.Services.AddScoped<IWorkingHoursService, WorkingHoursService>();
 builder.Services.AddScoped<ITaxService, TaxesService>();
+builder.Services.AddScoped<IDiscountService, ReactApp1.Server.Services.DiscountService>();
 
 
 builder.Services.AddScoped<IReservationService>(provider =>

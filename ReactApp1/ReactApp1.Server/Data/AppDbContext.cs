@@ -323,5 +323,14 @@ public class AppDbContext : DbContext
             .WithMany(t => t.ItemTax)
             .HasForeignKey(it => it.TaxId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Discount>(entity =>
+        {
+            entity.HasKey(d => d.DiscountId);
+            
+            entity.Property(d => d.DiscountId)
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+        });
     }
 }
