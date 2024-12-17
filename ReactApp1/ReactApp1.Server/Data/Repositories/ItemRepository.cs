@@ -227,7 +227,7 @@ namespace ReactApp1.Server.Data.Repositories
 
                 if (isItemBase)
                 {
-                    throw new Exception("Item can not be deleted, because it is a base item for some other item.");
+                    throw new ItemIsBaseItemException(itemId);
                 }
 
                 _context.Set<Item>().Remove(new Item

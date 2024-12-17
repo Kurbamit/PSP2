@@ -52,7 +52,7 @@ namespace ReactApp1.Server.Services
         {
             return await _sharedSearchesRepository.GetAllTaxes(search);
         }
-        public async Task<List<SharedItem>> GetAllBaseItemsForEdit(int? establishmentId, string? search)
+        public async Task<List<SharedItem>> GetAllBaseItemsForEdit(int? establishmentId, string? search, IPrincipal user)
         {
             if (!establishmentId.HasValue)
             {
@@ -60,9 +60,9 @@ namespace ReactApp1.Server.Services
                 throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
             }
 
-            return await _sharedSearchesRepository.GetAllBaseItemsForEdit(establishmentId.Value, search);
+            return await _sharedSearchesRepository.GetAllBaseItemsForEdit(search, user);
         }
-        public async Task<List<SharedItem>> GetAllBaseItems(int? establishmentId, string? search)
+        public async Task<List<SharedItem>> GetAllBaseItems(int? establishmentId, string? search, IPrincipal user)
         {
             if (!establishmentId.HasValue)
             {
@@ -70,9 +70,9 @@ namespace ReactApp1.Server.Services
                 throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
             }
 
-            return await _sharedSearchesRepository.GetAllBaseItems(establishmentId.Value, search);
+            return await _sharedSearchesRepository.GetAllBaseItems(search, user);
         }
-        public async Task<List<SharedItem>> GetAllItemsVariations(int? establishmentId, string? search, int itemId)
+        public async Task<List<SharedItem>> GetAllItemsVariations(int? establishmentId, string? search, int itemId, IPrincipal user)
         {
             if (!establishmentId.HasValue)
             {
@@ -80,7 +80,7 @@ namespace ReactApp1.Server.Services
                 throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
             }
 
-            return await _sharedSearchesRepository.GetAllItemsVariations(establishmentId.Value, search, itemId);
+            return await _sharedSearchesRepository.GetAllItemsVariations(search, itemId, user);
         }
     }
 }

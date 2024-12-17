@@ -71,30 +71,10 @@ namespace ReactApp1.Server.Data.Repositories
 
             return result;
         }
-        public async Task<List<SharedItem>> GetAllBaseItemsForEdit(int establishmentId, string? search)
+        public async Task<List<SharedItem>> GetAllBaseItemsForEdit(string? search, IPrincipal user)
         {
             var result = await _context.Items
-                .Where(f => f.BaseItemId == 0)
-                .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
-                .Select(f => new SharedItem()
-                {
-                    Id = f.ItemId,
-                    Name = f.Name == null ? "None" : f.Name
-                }).OrderBy(f => f.Name.ToLower()).ToListAsync();
-
-            var newEntry = new SharedItem()
-            {
-                Id = 0,
-                Name = "Make item base item"
-            };
-
-            result.Insert(0, newEntry);
-
-            return result;
-        }
-        public async Task<List<SharedItem>> GetAllBaseItems(int establishmentId, string? search)
-        {
-            var result = await _context.Items
+                .FilterByAuthorizedUser(user)
                 .Where(f => f.BaseItemId == 0)
                 .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
                 .Select(f => new SharedItem()
@@ -105,9 +85,24 @@ namespace ReactApp1.Server.Data.Repositories
 
             return result;
         }
-        public async Task<List<SharedItem>> GetAllItemsVariations(int establishmentId, string? search, int itemId)
+        public async Task<List<SharedItem>> GetAllBaseItems(string? search, IPrincipal user)
         {
             var result = await _context.Items
+                .FilterByAuthorizedUser(user)
+                .Where(f => f.BaseItemId == 0)
+                .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
+                .Select(f => new SharedItem()
+                {
+                    Id = f.ItemId,
+                    Name = f.Name == null ? "None" : f.Name
+                }).OrderBy(f => f.Name.ToLower()).ToListAsync();
+
+            return result;
+        }
+        public async Task<List<SharedItem>> GetAllItemsVariations(string? search, int itemId, IPrincipal user)
+        {
+            var result = await _context.Items
+                .FilterByAuthorizedUser(user)
                 .Where(f => f.BaseItemId == itemId || f.ItemId == itemId)
                 .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
                 .Select(f => new SharedItem()

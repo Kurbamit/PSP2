@@ -52,10 +52,14 @@ const ItemDetail: React.FC = () => {
                     setEditedItem(response.data); // Initialize edited item with fetched data
                     getTaxes();
 
-                    const baseItemResponse = await axios.get(`http://localhost:5114/api/items/${response.data.baseItemId}`, {
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
-                    setBaseItem(baseItemResponse.data);
+                    if (response.data.baseItemId)
+                    {
+                        const baseItemResponse = await axios.get(`http://localhost:5114/api/items/${response.data.baseItemId}`, {
+                            headers: { Authorization: `Bearer ${token}` },
+                        });
+                        setBaseItem(baseItemResponse.data);
+                    }
+                    
 
                 } catch (error) {
                     console.error(ScriptResources.ErrorFetchingItems, error);
@@ -141,11 +145,14 @@ const ItemDetail: React.FC = () => {
                     });
                 }
 
-                const baseItemResponse = await axios.get(`http://localhost:5114/api/items/${editedItem.baseItemId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                setBaseItem(baseItemResponse.data);
+                if (editedItem.baseItemId)
+                {
+                    const baseItemResponse = await axios.get(`http://localhost:5114/api/items/${editedItem.baseItemId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
 
+                    setBaseItem(baseItemResponse.data);
+                }
                 setIsEditing(false);
             }
         } catch (error) {
@@ -203,6 +210,7 @@ const ItemDetail: React.FC = () => {
             if (item?.itemId){
                 const response = await fetch(`http://localhost:5114/api/items/${item?.itemId}`, {
                     method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!response.ok) {
                     throw new Error(ScriptResources.FailedToDeleteItem);

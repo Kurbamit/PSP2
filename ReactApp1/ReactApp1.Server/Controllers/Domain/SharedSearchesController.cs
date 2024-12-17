@@ -60,7 +60,7 @@ namespace ReactApp1.Server.Controllers.Domain
         {
             var establishmentId = User.GetUserEstablishmentId();
 
-            var result = await _sharedSearchesService.GetAllBaseItemsForEdit(establishmentId, search);
+            var result = await _sharedSearchesService.GetAllBaseItemsForEdit(establishmentId, search, User);
 
             return Ok(result);
         }
@@ -70,7 +70,7 @@ namespace ReactApp1.Server.Controllers.Domain
         {
             var establishmentId = User.GetUserEstablishmentId();
 
-            var result = await _sharedSearchesService.GetAllBaseItems(establishmentId, search);
+            var result = await _sharedSearchesService.GetAllBaseItems(establishmentId, search, User);
 
             return Ok(result);
         }
@@ -80,7 +80,7 @@ namespace ReactApp1.Server.Controllers.Domain
         {
             var establishmentId = User.GetUserEstablishmentId();
 
-            var result = await _sharedSearchesService.GetAllItemsVariations(establishmentId, search, itemId);
+            var result = await _sharedSearchesService.GetAllItemsVariations(establishmentId, search, itemId, User);
 
             return Ok(result);
         }
