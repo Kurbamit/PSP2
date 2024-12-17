@@ -205,6 +205,7 @@ const ScriptResources = {
     ErrorSavingGiftCard: 'Error saving giftcard',
     CreateNewGiftCard: 'Create new giftcard',
     GiftCardDetail: 'Giftcard details',
+    BaseItemId: 'Base item id',
 
 };
 
