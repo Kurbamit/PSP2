@@ -38,7 +38,7 @@ namespace ReactApp1.Server.Models.Models.Domain
         public int? Count { get; set; }
         public decimal? Discount { get; set; }
         public string? DiscountName { get; set; }
-        public List<TaxModel> Taxes { get; set; }
+        public List<TaxModel>? Taxes { get; set; }
 
         public void MapUpdate(Service existingModel)
         {

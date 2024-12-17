@@ -13,6 +13,7 @@ interface Item {
     alcoholicBeverage: boolean;
     receiveTime: string;
     storage: number | null;
+    baseItemId: number;
 }
 interface Tax {
     taxId: number;
@@ -22,6 +23,7 @@ interface Tax {
 
 const ItemDetail: React.FC = () => {
     const [item, setItem] = useState<Item | null>(null);
+    const [baseItem, setBaseItem] = useState<Item | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedItem, setEditedItem] = useState<Item | null>(null); // Store edited item
     const { id } = useParams<{ id: string }>();
@@ -35,7 +37,7 @@ const ItemDetail: React.FC = () => {
     const [itemTaxes, setItemTaxes] = useState<Tax[]>([]);
     const [showTaxModal, setShowTaxModal] = useState(false);
     const [selectedTaxId, setSelectedTaxId] = useState<number | null>(null);
-
+     
     const isNewItem = !id; // Check if it's a new item by absence of id
 
     useEffect(() => {
@@ -49,6 +51,11 @@ const ItemDetail: React.FC = () => {
                     setEditedItem(response.data); // Initialize edited item with fetched data
                     getTaxes();
 
+                    const baseItemResponse = await axios.get(`http://localhost:5114/api/items/${response.data.baseItemId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setBaseItem(baseItemResponse.data);
+
                 } catch (error) {
                     console.error(ScriptResources.ErrorFetchingItems, error);
                 }
@@ -61,6 +68,7 @@ const ItemDetail: React.FC = () => {
                 alcoholicBeverage: false,
                 receiveTime: new Date().toISOString(),
                 storage: null,
+                baseItemId: 0,
             };
             setItem(emptyItem);
             setEditedItem(emptyItem);
@@ -81,6 +89,10 @@ const ItemDetail: React.FC = () => {
                 setError('');
             }
         }
+    };
+
+    const handleBaseItemSelect = (id: number) => {
+        setEditedItem((prev) => (prev ? { ...prev, baseItemId: id } : null));
     };
 
     // Toggle edit mode
@@ -270,6 +282,23 @@ const ItemDetail: React.FC = () => {
                                 />
                             </li>
                             <li className="list-group-item">
+                                <strong>{ScriptResources.BaseItem}</strong>
+                                <SelectDropdown
+                                    endpoint="/AllItems" 
+                                    onSelect={(item) => {
+                                        if (item) {
+                                            handleBaseItemSelect(item.id);
+                                        }
+                                    }}
+                                    disabled={!isEditing} 
+                                />
+                                {editedItem.baseItemId && (
+                                    <div className="mt-2">
+                                        {ScriptResources.SelectedBaseItem}: {baseItem?.name}
+                                    </div>
+                                )}
+                            </li>
+                            <li className="list-group-item">
                                 <strong>{ScriptResources.AlcoholicBeverage}</strong>{' '}
                                 <input
                                     type="checkbox"
@@ -400,6 +429,7 @@ const ItemDetail: React.FC = () => {
                                 setSelectedTaxId(tax.id);
                             }
                         }}
+                        disabled={false}
                     />
                 </Modal.Body>
                 <Modal.Footer>

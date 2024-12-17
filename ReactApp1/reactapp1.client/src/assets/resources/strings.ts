@@ -206,6 +206,9 @@ const ScriptResources = {
     CreateNewGiftCard: 'Create new giftcard',
     GiftCardDetail: 'Giftcard details',
     BaseItemId: 'Base item id',
+    BaseItem: 'Base item',
+    SelectBaseItem: 'Select base item',
+    SelectedBaseItem: 'Selected base item',
 
 };
 

@@ -11,9 +11,10 @@ interface Option {
 interface SelectDropdownProps {
     endpoint: string;
     onSelect?: (selectedOption: Option | null) => void;
+    disabled: boolean;
 }
 
-const SelectDropdown: React.FC<SelectDropdownProps> = ({ endpoint, onSelect }) => {
+const SelectDropdown: React.FC<SelectDropdownProps> = ({ endpoint, onSelect, disabled }) => {
     const token = Cookies.get("authToken");
 
     const loadOptions = async (inputValue: string) => {
@@ -65,6 +66,7 @@ const SelectDropdown: React.FC<SelectDropdownProps> = ({ endpoint, onSelect }) =
                         minHeight: "40px",
                     }),
                 }}
+                isDisabled={disabled}
             />
         </div>
     );

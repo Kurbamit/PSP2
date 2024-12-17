@@ -33,7 +33,7 @@ public class ItemModel
     
     public decimal? Discount { get; set; }
     public string? DiscountName { get; set; }
-    public List<TaxModel> Taxes { get; set; }
+    public List<TaxModel>? Taxes { get; set; }
     public int BaseItemId { get; set; }
 
     public void MapUpdate(Item existingItem)
