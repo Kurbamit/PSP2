@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReactApp1.Server.Data;
@@ -11,9 +12,11 @@ using ReactApp1.Server.Data;
 namespace ReactApp1.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241217075248_ItemNowHasBaseItemId")]
+    partial class ItemNowHasBaseItemId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -336,10 +339,6 @@ namespace ReactApp1.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("FullOrderId"));
 
-                    b.Property<int>("AssignedEmployeeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("AssignedEmployeeId");
-
                     b.Property<decimal?>("Cost")
                         .HasColumnType("numeric")
                         .HasColumnName("Cost");
@@ -377,8 +376,6 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("ServiceLength");
 
                     b.HasKey("FullOrderId");
-
-                    b.HasIndex("AssignedEmployeeId");
 
                     b.HasIndex("CreatedByEmployeeId");
 
@@ -728,10 +725,6 @@ namespace ReactApp1.Server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ServiceId"));
 
-                    b.Property<int>("AssignedEmployeeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("AssignedEmployeeId");
-
                     b.Property<decimal?>("Cost")
                         .HasColumnType("numeric")
                         .HasColumnName("Cost");
@@ -759,8 +752,6 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("ServiceLength");
 
                     b.HasKey("ServiceId");
-
-                    b.HasIndex("AssignedEmployeeId");
 
                     b.HasIndex("EstablishmentId");
 
@@ -1000,12 +991,6 @@ namespace ReactApp1.Server.Migrations
 
             modelBuilder.Entity("ReactApp1.Server.Models.FullOrderService", b =>
                 {
-                    b.HasOne("ReactApp1.Server.Models.Employee", "AssignedEmployee")
-                        .WithMany()
-                        .HasForeignKey("AssignedEmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ReactApp1.Server.Models.Employee", "CreatedByEmployee")
                         .WithMany()
                         .HasForeignKey("CreatedByEmployeeId");
@@ -1019,8 +1004,6 @@ namespace ReactApp1.Server.Migrations
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("AssignedEmployee");
 
                     b.Navigation("CreatedByEmployee");
 
@@ -1140,12 +1123,6 @@ namespace ReactApp1.Server.Migrations
 
             modelBuilder.Entity("ReactApp1.Server.Models.Service", b =>
                 {
-                    b.HasOne("ReactApp1.Server.Models.Employee", "AssignedEmployee")
-                        .WithMany()
-                        .HasForeignKey("AssignedEmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ReactApp1.Server.Models.Establishment", "Establishment")
                         .WithMany()
                         .HasForeignKey("EstablishmentId")
@@ -1155,8 +1132,6 @@ namespace ReactApp1.Server.Migrations
                     b.HasOne("ReactApp1.Server.Models.FullOrderService", null)
                         .WithMany("Services")
                         .HasForeignKey("FullOrderServiceFullOrderId");
-
-                    b.Navigation("AssignedEmployee");
 
                     b.Navigation("Establishment");
                 });

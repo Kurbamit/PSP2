@@ -52,6 +52,7 @@ namespace ReactApp1.Server.Data.Repositories
                     Cost = f.Cost,
                     AlcoholicBeverage = f.AlcoholicBeverage,
                     ReceiveTime = f.ReceiveTime,
+                    BaseItemId = f.BaseItemId,
                     Storage = f.Storage == null ? null : f.Storage.Count
                 }).FirstOrDefaultAsync();
 
@@ -106,6 +107,7 @@ namespace ReactApp1.Server.Data.Repositories
                     Cost = item.Cost,
                     AlcoholicBeverage = item.AlcoholicBeverage,
                     ReceiveTime = DateTime.UtcNow,
+                    BaseItemId = item.BaseItemId,
                     EstablishmentId = establishmentId,
                     CreatedByEmployeeId = userId
                 };
@@ -139,10 +141,21 @@ namespace ReactApp1.Server.Data.Repositories
                     .Include(i => i.Storage)
                     .FirstOrDefaultAsync(i => i.ItemId == item.ItemId);
                 
-                
+                if (item.ItemId == item.BaseItemId)
+                {
+                    throw new Exception("Item can not be his base");
+                }
+
                 if (existingItem == null)
                 {
                     throw new KeyNotFoundException($"Item with ID {item.ItemId} not found.");
+                }
+                var isItemUsedAsBase = await _context.Items
+                    .AnyAsync(f => f.BaseItemId == item.ItemId);
+
+                if (isItemUsedAsBase && item.BaseItemId != 0)
+                {
+                    throw new Exception("Item can't be made a variation of other item, because it is already being used as a base item.");
                 }
                 
                 item.MapUpdate(existingItem);
@@ -208,7 +221,15 @@ namespace ReactApp1.Server.Data.Repositories
                 {
                     throw new ItemInUseException(itemId);
                 }
-                
+
+                var isItemBase = await _context.Items
+                    .AnyAsync(f => f.BaseItemId == itemId);
+
+                if (isItemBase)
+                {
+                    throw new ItemIsBaseItemException(itemId);
+                }
+
                 _context.Set<Item>().Remove(new Item
                 {
                     ItemId = itemId 

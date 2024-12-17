@@ -1,4 +1,3 @@
-// src/components/Domain/Order/Orders.tsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -7,31 +6,17 @@ import { Table } from 'react-bootstrap';
 import Pagination from '../../Base/Pagination';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ScriptResources from "../../../assets/resources/strings.ts";
-import { OrderStatusEnum} from "../../../assets/Models/FrontendModels.ts";
-import { getOrderStatusString } from "../../../assets/Utils/utils.ts";
 
-export interface Order {
-    orderId: number;
-    status: OrderStatusEnum;
-    createdByEmployeeId: number;
-    createdByEmployeeName: string;
-    receiveTime: string;
-    discountPercentage: number | null;
-    discountFixed: number | null;
-    tipPercentage: number | undefined;
-    tipFixed: number | undefined;
-    paymentId: number | null;
-    refunded: boolean;
-    reservationId: number | null;
-    totalPrice: number | null;
-    totalPaid: number | null;
-    leftToPay: number | null;
-    tipAmount: number | null;
-    discountName: string | null;
+export interface Discount {
+    discountId: number;
+    discountName: string;
+    value: number;
+    validFrom: string | null;
+    validTo: string | null;
 }
 
-const Orders: React.FC = () => {
-    const [orders, setOrders] = useState<Order[]>([]);
+const Discounts: React.FC = () => {
+    const [discounts, setDiscounts] = useState<Discount[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
@@ -41,37 +26,37 @@ const Orders: React.FC = () => {
 
     const fetchOrders = async () => {
         try {
-            const response = await axios.get(`http://localhost:5114/api/orders`, {
+            const response = await axios.get(`http://localhost:5114/api/discounts`, {
                 params: { pageNumber: currentPage, pageSize },
                 headers: { Authorization: `Bearer ${token}` },
             });
-            setOrders(response.data.items);
+            setDiscounts(response.data.items);
             setTotalPages(response.data.totalPages);
             setTotalItems(response.data.totalItems);
         } catch (error) {
             console.error(ScriptResources.ErrorFetchingItems, error);
         }
     };
-    
-    
+
+
     useEffect(() => {
-        
+
         fetchOrders();
-        
+
     }, [currentPage, pageSize, token]);
 
-    const handleIconClick = (orderId: number) => {
-        navigate(`/orders/${orderId}`);
+    const handleIconClick = (discountId: number) => {
+        navigate(`/discounts/${discountId}`);
     };
 
-    const handleDelete = async (orderId: number) => {
+    const handleDelete = async (discountId: number) => {
         try {
-            const response = await axios.delete(`http://localhost:5114/api/orders/${orderId}`, {
+            const response = await axios.delete(`http://localhost:5114/api/discounts/${discountId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            if (response.status === 204) {
-                setOrders(orders.filter((item) => item.orderId !== orderId));
+            if (response.status === 200) {
+                setDiscounts(discounts.filter((item) => item.discountId !== discountId));
                 setTotalItems(totalItems - 1);
             }
         } catch (error) {
@@ -81,24 +66,7 @@ const Orders: React.FC = () => {
     };
 
     const handleCreateNew = async () => {
-        try {
-            const response = await axios.post(
-                'http://localhost:5114/api/orders',
-                {}, // Empty body
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            
-            if (response.status === 200) {
-                navigate(`/orders/${response.data.order.orderId}`);
-            }
-            
-        } catch (error) {
-            console.error(ScriptResources.ErrorDeletingItem, error);
-        }
+        navigate('/discounts/new');
     };
 
     return (
@@ -112,33 +80,33 @@ const Orders: React.FC = () => {
             <Table striped bordered hover>
                 <thead>
                 <tr>
-                    <th>{ScriptResources.OrderId}</th>
-                    <th>{ScriptResources.Status}</th>
-                    <th>{ScriptResources.ReceiveTime}</th>
-                    <th>{ScriptResources.CreatedBy}</th>
+                    <th>{ScriptResources.DiscountId}</th>
+                    <th>{ScriptResources.Name}</th>
+                    <th>{ScriptResources.ValidFrom}</th>
+                    <th>{ScriptResources.ValidTo}</th>
                     <th>{ScriptResources.Actions}</th>
                 </tr>
                 </thead>
                 <tbody>
-                {orders.map((order) => (
-                    <tr key={order.orderId}
-                        onDoubleClick={() => handleIconClick(order.orderId)}>
-                        <td>{order.orderId}</td>
-                        <td>{getOrderStatusString(order.status)}</td>
-                        <td>{new Date(order.receiveTime).toLocaleString()}</td>
-                        <td>{order.createdByEmployeeName}</td>
+                {discounts.map((discount) => (
+                    <tr key={discount.discountId}
+                        onDoubleClick={() => handleIconClick(discount.discountId)}>
+                        <td>{discount.discountId}</td>
+                        <td>{discount.discountName}</td>
+                        <td>{discount.validFrom === null ? '-' : new Date(discount.validFrom).toLocaleString()}</td>
+                        <td>{discount.validTo === null ? '-' : new Date(discount.validTo).toLocaleString()}</td>
                         <td>
                                 <span
                                     className="material-icons"
                                     style={{cursor: 'pointer'}}
-                                    onClick={() => handleIconClick(order.orderId)}
+                                    onClick={() => handleIconClick(discount.discountId)}
                                 >
                                     open_in_new
                                 </span>
                             <span
                                 className="material-icons"
                                 style={{cursor: 'pointer', marginRight: '10px'}}
-                                onClick={() => handleDelete(order.orderId)}
+                                onClick={() => handleDelete(discount.discountId)}
                             >
                                         delete
                                 </span>
@@ -160,4 +128,4 @@ const Orders: React.FC = () => {
     );
 };
 
-export default Orders;
+export default Discounts;

@@ -17,10 +17,10 @@ namespace ReactApp1.Server.Services
                     new NavigationItem { Path = "/orders", Label = "Orders" },
                     new NavigationItem { Path = "/reservations", Label = "Reservations" },
                     new NavigationItem { Path = "/items", Label = "Items" },
-                    new NavigationItem { Path = "/inventory", Label = "Inventory" },
                     new NavigationItem { Path = "/services", Label = "Services" },
                     new NavigationItem { Path = "/employees", Label = "Employees" },
                     new NavigationItem { Path = "/taxes", Label = "Taxes" },
+                    new NavigationItem { Path = "/discounts", Label = "Discounts" },
                     new NavigationItem { Path = "/giftcards", Label = "Giftcards" },
 
                     new NavigationItem

@@ -13,6 +13,7 @@ interface Item {
     alcoholicBeverage: boolean;
     receiveTime: string;
     storage: number | null;
+    baseItemId: number;
 }
 interface Tax {
     taxId: number;
@@ -22,6 +23,7 @@ interface Tax {
 
 const ItemDetail: React.FC = () => {
     const [item, setItem] = useState<Item | null>(null);
+    const [baseItem, setBaseItem] = useState<Item | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedItem, setEditedItem] = useState<Item | null>(null); // Store edited item
     const { id } = useParams<{ id: string }>();
@@ -35,6 +37,7 @@ const ItemDetail: React.FC = () => {
     const [itemTaxes, setItemTaxes] = useState<Tax[]>([]);
     const [showTaxModal, setShowTaxModal] = useState(false);
     const [selectedTaxId, setSelectedTaxId] = useState<number | null>(null);
+    const [baseItemId, setBaseItemId] = useState<number>(0);
 
     const isNewItem = !id; // Check if it's a new item by absence of id
 
@@ -49,6 +52,15 @@ const ItemDetail: React.FC = () => {
                     setEditedItem(response.data); // Initialize edited item with fetched data
                     getTaxes();
 
+                    if (response.data.baseItemId)
+                    {
+                        const baseItemResponse = await axios.get(`http://localhost:5114/api/items/${response.data.baseItemId}`, {
+                            headers: { Authorization: `Bearer ${token}` },
+                        });
+                        setBaseItem(baseItemResponse.data);
+                    }
+                    
+
                 } catch (error) {
                     console.error(ScriptResources.ErrorFetchingItems, error);
                 }
@@ -61,6 +73,7 @@ const ItemDetail: React.FC = () => {
                 alcoholicBeverage: false,
                 receiveTime: new Date().toISOString(),
                 storage: null,
+                baseItemId: 0,
             };
             setItem(emptyItem);
             setEditedItem(emptyItem);
@@ -131,10 +144,20 @@ const ItemDetail: React.FC = () => {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                 }
+
+                if (editedItem.baseItemId)
+                {
+                    const baseItemResponse = await axios.get(`http://localhost:5114/api/items/${editedItem.baseItemId}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    setBaseItem(baseItemResponse.data);
+                }
                 setIsEditing(false);
             }
         } catch (error) {
             console.error(ScriptResources.ErrorSavingItem, error);
+            setBaseItemId(item?.baseItemId ? item.baseItemId : 0)
         }
     };
 
@@ -187,6 +210,7 @@ const ItemDetail: React.FC = () => {
             if (item?.itemId){
                 const response = await fetch(`http://localhost:5114/api/items/${item?.itemId}`, {
                     method: 'DELETE',
+                    headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!response.ok) {
                     throw new Error(ScriptResources.FailedToDeleteItem);
@@ -268,6 +292,23 @@ const ItemDetail: React.FC = () => {
                                     className="form-control"
                                     disabled={!isEditing}
                                 />
+                            </li>
+                            <li className="list-group-item">
+                                <strong>{ScriptResources.BaseItem}</strong>
+                                <SelectDropdown
+                                    endpoint="/AllBaseItemsForEdit" 
+                                    onSelect={(item) => {
+                                        if (item) {
+                                            setEditedItem((prev) => (prev ? { ...prev, baseItemId: item.id } : null));
+                                        }
+                                    }}
+                                    disabled={!isEditing} 
+                                />
+                                <div className="mt-2">
+                                    {baseItem?.name
+                                        ? `${ScriptResources.SelectedBaseItem}: ${baseItem.name}`
+                                        : ScriptResources.ThisIsABaseItem}
+                                </div>
                             </li>
                             <li className="list-group-item">
                                 <strong>{ScriptResources.AlcoholicBeverage}</strong>{' '}
@@ -407,6 +448,7 @@ const ItemDetail: React.FC = () => {
                                 setSelectedTaxId(tax.id);
                             }
                         }}
+                        disabled={false}
                     />
                 </Modal.Body>
                 <Modal.Footer>

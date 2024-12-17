@@ -34,6 +34,9 @@ public class Item
     
     [Column("EstablishmentId")]
     public int? EstablishmentId { get; set; }
+
+    [Column("BaseItemId")]
+    public int BaseItemId { get; set; }
     
     // Navigation property to storage. One-to-One relationship
     public virtual Storage? Storage { get; set; }

@@ -407,6 +407,7 @@ const ServiceDetail: React.FC = () => {
                                 setSelectedTaxId(tax.id);
                             }
                         }}
+                        disabled={false}
                     />
                 </Modal.Body>
                 <Modal.Footer>

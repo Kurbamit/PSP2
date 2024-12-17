@@ -15,6 +15,7 @@ interface Item {
     alcoholicBeverage: boolean;
     receiveTime: string;
     storage: string | null;
+    baseItemId: number;
 }
 
 const Items: React.FC = () => {
@@ -78,6 +79,7 @@ const Items: React.FC = () => {
                 <thead>
                 <tr>
                     <th>{ScriptResources.ItemId}</th>
+                    <th>{ScriptResources.BaseItemId}</th>
                     <th>{ScriptResources.Name}</th>
                     <th>{ScriptResources.Cost}</th>
                     <th>{ScriptResources.AlcoholicBeverage}</th>
@@ -90,6 +92,7 @@ const Items: React.FC = () => {
                     <tr key={item.itemId}
                         onDoubleClick={() => handleIconClick(item.itemId)}>
                         <td>{item.itemId}</td>
+                        <td>{item.baseItemId === 0 ? '-' : item.baseItemId}</td>
                         <td>{item.name}</td>
                         <td>{item.cost.toFixed(2)}</td>
                         <td>{item.alcoholicBeverage ? 'Yes' : 'No'}</td>
