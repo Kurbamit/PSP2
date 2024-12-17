@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Base;
@@ -16,14 +17,14 @@ namespace ReactApp1.Server.Services
             _logger = logger;
         }
 
-        public Task<PaginatedResult<Item>> GetAllItems(int pageSize, int pageNumber)
+        public Task<PaginatedResult<Item>> GetAllItems(int pageSize, int pageNumber, IPrincipal user)
         {
-            return _itemRepository.GetAllItemsAsync(pageSize, pageNumber);
+            return _itemRepository.GetAllItemsAsync(pageSize, pageNumber, user);
         }
 
-        public Task<ItemModel?> GetItemById(int itemId)
+        public Task<ItemModel?> GetItemById(int itemId, IPrincipal user)
         {
-            return _itemRepository.GetItemByIdAsync(itemId);
+            return _itemRepository.GetItemByIdAsync(itemId, user);
         }
 
         public Task<int> CreateNewItem(ItemModel item, int? establishmentId, int? userId)

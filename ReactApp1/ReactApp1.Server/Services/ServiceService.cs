@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Models.Base;
@@ -16,14 +17,14 @@ namespace ReactApp1.Server.Services
             _logger = logger;
         }
 
-        public Task<PaginatedResult<Service>> GetAllServices(int pageSize, int pageNumber)
+        public Task<PaginatedResult<Service>> GetAllServices(int pageSize, int pageNumber, IPrincipal user)
         {
-            return _serviceRepository.GetAllServicesAsync(pageSize, pageNumber);
+            return _serviceRepository.GetAllServicesAsync(pageSize, pageNumber, user);
         }
 
-        public Task<ServiceModel?> GetServiceById(int serviceId)
+        public Task<ServiceModel?> GetServiceById(int serviceId, IPrincipal user)
         {
-            return _serviceRepository.GetServiceByIdAsync(serviceId);
+            return _serviceRepository.GetServiceByIdAsync(serviceId, user);
         }
 
         public Task<Service> CreateNewService(ServiceModel service, int? establishmentId)

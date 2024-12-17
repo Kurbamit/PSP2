@@ -9,13 +9,20 @@ const useAxiosInterceptors = () => {
         (error) => {
 
             if (error.response) {
-                // Check if the response contains the expected error data
-                const message = error.response.data?.Title ||
-                    error.response.data?.message ||
-                    "An error occurred."; // Default message if none is found
-                setError(message); // Set the error message in the context
+                // Response exists, handle based on status code
+                if (error.response.status === 401) {
+                    setError("You are not authorized to perform this action. Please log in and try again.");
+                } else {
+                    // Handle other server errors
+                    const message =
+                        error.response.data?.Title ||
+                        error.response.data?.message ||
+                        "An error occurred."; // Default message if none is found
+                    setError(message);
+                }
             } else {
-                // Handle network errors
+                // No response, likely a network error
+                console.error("Error details:", error); // Debugging network errors
                 setError("A network error occurred. Please try again.");
             }
             return Promise.reject(error); // Reject the promise so further handling can occur

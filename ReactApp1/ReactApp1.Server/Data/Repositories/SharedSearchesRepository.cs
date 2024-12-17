@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models.Models.Base;
@@ -13,9 +14,10 @@ namespace ReactApp1.Server.Data.Repositories
             _context = context;
         }
         
-        public async Task<List<SharedItem>> GetAllItems(int establishmentId, string? search)
+        public async Task<List<SharedItem>> GetAllItems(int establishmentId, string? search, IPrincipal user)
         {
             var result = await _context.Items
+                .FilterByAuthorizedUser(user)
                 .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
                 .Select(f => new SharedItem()
                 {
@@ -26,9 +28,10 @@ namespace ReactApp1.Server.Data.Repositories
             return result;
         }
         
-        public async Task<List<SharedItem>> GetAllDiscounts(int establishmentId, string? search)
+        public async Task<List<SharedItem>> GetAllDiscounts(int establishmentId, string? search, IPrincipal user)
         {
             var result = await _context.Discounts
+                .FilterByAuthorizedUser(user)
                 .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
                 .Where(f => 
                     (!f.ValidFrom.HasValue || f.ValidFrom.Value <= DateTime.UtcNow) &&
@@ -43,9 +46,10 @@ namespace ReactApp1.Server.Data.Repositories
             return result;
         }
 
-        public async Task<List<SharedService>> GetAllServices(int establishmentId, string? search)
+        public async Task<List<SharedService>> GetAllServices(int establishmentId, string? search, IPrincipal user)
         {
             var result = await _context.Services
+                .FilterByAuthorizedUser(user)
                 .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.Name.ToLower().Contains(search.ToLower()))
                 .Select(f => new SharedService()
                 {

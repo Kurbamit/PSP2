@@ -6,5 +6,6 @@ public enum TitleEnum
     Server = 1,
     Manager = 2,
     Chef = 3,
-    MasterAdmin = 100
+    EstablishmentMasterAdmin = 100,
+    MasterAdmin = 999
 }

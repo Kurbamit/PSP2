@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ReactApp1.Server.Data.Repositories;
@@ -33,6 +34,9 @@ namespace ReactApp1.Server.UnitTest
             public readonly Mock<ITaxService> TaxService;
             public readonly Mock<IFullOrderTaxRepository> FullOrderTaxRepository;
             public readonly Mock<IFullOrderServiceTaxRepository> FullOrderServiceTaxRepository;
+            public readonly Mock<IPrincipal> Principal;
+            
+            
             public TestState()
             {
                 OrderRepository = new Mock<IOrderRepository>();
@@ -50,6 +54,15 @@ namespace ReactApp1.Server.UnitTest
                 FullOrderTaxRepository = new Mock<IFullOrderTaxRepository>();
                 FullOrderServiceTaxRepository = new Mock<IFullOrderServiceTaxRepository>();
 
+                Principal = new Mock<IPrincipal>();
+                
+                // Mocking IPrincipal behavior
+                var mockIdentity = new Mock<IIdentity>();
+                mockIdentity.Setup(i => i.Name).Returns("TestUser");
+                mockIdentity.Setup(i => i.IsAuthenticated).Returns(true);
+
+                Principal.Setup(p => p.Identity).Returns(mockIdentity.Object);
+                Principal.Setup(p => p.IsInRole(It.IsAny<string>())).Returns((string role) => role == "MasterAdmin");
 
                 OrderService = new OrderService(OrderRepository.Object, ItemRepository.Object, ServiceRepository.Object,
                     FullOrderRepository.Object, FullOrderServiceRepository.Object, EmployeeRepository.Object, Logger.Object, PaymentRepository.Object,
@@ -70,7 +83,7 @@ namespace ReactApp1.Server.UnitTest
             // Set up default return values for mocked repository methods
             // Change these values as needed in your tests to simulate different scenarios
             output.OrderRepository
-                .Setup(x => x.GetOrderByIdAsync(It.IsAny<int>()))
+                .Setup(x => x.GetOrderByIdAsync(It.IsAny<int>(), It.IsAny<IPrincipal>()))
                 .ReturnsAsync(new OrderModel
                 {
                     OrderId = 1,
@@ -131,7 +144,7 @@ namespace ReactApp1.Server.UnitTest
                 .ReturnsAsync(() => null);
 
             // act
-            await state.OrderService.AddItemToOrder(state.FullOrder, 1);
+            await state.OrderService.AddItemToOrder(state.FullOrder, 1, It.IsAny<IPrincipal>());
 
             // assert
             state.FullOrderRepository.Verify(
@@ -151,7 +164,7 @@ namespace ReactApp1.Server.UnitTest
                 .ReturnsAsync(() => state.FullOrder);
 
             // act
-            await state.OrderService.AddItemToOrder(state.FullOrder, 1);
+            await state.OrderService.AddItemToOrder(state.FullOrder, 1, It.IsAny<IPrincipal>());
 
             // assert
             state.FullOrderRepository.Verify(
@@ -166,11 +179,11 @@ namespace ReactApp1.Server.UnitTest
             var state = BuildTestState();
             
             state.OrderRepository
-                .Setup(x => x.GetOrderByIdAsync(It.IsAny<int>()))
+                .Setup(x => x.GetOrderByIdAsync(It.IsAny<int>(), It.IsAny<IPrincipal>()))
                 .ReturnsAsync(() => null);
 
             // act
-            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1);
+            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1, It.IsAny<IPrincipal>());
 
             // assert
             var exception = await Assert.ThrowsAsync<OrderNotFoundException>(Act);
@@ -193,11 +206,11 @@ namespace ReactApp1.Server.UnitTest
             };
             
             state.OrderRepository
-                .Setup(x => x.GetOrderByIdAsync(It.IsAny<int>()))
+                .Setup(x => x.GetOrderByIdAsync(It.IsAny<int>(), It.IsAny<IPrincipal>()))
                 .ReturnsAsync(() => order);
 
             // act
-            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1);
+            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1, It.IsAny<IPrincipal>());
 
             // assert
             var exception = await Assert.ThrowsAsync<OrderStatusConflictException>(Act);
@@ -215,7 +228,7 @@ namespace ReactApp1.Server.UnitTest
                 .ReturnsAsync(() => null);
 
             // act
-            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1);
+            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1, It.IsAny<IPrincipal>());
 
             // assert
             var exception = await Assert.ThrowsAsync<ItemNotFoundException>(Act);
@@ -235,7 +248,7 @@ namespace ReactApp1.Server.UnitTest
                 .ReturnsAsync(() => state.Storage);
 
             // act
-            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1);
+            Task Act() => state.OrderService.AddItemToOrder(state.FullOrder, 1, It.IsAny<IPrincipal>());
 
             // assert
             var exception = await Assert.ThrowsAsync<StockExhaustedException>(Act);
