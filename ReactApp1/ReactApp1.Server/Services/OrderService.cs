@@ -8,6 +8,7 @@ using ReactApp1.Server.Models;
 using ReactApp1.Server.Models.Enums;
 using ReactApp1.Server.Models.Models.Base;
 using ReactApp1.Server.Models.Models.Domain;
+using Stripe;
 
 namespace ReactApp1.Server.Services
 {
@@ -24,11 +25,15 @@ namespace ReactApp1.Server.Services
         private readonly ILogger<OrderService> _logger;
         private readonly IPaymentService _paymentService;
         private readonly IDiscountRepository _discountRepository;
+        private readonly ITaxService _taxService;
+        private readonly IFullOrderTaxRepository _fullOrderTaxRepository;
+        private readonly IFullOrderServiceTaxRepository _fullOrderServiceTaxRepository;
 
         public OrderService(IOrderRepository orderRepository, IItemRepository itemRepository, IServiceRepository serviceRepository,
             IFullOrderRepository fullOrderRepository, IFullOrderServiceRepository fullOrderServiceRepository, IEmployeeRepository employeeRepository,
             ILogger<OrderService> logger, IPaymentRepository paymentRepository, IGiftCardRepository giftcardRepository, IPaymentService paymentService,
-            IDiscountRepository discountRepository)
+            IDiscountRepository discountRepository, ITaxService taxService, IFullOrderTaxRepository fullOrderTaxRepository,
+            IFullOrderServiceTaxRepository fullOrderServiceTaxRepository)
         {
             _orderRepository = orderRepository;
             _itemRepository = itemRepository;
@@ -41,6 +46,9 @@ namespace ReactApp1.Server.Services
             _logger = logger;
             _paymentService = paymentService;
             _discountRepository = discountRepository;
+            _taxService = taxService;
+            _fullOrderTaxRepository = fullOrderTaxRepository;
+            _fullOrderServiceTaxRepository = fullOrderServiceTaxRepository;
         }
         
         public async Task<OrderItemsPayments> OpenOrder(int? createdByEmployeeId, int? establishmentId)
@@ -91,7 +99,7 @@ namespace ReactApp1.Server.Services
             var orderPayments = await GetOrderPayments(orderId);
 
             var orderWithTotalPaidAndLeftToPay = CalculateTotalPaidAndLeftToPayForOrder(orderWithTotalPrice, orderPayments);
-
+            
             return new OrderItemsPayments(orderWithTotalPaidAndLeftToPay, orderItems, orderServices, orderPayments);
         }
         
@@ -113,7 +121,9 @@ namespace ReactApp1.Server.Services
                     item.Discount = discount.Value;
                     item.DiscountName = discount.DiscountName + " (" + discount.Value + "%)";
                 }
-                
+
+                item.Taxes = await _fullOrderTaxRepository.GetFullOrderItemTaxesAsync(fullOrder.FullOrderId);
+          
                 item.Count = fullOrder.Count;
                 orderItems.Add(item);
             }
@@ -139,6 +149,8 @@ namespace ReactApp1.Server.Services
                     service.Discount = discount.Value;
                     service.DiscountName = discount.DiscountName + " (" + discount.Value + "%)";
                 }
+
+                service.Taxes = await _fullOrderServiceTaxRepository.GetFullOrderServiceTaxesAsync(fullOrderService.FullOrderServiceId);
 
                 service.Count = fullOrderService.Count;
                 orderServices.Add(service);
@@ -170,9 +182,14 @@ namespace ReactApp1.Server.Services
                 // Apply discount to the item if it exists
                 if (item.Discount.HasValue)
                 {
-                    itemCost -= itemCost * (item.Discount.Value / 100);
+                    itemCost -= Math.Round(itemCost * (item.Discount.Value / 100), 2);
                 }
-                
+
+                foreach(var tax in item.Taxes)
+                {
+                    totalPrice += (Math.Round(tax.Percentage / 100 * itemCost, 2) * itemCount);
+                }
+
                 totalPrice += itemCost * itemCount;
             }
 
@@ -184,7 +201,12 @@ namespace ReactApp1.Server.Services
                 // Apply discount to the item if it exists
                 if (service.Discount.HasValue)
                 {
-                    serviceCost -= serviceCost * (service.Discount.Value / 100);
+                    serviceCost -= Math.Round(serviceCost * (service.Discount.Value / 100), 2);
+                }
+
+                foreach (var tax in service.Taxes)
+                {
+                    totalPrice += (Math.Round(tax.Percentage / 100 * serviceCost, 2) * serviceCount);
                 }
 
                 totalPrice += serviceCost * serviceCount;
@@ -194,8 +216,9 @@ namespace ReactApp1.Server.Services
             if (order.DiscountId.HasValue)
             {
                 var discount = await GetDiscountById(order.DiscountId.Value);
-                totalPrice -= totalPrice * (discount.Value / 100);
+                totalPrice -= Math.Round(totalPrice * (discount.Value / 100), 2);
             }
+
             if (order.TipFixed != null)
             {
                 totalPrice += (order.TipFixed ?? 0);
@@ -203,7 +226,7 @@ namespace ReactApp1.Server.Services
             }
             else if (order.TipPercentage != null)
             {
-                decimal tip = totalPrice * ((order.TipPercentage ?? 0) / 100);
+                decimal tip = Math.Round(totalPrice * ((order.TipPercentage ?? 0) / 100), 2);
                 totalPrice += tip;
                 order.TipAmount = tip;
             }
@@ -241,15 +264,36 @@ namespace ReactApp1.Server.Services
             
             // Reduce reserved item count in storage
             await _itemRepository.AddStorageAsync(fullOrder.ItemId, -fullOrder.Count);
-            
-            var task = existingFullOrder != null
-                // If the item is already in the order (fullOrder record which links the order with the item exists in the database)
-                // update its quantity by adding new count to existing count
-                ? _fullOrderRepository.UpdateItemInOrderCountAsync(fullOrder)
-                // Otherwise, create a new record for it
-                : _fullOrderRepository.AddItemToOrderAsync(fullOrder, userId.Value);
-            
-            await task;
+
+            // If the item is already in the order (fullOrder record which links the order with the item exists in the database)
+            // update its quantity by adding new count to existing count
+            // Otherwise, create a new record for it
+            if (existingFullOrder != null)
+            {
+                await _fullOrderRepository.UpdateItemInOrderCountAsync(fullOrder);
+            }
+            else
+            {
+                await _fullOrderRepository.AddItemToOrderAsync(fullOrder, userId.Value);
+
+                //refetch to get back the id
+                existingFullOrder = await _fullOrderRepository.GetFullOrderAsync(fullOrder.OrderId, fullOrder.ItemId);
+
+                //Save tax historic data
+                var taxes = await _taxService.GetItemTaxes(fullOrder.ItemId);
+
+                foreach(var tax in taxes)
+                {
+                    var fullOrderTax = new FullOrderTaxModel
+                    {
+                        FullOrderId = existingFullOrder.FullOrderId,
+                        Percentage = tax.Percentage,
+                        Description = tax.Description
+                    };
+
+                    await _fullOrderTaxRepository.AddItemToFullOrderTaxAsync(fullOrderTax);
+                }
+            }
 
             async Task ItemIsAvailableInStorage()
             {
@@ -278,11 +322,32 @@ namespace ReactApp1.Server.Services
             
             var existingFullOrderService = await _fullOrderServiceRepository.GetFullOrderServiceAsync(fullOrderServiceModel.OrderId, fullOrderServiceModel.ServiceId);
 
-            var task = existingFullOrderService != null
-                ? _fullOrderServiceRepository.UpdateServiceInOrderCountAsync(fullOrderServiceModel)
-                : _fullOrderServiceRepository.AddServiceToOrderAsync(fullOrderServiceModel, userId.Value);
+            if (existingFullOrderService != null)
+            {
+                await _fullOrderServiceRepository.UpdateServiceInOrderCountAsync(fullOrderServiceModel);
+            }
+            else
+            {
+                await _fullOrderServiceRepository.AddServiceToOrderAsync(fullOrderServiceModel, userId.Value);
 
-            await task;
+                //refetch to get back the id
+                existingFullOrderService = await _fullOrderServiceRepository.GetFullOrderServiceAsync(fullOrderServiceModel.OrderId, fullOrderServiceModel.ServiceId);
+
+                //Save tax historic data
+                var taxes = await _taxService.GetServiceTaxes(fullOrderServiceModel.ServiceId);
+
+                foreach (var tax in taxes)
+                {
+                    var fullOrderTax = new FullOrderServiceTaxModel
+                    {
+                        FullOrderServiceId = existingFullOrderService.FullOrderServiceId,
+                        Percentage = tax.Percentage,
+                        Description = tax.Description
+                    };
+
+                    await _fullOrderServiceTaxRepository.AddItemToFullOrderServiceTaxAsync(fullOrderTax);
+                }
+            }
         }
         
         public async Task RemoveItemFromOrder(FullOrderModel fullOrder, IPrincipal user)

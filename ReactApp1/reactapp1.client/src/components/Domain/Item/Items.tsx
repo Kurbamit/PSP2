@@ -12,7 +12,6 @@ interface Item {
     itemId: number;
     name: string;
     cost: number;
-    tax: number;
     alcoholicBeverage: boolean;
     receiveTime: string;
     storage: string | null;
@@ -81,7 +80,6 @@ const Items: React.FC = () => {
                     <th>{ScriptResources.ItemId}</th>
                     <th>{ScriptResources.Name}</th>
                     <th>{ScriptResources.Cost}</th>
-                    <th>{ScriptResources.Tax}</th>
                     <th>{ScriptResources.AlcoholicBeverage}</th>
                     <th>{ScriptResources.ReceiveTime}</th>
                     <th>{ScriptResources.Actions}</th>
@@ -94,7 +92,6 @@ const Items: React.FC = () => {
                         <td>{item.itemId}</td>
                         <td>{item.name}</td>
                         <td>{item.cost.toFixed(2)}</td>
-                        <td>{item.tax.toFixed(2)}</td>
                         <td>{item.alcoholicBeverage ? 'Yes' : 'No'}</td>
                         <td>{new Date(item.receiveTime).toLocaleString()}</td>
                         <td>

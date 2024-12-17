@@ -47,5 +47,10 @@ namespace ReactApp1.Server.Services
             
             return await _sharedSearchesRepository.GetAllDiscounts(establishmentId.Value, search, user);
         }
+
+        public async Task<List<SharedItem>> GetAllTaxes(string? search)
+        {
+            return await _sharedSearchesRepository.GetAllTaxes(search);
+        }
     }
 }

@@ -182,7 +182,18 @@ namespace ReactApp1.Server.Data.Repositories
             {
                 sb.AppendLine($"- {item.Name} x{item.Count}");
                 sb.AppendLine($"  Cost: {item.Cost?.ToString("0.00") ?? "N/A"} EUR");
-                sb.AppendLine($"  Tax: {item.Tax?.ToString("0.00") ?? "N/A"} EUR");
+                if (item.Taxes != null && item.Taxes.Count > 0)
+                {
+                    sb.AppendLine($"  Taxes:");
+                    foreach (var tax in item.Taxes)
+                    {
+                        sb.AppendLine($"   - {tax.Description}: {tax.Percentage}%");
+                    }
+                }
+                else
+                {
+                    sb.AppendLine("  Taxes: N/A");
+                }
                 sb.AppendLine($"  Alcoholic: {(item.AlcoholicBeverage ? "Yes" : "No")}");
                 sb.AppendLine($"  Discount: {item.DiscountName ?? "N/A"}");
                 sb.AppendLine(new string('-', 30));
@@ -193,7 +204,19 @@ namespace ReactApp1.Server.Data.Repositories
             {
                 sb.AppendLine($"- {service.Name} x{service.Count}");
                 sb.AppendLine($"  Cost: {service.Cost?.ToString("0.00") ?? "N/A"} EUR");
-                sb.AppendLine($"  Tax: {service.Tax?.ToString("0.00") ?? "N/A"} EUR");
+                if (service.Taxes != null && service.Taxes.Count > 0)
+                {
+                    sb.AppendLine($"  Taxes:");
+                    foreach (var tax in service.Taxes)
+                    {
+                        sb.AppendLine($"   - {tax.Description}: {tax.Percentage}%");
+                    }
+                }
+                else
+                {
+                    sb.AppendLine("  Taxes: N/A");
+                }
+
                 sb.AppendLine($"  Discount: {service.DiscountName ?? "N/A"}");
                 sb.AppendLine(new string('-', 30));
             }
@@ -212,6 +235,7 @@ namespace ReactApp1.Server.Data.Repositories
                     sb.AppendLine($"  Gift Card: {payment.GiftCardCode}");
                 }
                 sb.AppendLine($"  Receive Time: {payment.ReceiveTime:yyyy-MM-dd HH:mm:ss}");
+                sb.AppendLine(new string('-', 30));
             }
 
             sb.AppendLine("\nThank you for your order!");

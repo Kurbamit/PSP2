@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReactApp1.Server.Data;
@@ -11,9 +12,11 @@ using ReactApp1.Server.Data;
 namespace ReactApp1.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241216154310_UpdateDatabaseToTrackTaxHistoricData")]
+    partial class UpdateDatabaseToTrackTaxHistoricData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -407,6 +410,8 @@ namespace ReactApp1.Server.Migrations
 
                     b.HasKey("FullOrderServiceTaxId");
 
+                    b.HasIndex("FullOrderServiceId");
+
                     b.ToTable("FullOrderServiceTax");
                 });
 
@@ -433,6 +438,8 @@ namespace ReactApp1.Server.Migrations
                         .HasColumnName("Percentage");
 
                     b.HasKey("FullOrderTaxId");
+
+                    b.HasIndex("FullOrderId");
 
                     b.ToTable("FullOrderTax");
                 });
@@ -1003,6 +1010,28 @@ namespace ReactApp1.Server.Migrations
                     b.Navigation("Discount");
 
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("ReactApp1.Server.Models.FullOrderServiceTax", b =>
+                {
+                    b.HasOne("ReactApp1.Server.Models.FullOrderService", "FullOrderService")
+                        .WithMany()
+                        .HasForeignKey("FullOrderServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FullOrderService");
+                });
+
+            modelBuilder.Entity("ReactApp1.Server.Models.FullOrderTax", b =>
+                {
+                    b.HasOne("ReactApp1.Server.Models.FullOrder", "FullOrder")
+                        .WithMany()
+                        .HasForeignKey("FullOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FullOrder");
                 });
 
             modelBuilder.Entity("ReactApp1.Server.Models.Item", b =>

@@ -21,11 +21,6 @@ public class ItemModel
     public decimal? Cost { get; set; }
     
     /// <summary>
-    /// Mokesčiai
-    /// </summary>
-    public decimal? Tax { get; set; }
-    
-    /// <summary>
     /// Ar alkoholinis gėrimas
     /// </summary>
     public bool AlcoholicBeverage { get; set; }
@@ -38,12 +33,12 @@ public class ItemModel
     
     public decimal? Discount { get; set; }
     public string? DiscountName { get; set; }
+    public List<TaxModel> Taxes { get; set; }
 
     public void MapUpdate(Item existingItem)
     {
         existingItem.Name = this.Name;
         existingItem.Cost = this.Cost;
-        existingItem.Tax = this.Tax;
         existingItem.AlcoholicBeverage = this.AlcoholicBeverage;
         existingItem.ReceiveTime = this.ReceiveTime;
         if (existingItem.Storage != null && this.Storage.HasValue)

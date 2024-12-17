@@ -7,17 +7,14 @@ import Pagination from '../../Base/Pagination';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ScriptResources from "../../../assets/resources/strings.ts";
 
-interface Service {
-    serviceId: number;
-    name: string;
-    establishmentId: number;
-    serviceLength: string;
-    cost?: number;
-    receiveTime: string;
+interface Tax {
+    taxId: number;
+    percentage: number; // Tax percentage, e.g., 10 for 10%
+    description: string; // Description of the tax
 }
 
-const Services: React.FC = () => {
-    const [services, setServices] = useState<Service[]>([]);
+const Taxes: React.FC = () => {
+    const [taxes, setTaxes] = useState<Tax[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
@@ -26,45 +23,45 @@ const Services: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchServices = async () => {
+        const fetchTaxes = async () => {
             try {
-                const response = await axios.get(`http://localhost:5114/api/services`, {
+                const response = await axios.get('http://localhost:5114/api/tax', {
                     params: { pageNumber: currentPage, pageSize },
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-                setServices(response.data.items);
+                setTaxes(response.data.items);
                 setTotalPages(response.data.totalPages);
                 setTotalItems(response.data.totalItems);
             } catch (error) {
-                console.error(ScriptResources.ErrorFetchingServices, error);
+                console.error(ScriptResources.ErrorFetchingTaxes, error);
             }
         };
 
-        fetchServices();
+        fetchTaxes();
     }, [currentPage, pageSize, token]);
 
-    const handleIconClick = (serviceId: number) => {
-        navigate(`/services/${serviceId}`);
+    const handleEditClick = (taxId: number) => {
+        navigate(`/taxes/${taxId}`);
     };
 
-    const handleDelete = async (serviceId: number) => {
+    const handleDelete = async (taxId: number) => {
         try {
-            const response = await axios.delete(`http://localhost:5114/api/services/${serviceId}`, {
+            const response = await axios.delete(`http://localhost:5114/api/tax/${taxId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
             if (response.status === 204) {
-                setServices(services.filter((service) => service.serviceId !== serviceId));
+                setTaxes(taxes.filter((tax) => tax.taxId !== taxId));
                 setTotalItems(totalItems - 1);
             }
         } catch (error) {
-            console.error(ScriptResources.ErrorDeletingService, error);
+            console.error("Error deleting tax:", error);
         }
     };
 
     const handleCreateNew = () => {
-        navigate('/services/new');
+        navigate('/taxes/new');
     };
 
     return (
@@ -73,40 +70,36 @@ const Services: React.FC = () => {
                 <span className="material-icons me-2" style={{ verticalAlign: 'middle' }}>add</span>
                 {ScriptResources.CreateNew}
             </button>
-            <h2>{ScriptResources.ServicesList}</h2>
+            <h2>{ScriptResources.TaxesList}</h2>
 
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>{ScriptResources.Name}</th>
-                        <th>{ScriptResources.EstablishmentId}</th>
-                        <th>{ScriptResources.ServiceLength}</th>
-                        <th>{ScriptResources.Cost}</th>
-                        <th>{ScriptResources.ReceiveTime}</th>
+                        <th>{ScriptResources.TaxId}</th>
+                        <th>{ScriptResources.Percentage}</th>
+                        <th>{ScriptResources.Description}</th>
                         <th>{ScriptResources.Actions}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {services.map((service) => (
-                        <tr key={service.serviceId}
-                            onDoubleClick={() => handleIconClick(service.serviceId)}>
-                            <td>{service.name}</td>
-                            <td>{service.establishmentId}</td>
-                            <td>{service.serviceLength}</td>
-                            <td>{service.cost ? `$${service.cost.toFixed(2)}` : ScriptResources.NotAvailable}</td>
-                            <td>{new Date(service.receiveTime).toLocaleString()}</td>
+                    {taxes.map((tax) => (
+                        <tr key={tax.taxId}
+                            onDoubleClick={() => handleEditClick(tax.taxId)}>
+                            <td>{tax.taxId}</td>
+                            <td>{`${tax.percentage}%`}</td>
+                            <td>{tax.description}</td>
                             <td style={{ display: 'flex', justifyContent: 'space-around' }}>
                                 <span
                                     className="material-icons"
                                     style={{ cursor: 'pointer', marginRight: '5px' }}
-                                    onClick={() => handleIconClick(service.serviceId)}
+                                    onClick={() => handleEditClick(tax.taxId)}
                                 >
-                                    open_in_new
+                                    edit
                                 </span>
                                 <span
                                     className="material-icons"
                                     style={{ cursor: 'pointer', marginLeft: '5px' }}
-                                    onClick={() => handleDelete(service.serviceId)}
+                                    onClick={() => handleDelete(tax.taxId)}
                                 >
                                     delete
                                 </span>
@@ -128,4 +121,4 @@ const Services: React.FC = () => {
     );
 };
 
-export default Services;
+export default Taxes;

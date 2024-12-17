@@ -16,7 +16,7 @@ interface Item {
     itemId: number;
     name: string;
     cost: number;
-    tax: number;
+    taxes: Tax[] | null;
     alcoholicBeverage: boolean;
     receiveTime: string;
     storage: number | null;
@@ -29,7 +29,7 @@ interface Service {
     serviceId: number;
     name: string;
     cost: number;
-    tax: number;
+    taxes: Tax[] | null;
     serviceLength: string;
     receiveTime: string;
     count: number | null;
@@ -57,6 +57,11 @@ interface Discount {
     itemId: number | null; // Null for order-wide discounts
     serviceId: number | null; // Null if not applicable to services
 }
+interface Tax {
+    taxId?: number;
+    percentage: number;
+    description: string;
+}
 
 const OrderDetail: React.FC = () => {
     const [order, setOrder] = useState<FullOrder | null>(null);
@@ -81,7 +86,7 @@ const OrderDetail: React.FC = () => {
     const [showServiceDiscountModal, setShowServiceDiscountModal] = useState(false);
     const [showItemDiscountModal, setShowItemDiscountModal] = useState(false);
     const [selectedDiscount, setSelectedDiscount] = useState<Discount | null>(null);
-
+    
     const stripePromise = loadStripe('pk_test_51QUk2yJ37W5f2NTslpQJKoAg1uGzZWe7oJfoWAJqJW6APPYsOudx08XfcFBI9dbRXdmPPE1RvbUZo4eT5LQ12bLd00lNgxiIsW');
 
     const fetchItem = async () => {
@@ -454,7 +459,19 @@ const OrderDetail: React.FC = () => {
                                     <td>{item.itemId}</td>
                                     <td>{item.name}</td>
                                     <td>{item.cost}</td>
-                                    <td>{item.tax}</td>
+                                    <td>
+                                        {item.taxes && item.taxes.length > 0 ? (
+                                            <ul>
+                                                {item.taxes.map((tax, index) => (
+                                                    <li key={index}>
+                                                        {tax.description} ({tax.percentage}%)
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <span>{ScriptResources.NoTaxes}</span>
+                                        )}
+                                    </td>
                                     <td>{getYesNoString(item.alcoholicBeverage)}</td>
                                     <td>{item.receiveTime}</td>
                                     <td>{item.storage ?? ScriptResources.NotAvailable}</td>
@@ -525,7 +542,19 @@ const OrderDetail: React.FC = () => {
                                         <td>{service.serviceId}</td>
                                         <td>{service.name}</td>
                                         <td>{service.cost}</td>
-                                        <td>{service.tax}</td>
+                                        <td>
+                                            {service.taxes && service.taxes.length > 0 ? (
+                                                <ul>
+                                                    {service.taxes.map((tax, index) => (
+                                                        <li key={index}>
+                                                            {tax.description} ({tax.percentage}%)
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <span>{ScriptResources.NoTaxes}</span>
+                                            )}
+                                        </td>
                                         <td>{service.serviceLength}</td>
                                         <td>{service.receiveTime}</td>
                                         <td>{service.count ?? ' '}</td>

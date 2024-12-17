@@ -9,6 +9,7 @@ public class Item
     public Item()
     {
         FullOrders = new HashSet<FullOrder>();
+        ItemTax = new HashSet<ItemTax>();
     }
     
     [Key]
@@ -21,9 +22,6 @@ public class Item
     
     [Column("Cost")]
     public decimal? Cost { get; set; }
-    
-    [Column("Tax")]
-    public decimal? Tax { get; set; }
     
     [Column("AlcoholicBeverage")]
     public bool AlcoholicBeverage { get; set; }
@@ -47,4 +45,5 @@ public class Item
     public virtual Establishment Establishment { get; set; }
     
     public virtual ICollection<FullOrder> FullOrders { get; set; }
+    public virtual ICollection<ItemTax> ItemTax { get; set; }
 }

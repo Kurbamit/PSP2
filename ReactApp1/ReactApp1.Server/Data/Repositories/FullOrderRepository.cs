@@ -30,7 +30,6 @@ namespace ReactApp1.Server.Data.Repositories
                         Count = fullOrder.Count,
                         Name = f.Name,
                         Cost = f.Cost,
-                        Tax = f.Tax,
                         AlcoholicBeverage = f.AlcoholicBeverage,
                         ReceiveTime = DateTime.UtcNow,
                         CreatedByEmployeeId = userId

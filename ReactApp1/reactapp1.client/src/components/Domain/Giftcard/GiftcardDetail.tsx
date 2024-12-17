@@ -132,6 +132,14 @@ const GiftCardDetail: React.FC = () => {
         }
     };
 
+    const handleBackToList = () => {
+        navigate('/giftcards');
+    };
+    
+    const handleCancleEditing = () => {
+        setIsEditing(false);
+    }
+
     return (
         <div className="container">
             <h2>{isNewGiftCard ? ScriptResources.CreateNewGiftCard : ScriptResources.GiftCardDetail}</h2>
@@ -179,20 +187,34 @@ const GiftCardDetail: React.FC = () => {
                         />
                     </div>
 
-                    {isEditing ? (
-                        <button className="btn btn-success" onClick={handleFormSave}>
-                            {ScriptResources.Save}
-                        </button>
-                    ) : (
-                        <button className="btn btn-primary" onClick={toggleEditMode}>
-                            {ScriptResources.Edit}
-                        </button>
-                    )}
-                    {!isNewGiftCard && (
-                        <button className="btn btn-danger" onClick={handleDelete}>
-                            {ScriptResources.Delete}
-                        </button>
-                    )}
+                    <div>
+                        <div className="d-flex justify-content-between mb-3">
+                            {isEditing ? (
+                                <div>
+                                    <button className="btn btn-success" onClick={handleFormSave}>
+                                        {ScriptResources.Save}
+                                    </button>
+                                    <button className="btn btn-secondary m-1" onClick={handleCancleEditing}>
+                                        {ScriptResources.Cancel}
+                                    </button>
+                                </div>
+                            ) : (
+                                <button className="btn btn-primary" onClick={toggleEditMode}>
+                                    {ScriptResources.Edit}
+                                </button>
+                            )}
+                            {!isNewGiftCard && (
+                                <button className="btn btn-danger" onClick={handleDelete}>
+                                    {ScriptResources.Delete}
+                                </button>
+                            )}
+                        </div>
+                        {!isEditing && (
+                            <button className="btn btn-secondary" onClick={handleBackToList}>
+                                {ScriptResources.BackToTheMainList}
+                            </button>
+                        )}
+                    </div>
                 </div>
             ) : (
                 <div>{ScriptResources.Loading}</div>

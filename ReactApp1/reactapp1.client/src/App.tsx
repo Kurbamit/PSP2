@@ -14,6 +14,8 @@ import Orders from "./components/Domain/Order/Orders.tsx";
 import OrderDetail from "./components/Domain/Order/OrderDetail.tsx";
 import Reservations from './components/Domain/Reservation/Reservations.tsx';
 import ReservationDetail from './components/Domain/Reservation/ReservationDetail.tsx';
+import Taxes from './components/Domain/Tax/Taxes.tsx';
+import TaxDetail from './components/Domain/Tax/TaxDetail.tsx';
 import { ErrorProvider } from "./components/Base/ErrorContext.tsx";
 import useAxiosInterceptors from "./assets/Utils/axiosInterceptor.ts";
 import GlobalAlert from "./components/Base/GlobalAlert.tsx";
@@ -94,6 +96,9 @@ function InnerApp({
                     <Route path="/reservations" element={<Reservations />} />
                     <Route path="/reservations/new" element={<ReservationDetail /> } />
                     <Route path="/reservations/:id" element={<ReservationDetail />} />
+                    <Route path="/taxes" element={<Taxes />} />
+                    <Route path="/taxes/new" element={<TaxDetail />} />
+                    <Route path="/taxes/:id" element={<TaxDetail />} />
                     <Route path="/giftcards" element={<Giftcards />} />
                     <Route path="/giftcards/new" element={<GiftcardDetail />} />
                     <Route path="/giftcards/:id" element={<GiftcardDetail />} />
