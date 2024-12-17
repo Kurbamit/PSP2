@@ -19,18 +19,18 @@ INSERT INTO public."EmployeeAddress" ("Country", "City", "Street", "StreetNumber
 VALUES  ('Lithuania', 'Vilnius', 'Liepyno', '24', '1', CURRENT_TIMESTAMP, 1),
 		('Lithuania', 'Vilnius', 'Kauno', '24', '2', CURRENT_TIMESTAMP, 2);
 		
-INSERT INTO public."Item" ("Name", "Cost", "Tax", "AlcoholicBeverage", "ReceiveTime") 
+INSERT INTO public."Item" ("Name", "Cost", "AlcoholicBeverage", "ReceiveTime") 
 VALUES 
-    ('Red Wine', 12.99, 1.21, TRUE, CURRENT_TIMESTAMP),
-    ('Beer', 3.50, 0.70, TRUE, CURRENT_TIMESTAMP),
-    ('Orange Juice', 2.99, 0.60, FALSE, CURRENT_TIMESTAMP),
-    ('Vodka', 15.00, 3.00, TRUE, CURRENT_TIMESTAMP),
-    ('Mineral Water', 1.20, 0.24, FALSE, CURRENT_TIMESTAMP),
-    ('Whiskey', 25.00, 5.00, TRUE, CURRENT_TIMESTAMP),
-    ('Soda', 1.50, 0.30, FALSE, CURRENT_TIMESTAMP),
-    ('Gin', 18.50, 3.70, TRUE, CURRENT_TIMESTAMP),
-    ('Apple Juice', 2.75, 0.55, FALSE, CURRENT_TIMESTAMP),
-    ('Tequila', 22.00, 4.40, TRUE, CURRENT_TIMESTAMP);
+    ('Red Wine', 12.99, TRUE, CURRENT_TIMESTAMP),
+    ('Beer', 3.50, TRUE, CURRENT_TIMESTAMP),
+    ('Orange Juice', 2.99, FALSE, CURRENT_TIMESTAMP),
+    ('Vodka', 15.00, TRUE, CURRENT_TIMESTAMP),
+    ('Mineral Water', 1.20, FALSE, CURRENT_TIMESTAMP),
+    ('Whiskey', 25.00, TRUE, CURRENT_TIMESTAMP),
+    ('Soda', 1.50, FALSE, CURRENT_TIMESTAMP),
+    ('Gin', 18.50, TRUE, CURRENT_TIMESTAMP),
+    ('Apple Juice', 2.75, FALSE, CURRENT_TIMESTAMP),
+    ('Tequila', 22.00, TRUE, CURRENT_TIMESTAMP);
 
 INSERT INTO public."Storage" ("EstablishmentId", "ItemId", "Count") 
 VALUES 
@@ -63,10 +63,10 @@ VALUES
     ('2026-02-14', 80.0, 'VALENTINE2026N', CURRENT_TIMESTAMP),
     ('2026-03-17', 65.0, 'STPATRICKS2026O', CURRENT_TIMESTAMP);
 
-INSERT INTO public."Service" ("ReceiveTime", "EstablishmentId", "ServiceLength", "Cost", "Tax", "Name")
+INSERT INTO public."Service" ("ReceiveTime", "EstablishmentId", "ServiceLength", "Cost", "Name")
 VALUES
-	(CURRENT_TIMESTAMP, 1, '00:30:00', 50.0, 3.5, 'Massage'),
-	(CURRENT_TIMESTAMP, 1, '00:45:00', 65.0, 6.0, 'Therapy');
+	(CURRENT_TIMESTAMP, 1, '00:30:00', 50.0, 'Massage'),
+	(CURRENT_TIMESTAMP, 1, '00:45:00', 65.0, 'Therapy');
 	
 INSERT INTO public."WorkingHours" ("ReceiveTime", "EstablishmentId", "DayOfWeek", "StartTime", "EndTime", "CreatedByEmployeeId")
 VALUES
