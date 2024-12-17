@@ -10,7 +10,7 @@ namespace ReactApp1.Server.Services
         {
             var navigation = new NavigationModel();
 
-            if (userRole == TitleEnum.MasterAdmin)
+            if (userRole == TitleEnum.MasterAdmin || userRole == TitleEnum.EstablishmentMasterAdmin)
             {
                 navigation.Items.AddRange(new List<NavigationItem>
                 {
@@ -41,6 +41,7 @@ namespace ReactApp1.Server.Services
                 navigation.Items.AddRange(new List<NavigationItem>
                 {
                     new NavigationItem { Path = "/items", Label = "Items" },
+                    new NavigationItem { Path = "/employees", Label = "Employees" },
                     new NavigationItem
                     {
                         Label = "Settings",

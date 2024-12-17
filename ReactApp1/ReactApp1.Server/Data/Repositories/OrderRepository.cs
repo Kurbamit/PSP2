@@ -1,6 +1,8 @@
 using System.Data.Common;
+using System.Security.Principal;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Exceptions.OrderExceptions;
 using ReactApp1.Server.Extensions;
 using ReactApp1.Server.Models;
@@ -51,13 +53,14 @@ namespace ReactApp1.Server.Data.Repositories
             }
         }
 
-        public async Task<PaginatedResult<OrderModel>> GetAllOrdersAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedResult<OrderModel>> GetAllOrdersAsync(int pageNumber, int pageSize, IPrincipal user)
         {
-            var totalOrders = await _context.Orders.CountAsync();
+            var totalOrders = await _context.Orders.FilterByAuthorizedUser(user).CountAsync();
             var totalPages = (int)Math.Ceiling(totalOrders / (double)pageSize);
 
             var orders = await _context.Orders
                 .OrderBy(o => o.OrderId)
+                .FilterByAuthorizedUser(user)
                 .Paginate(pageNumber, pageSize)
                 .Select(o => new OrderModel(o))
                 .ToListAsync();
@@ -71,12 +74,18 @@ namespace ReactApp1.Server.Data.Repositories
             };
         }
 
-        public async Task<OrderModel?> GetOrderByIdAsync(int orderId)
+        public async Task<OrderModel?> GetOrderByIdAsync(int orderId, IPrincipal user)
         {
             var order = await _context.Orders
                 .Where(order => order.OrderId == orderId)
+                .FilterByAuthorizedUser(user)
                 .Select(o => new OrderModel(o))
                 .FirstOrDefaultAsync();
+
+            if (order == null)
+            {
+                throw new AuthorizationException();
+            }
 
             if (order.DiscountId.HasValue)
             {

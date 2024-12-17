@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Extensions;
@@ -25,10 +26,11 @@ namespace ReactApp1.Server.Controllers
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpGet("reservations")]
         public async Task<IActionResult> GetReservations(int pageNumber, int pageSize)
         {
-            var reservations = await _reservationService.GetAllReservations(pageNumber, pageSize);
+            var reservations = await _reservationService.GetAllReservations(pageNumber, pageSize, User);
             return Ok(reservations);
         }
 
@@ -37,10 +39,11 @@ namespace ReactApp1.Server.Controllers
         /// </summary>
         /// <param name="reservationId"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpGet("reservations/{reservationId}")]
         public async Task<IActionResult> GetReservations(int reservationId)
         {
-            var reservation = await _reservationService.GetReservationById(reservationId);
+            var reservation = await _reservationService.GetReservationById(reservationId, User);
             return Ok(reservation);
         }
 
@@ -49,6 +52,7 @@ namespace ReactApp1.Server.Controllers
         /// </summary>
         /// <param name="reservation"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpPost("reservations")]
         public async Task<IActionResult> CreateReservation([FromBody] ReservationModel reservation)
         {
@@ -63,6 +67,7 @@ namespace ReactApp1.Server.Controllers
         /// </summary>
         /// <param name="reservation"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpPut("reservations/{reservationId}")]
         public async Task<IActionResult> UpdateReservation([FromBody] ReservationModel reservation)
         {
@@ -76,10 +81,11 @@ namespace ReactApp1.Server.Controllers
         /// </summary>
         /// <param name="reservationId"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpDelete("reservations/{reservationId}")]
         public async Task<IActionResult> DeleteReservation(int reservationId)
         {
-            await _reservationService.DeleteReservation(reservationId);
+            await _reservationService.DeleteReservation(reservationId, User);
 
             return NoContent();
         }

@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Exceptions.ItemExceptions;
@@ -63,12 +64,12 @@ namespace ReactApp1.Server.Services
             return new OrderItemsPayments(emptyOrder, null, null, null);
         }
         
-        public async Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize)
+        public async Task<PaginatedResult<OrderModel>> GetAllOrders(int pageNumber, int pageSize, IPrincipal user)
         {
-            var orders = await _orderRepository.GetAllOrdersAsync(pageNumber, pageSize);
+            var orders = await _orderRepository.GetAllOrdersAsync(pageNumber, pageSize, user);
             foreach (var order in orders.Items)
             {
-                var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
+                var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId, user);
                 if(employee != null)
                     order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
             }
@@ -76,22 +77,22 @@ namespace ReactApp1.Server.Services
             return orders;
         }
 
-        public async Task<OrderItemsPayments> GetOrderById(int orderId)
+        public async Task<OrderItemsPayments> GetOrderById(int orderId, IPrincipal user)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            var order = await _orderRepository.GetOrderByIdAsync(orderId, user);
             if (order == null)
             {
                 _logger.LogInformation($"Order with id: {orderId} not found");
                 return new OrderItemsPayments(null, null, null, null);
             }
             
-            var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId);
+            var employee = await _employeeRepository.GetEmployeeByIdAsync(order.CreatedByEmployeeId, user);
             if(employee != null)
                 order.CreatedByEmployeeName = employee.FirstName + " " + employee.LastName;
 
-            var orderItems = await GetOrderItems(orderId);
+            var orderItems = await GetOrderItems(orderId, user);
 
-            var orderServices = await GetOrderServices(orderId);
+            var orderServices = await GetOrderServices(orderId, user);
             
             var orderWithTotalPrice = await CalculateTotalPriceForOrder(order, orderItems, orderServices);
 
@@ -102,7 +103,7 @@ namespace ReactApp1.Server.Services
             return new OrderItemsPayments(orderWithTotalPaidAndLeftToPay, orderItems, orderServices, orderPayments);
         }
         
-        private async Task<List<ItemModel>> GetOrderItems(int orderId)
+        private async Task<List<ItemModel>> GetOrderItems(int orderId, IPrincipal user)
         {
             var fullOrders = await _fullOrderRepository.GetOrderItemsAsync(orderId);
             
@@ -130,7 +131,7 @@ namespace ReactApp1.Server.Services
             return orderItems;
         }
         
-        private async Task<List<ServiceModel>> GetOrderServices(int orderId)
+        private async Task<List<ServiceModel>> GetOrderServices(int orderId, IPrincipal user)
         {
             var fullOrderServices = await _fullOrderServiceRepository.GetOrderServicesAsync(orderId);
 
@@ -244,7 +245,7 @@ namespace ReactApp1.Server.Services
             return order;
         }
 
-        public async Task AddItemToOrder(FullOrderModel fullOrder, int? userId)
+        public async Task AddItemToOrder(FullOrderModel fullOrder, int? userId, IPrincipal user)
         {
             if (!userId.HasValue)
             {
@@ -255,7 +256,7 @@ namespace ReactApp1.Server.Services
             // Before adding an item to an order, check if:
             // 1. The order exists
             // 2. The item exists and there is enough stock in storage
-            await GetOrderIfExistsAndStatusIs(fullOrder.OrderId, (int)OrderStatusEnum.Open,"AddItemToOrder");
+            await GetOrderIfExistsAndStatusIs(fullOrder.OrderId, (int)OrderStatusEnum.Open,user, "AddItemToOrder");
 
             await ItemIsAvailableInStorage();
             
@@ -311,7 +312,7 @@ namespace ReactApp1.Server.Services
             }
         }
 
-        public async Task AddServiceToOrder(FullOrderServiceModel fullOrderServiceModel, int? userId)
+        public async Task AddServiceToOrder(FullOrderServiceModel fullOrderServiceModel, int? userId, IPrincipal user)
         {
             if (!userId.HasValue)
             {
@@ -349,9 +350,9 @@ namespace ReactApp1.Server.Services
             }
         }
         
-        public async Task RemoveItemFromOrder(FullOrderModel fullOrder)
+        public async Task RemoveItemFromOrder(FullOrderModel fullOrder, IPrincipal user)
         {
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(fullOrder.OrderId, (int)OrderStatusEnum.Open, "RemoveItemFromOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(fullOrder.OrderId, (int)OrderStatusEnum.Open, user, "RemoveItemFromOrder");
             if (existingOrderWithOpenStatus == null)
                 return;
             
@@ -380,9 +381,9 @@ namespace ReactApp1.Server.Services
             await  _fullOrderRepository.DeleteItemFromOrderAsync(fullOrder);
         }
 
-        public async Task RemoveServiceFromOrder(FullOrderServiceModel fullOrderService)
+        public async Task RemoveServiceFromOrder(FullOrderServiceModel fullOrderService, IPrincipal user)
         {
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(fullOrderService.OrderId, (int)OrderStatusEnum.Open, "RemoveItemFromOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(fullOrderService.OrderId, (int)OrderStatusEnum.Open, user, "RemoveItemFromOrder");
             if (existingOrderWithOpenStatus == null)
                 return;
 
@@ -403,18 +404,18 @@ namespace ReactApp1.Server.Services
             await _fullOrderServiceRepository.DeleteServiceFromOrderAsync(fullOrderService);
         }
 
-        public async Task UpdateOrder(OrderModel order)
+        public async Task UpdateOrder(OrderModel order, IPrincipal user)
         {
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(order.OrderId, (int)OrderStatusEnum.Open, "UpdateOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(order.OrderId, (int)OrderStatusEnum.Open, user, "UpdateOrder");
             if (existingOrderWithOpenStatus == null)
                 throw new OrderNotFoundException(order.OrderId);
             
             await _orderRepository.UpdateOrderAsync(order);
         }
 
-        public async Task CloseOrder(int orderId)
+        public async Task CloseOrder(int orderId, IPrincipal user)
         {
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Open, "CloseOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Open, user, "CloseOrder");
             if(existingOrderWithOpenStatus == null)
                 return;
 
@@ -423,9 +424,9 @@ namespace ReactApp1.Server.Services
             await _orderRepository.UpdateOrderAsync(existingOrderWithOpenStatus);
         }
         
-        private async Task<OrderModel?> GetOrderIfExistsAndStatusIs(int orderId, int orderStatus, string? operation = null)
+        private async Task<OrderModel?> GetOrderIfExistsAndStatusIs(int orderId, int orderStatus, IPrincipal user, string? operation = null)
         {
-            var order = await _orderRepository.GetOrderByIdAsync(orderId);
+            var order = await _orderRepository.GetOrderByIdAsync(orderId, user);
             if (order == null)
             {
                 _logger.LogError($"Operation '{operation}' failed: Order {orderId} not found");
@@ -440,9 +441,9 @@ namespace ReactApp1.Server.Services
 
             return order;
         }
-        public async Task CancelOrder(int orderId)
+        public async Task CancelOrder(int orderId, IPrincipal user)
         {
-            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Open, "CancelOrder");
+            var existingOrderWithOpenStatus = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Open, user, "CancelOrder");
             if (existingOrderWithOpenStatus == null)
                 return;
 
@@ -450,7 +451,7 @@ namespace ReactApp1.Server.Services
 
             //Add items back to storage
 
-            var orderItems = await GetOrderItems(orderId);
+            var orderItems = await GetOrderItems(orderId, user);
             foreach (var item in orderItems)
             {
                 int itemCount = item.Count ?? 0;
@@ -461,9 +462,9 @@ namespace ReactApp1.Server.Services
 
             await _orderRepository.UpdateOrderAsync(existingOrderWithOpenStatus);
         }
-        public async Task PayOrder(PaymentModel payment)
+        public async Task PayOrder(PaymentModel payment, IPrincipal user)
         {
-            var existingOrderWithClosedStatus = (await GetOrderById(payment.OrderId)).Order;
+            var existingOrderWithClosedStatus = (await GetOrderById(payment.OrderId, user)).Order;
 
             if (existingOrderWithClosedStatus == null)
                 return;
@@ -496,9 +497,9 @@ namespace ReactApp1.Server.Services
 
             await _paymentRepository.AddPaymentAsync(payment);
         }
-        public async Task RefundOrder(int orderId)
+        public async Task RefundOrder(int orderId, IPrincipal user)
         {
-            var order = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Completed, "RefundOrder");
+            var order = await GetOrderIfExistsAndStatusIs(orderId, (int)OrderStatusEnum.Completed, user, "RefundOrder");
 
             if (order == null || order.Refunded)
                 return;
@@ -545,9 +546,9 @@ namespace ReactApp1.Server.Services
             await _orderRepository.UpdateOrderAsync(order);
         }
 
-        public async Task<byte[]> DownloadReceipt(int orderId)
+        public async Task<byte[]> DownloadReceipt(int orderId, IPrincipal user)
         {
-            var order = await GetOrderById(orderId);
+            var order = await GetOrderById(orderId, user);
             if (order.Order == null)
             {
                 _logger.LogError($"Failed to download receipt: Order {orderId} not found");
@@ -561,9 +562,9 @@ namespace ReactApp1.Server.Services
 
             return await _orderRepository.DownloadReceipt(order);
         }
-        public async Task TipOrder(TipModel tip)
+        public async Task TipOrder(TipModel tip, IPrincipal user)
         {
-            var order = await GetOrderIfExistsAndStatusIs(tip.OrderId, (int)OrderStatusEnum.Open, "TipOrder");
+            var order = await GetOrderIfExistsAndStatusIs(tip.OrderId, (int)OrderStatusEnum.Open, user, "TipOrder");
             if (order == null)
             {
                 return;
@@ -584,7 +585,7 @@ namespace ReactApp1.Server.Services
             await _orderRepository.UpdateOrderAsync(order);
         }
 
-        public async Task DiscountOrder(DiscountModel discount)
+        public async Task DiscountOrder(DiscountModel discount, IPrincipal user)
         {
             // If discount applied to a specific item in the order
             if (discount.ItemId.HasValue)
@@ -615,7 +616,7 @@ namespace ReactApp1.Server.Services
             }
             else
             {
-                var order = await GetOrderIfExistsAndStatusIs(discount.OrderId, (int)OrderStatusEnum.Open, "DiscountOrder");
+                var order = await GetOrderIfExistsAndStatusIs(discount.OrderId, (int)OrderStatusEnum.Open, user, "DiscountOrder");
 
                 if (order == null)
                 {

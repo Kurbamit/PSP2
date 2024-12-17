@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Extensions;
@@ -25,10 +26,11 @@ namespace ReactApp1.Server.Controllers
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpGet("services")]
         public async Task<IActionResult> GetServices(int pageNumber, int pageSize)
         {
-            var services = await _serviceService.GetAllServices(pageNumber, pageSize);
+            var services = await _serviceService.GetAllServices(pageNumber, pageSize, User);
             return Ok(services);
         }
 
@@ -37,10 +39,11 @@ namespace ReactApp1.Server.Controllers
         /// </summary>
         /// <param name="serviceId"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpGet("services/{serviceId}")]
         public async Task<IActionResult> GetServices(int serviceId)
         {
-            var service = await _serviceService.GetServiceById(serviceId);
+            var service = await _serviceService.GetServiceById(serviceId, User);
             return Ok(service);
         }
 
@@ -49,6 +52,7 @@ namespace ReactApp1.Server.Controllers
         /// </summary>
         /// <param name="service"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpPost("services")]
         public async Task<IActionResult> CreateService([FromBody] ServiceModel service)
         {
@@ -63,6 +67,7 @@ namespace ReactApp1.Server.Controllers
         /// </summary>
         /// <param name="service"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpPut("services/{serviceId}")]
         public async Task<IActionResult> UpdateService([FromBody] ServiceModel service)
         {
@@ -76,6 +81,7 @@ namespace ReactApp1.Server.Controllers
         /// </summary>
         /// <param name="serviceId"></param>
         /// <returns></returns>
+        [Authorize]
         [HttpDelete("services/{serviceId}")]
         public async Task<IActionResult> DeleteService(int serviceId)
         {

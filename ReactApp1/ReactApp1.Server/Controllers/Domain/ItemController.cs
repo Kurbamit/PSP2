@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReactApp1.Server.Data.Repositories;
 using ReactApp1.Server.Extensions;
@@ -19,22 +20,25 @@ namespace ReactApp1.Server.Controllers
         }
         
         #region Endpoints
+        [Authorize]
         [HttpGet("items")]
         public async Task<IActionResult> GetItems(int pageNumber, int pageSize)
         {
-            var items = await _itemService.GetAllItems(pageNumber, pageSize);
+            var items = await _itemService.GetAllItems(pageNumber, pageSize, User);
 
             return Ok(items);
         }
         
+        [Authorize]
         [HttpGet("items/{itemId}")]
         public async Task<IActionResult> GetItems(int itemId)
         {
-            var item = await _itemService.GetItemById(itemId);
+            var item = await _itemService.GetItemById(itemId, User);
 
             return Ok(item);
         }
         
+        [Authorize]
         [HttpPost("items")]
         public async Task<IActionResult> CreateItem([FromBody] ItemModel item)
         {
@@ -45,6 +49,7 @@ namespace ReactApp1.Server.Controllers
             return Ok(newItemId);
         }
         
+        [Authorize]
         [HttpPut("items/{itemId}")]
         public async Task<IActionResult> UpdateItem([FromBody] ItemModel item)
         {
@@ -53,6 +58,7 @@ namespace ReactApp1.Server.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpPut("items/{itemId}/add-storage")]
         public async Task<IActionResult> AddStorage(int itemId, [FromQuery] int amount)
         {
@@ -65,6 +71,7 @@ namespace ReactApp1.Server.Controllers
             return Ok();
         }
         
+        [Authorize]
         [HttpPut("items/{itemId}/deduct-storage")]
         public async Task<IActionResult> DeductStorage(int itemId, [FromQuery] int amount)
         {
@@ -77,6 +84,7 @@ namespace ReactApp1.Server.Controllers
             return Ok();
         }
         
+        [Authorize]
         [HttpDelete("items/{itemId}")]
         public async Task<IActionResult> DeleteItem(int itemId)
         {

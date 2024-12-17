@@ -1,5 +1,7 @@
+using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
 using ReactApp1.Server.Exceptions;
+using ReactApp1.Server.Exceptions.GiftCardExceptions;
 using ReactApp1.Server.Exceptions.ItemExceptions;
 using ReactApp1.Server.Exceptions.StorageExceptions;
 using ReactApp1.Server.Extensions;
@@ -18,12 +20,13 @@ namespace ReactApp1.Server.Data.Repositories
             _context = context;
         }
         
-        public async Task<PaginatedResult<Item>> GetAllItemsAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedResult<Item>> GetAllItemsAsync(int pageNumber, int pageSize, IPrincipal user)
         {
-            var totalItems = await _context.Set<Item>().CountAsync();
+            var totalItems = await _context.Set<Item>().FilterByAuthorizedUser(user).CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             
             var items = await _context.Set<Item>()
+                .FilterByAuthorizedUser(user)
                 .OrderBy(item => item.ItemId)
                 .Paginate(pageNumber, pageSize)
                 .ToListAsync();
@@ -37,9 +40,10 @@ namespace ReactApp1.Server.Data.Repositories
             };
         }
 
-        public async Task<ItemModel?> GetItemByIdAsync(int itemId)
+        public async Task<ItemModel?> GetItemByIdAsync(int itemId, IPrincipal user)
         {
             var item = await _context.Items
+                .FilterByAuthorizedUser(user)
                 .Where(f => f.ItemId == itemId)
                 .Select(f => new ItemModel()
                 {
@@ -50,6 +54,12 @@ namespace ReactApp1.Server.Data.Repositories
                     ReceiveTime = f.ReceiveTime,
                     Storage = f.Storage == null ? null : f.Storage.Count
                 }).FirstOrDefaultAsync();
+
+            if (item == null)
+            {
+                throw new AuthorizationException();
+            }
+            
             return item;
         }
 
