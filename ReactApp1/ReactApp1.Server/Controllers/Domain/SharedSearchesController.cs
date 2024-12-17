@@ -48,6 +48,18 @@ namespace ReactApp1.Server.Controllers.Domain
 
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpGet("AllEmployees")]
+        public async Task<IActionResult> AllEmployees([FromQuery] string? search)
+        {
+            var establishmentId = User.GetUserEstablishmentId();
+
+            var result = await _sharedSearchesService.GetAllEmployees(establishmentId, search, User);
+
+            return Ok(result);
+        }
+
         [HttpGet("AllTaxes")]
         public async Task<IActionResult> AllTaxes([FromQuery] string? search)
         {

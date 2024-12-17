@@ -59,6 +59,21 @@ namespace ReactApp1.Server.Data.Repositories
 
             return result;
         }
+
+        public async Task<List<SharedEmployee>> GetAllEmployees(int establishmentId, string? search, IPrincipal user)
+        {
+            var result = await _context.Employees
+                .FilterByAuthorizedUser(user)
+                .WhereIf(!string.IsNullOrWhiteSpace(search), f => f.FirstName.ToLower().Contains(search.ToLower()))
+                .Select(f => new SharedEmployee()
+                {
+                    Id = f.EmployeeId,
+                    Name = f.FirstName + " " + f.LastName
+                }).OrderBy(f => f.Name.ToLower()).ToListAsync();
+
+            return result;
+        }
+
         public async Task<List<SharedItem>> GetAllTaxes(string? search)
         {
             var result = await _context.Taxes

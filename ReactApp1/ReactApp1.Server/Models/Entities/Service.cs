@@ -31,8 +31,14 @@ public class Service
     [Column("Cost")]
     public decimal? Cost { get; set; }
 
+    [Column("AssignedEmployeeId")]
+    public int AssignedEmployeeId { get; set; }
+
     [ForeignKey(nameof(EstablishmentId))]
     public virtual Establishment Establishment { get; set; }
+
+    [ForeignKey(nameof(AssignedEmployeeId))]
+    public virtual Employee AssignedEmployee { get; set; }
 
     public virtual ICollection<ServiceTax> ServiceTax { get; set; }
 }

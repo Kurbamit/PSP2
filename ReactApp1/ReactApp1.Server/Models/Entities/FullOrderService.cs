@@ -38,6 +38,9 @@ public class FullOrderService
     [Column("CreatedByEmployeeId")]
     public int? CreatedByEmployeeId { get; set; }
 
+    [Column("AssignedEmployeeId")]
+    public int AssignedEmployeeId { get; set; }
+
     [Column("DiscountId")]
     public int? DiscountId { get; set; }
 
@@ -46,6 +49,9 @@ public class FullOrderService
     
     [ForeignKey(nameof(CreatedByEmployeeId))]
     public virtual Employee CreatedByEmployee { get; set; }
+
+    [ForeignKey(nameof(AssignedEmployeeId))]
+    public virtual Employee AssignedEmployee { get; set; }
 
     [ForeignKey(nameof(DiscountId))]
     public virtual Discount Discount { get; set; }
