@@ -296,11 +296,11 @@ const ItemDetail: React.FC = () => {
                                     }}
                                     disabled={!isEditing} 
                                 />
-                                {editedItem.baseItemId && (
-                                    <div className="mt-2">
-                                        {ScriptResources.SelectedBaseItem}: {baseItem?.name}
-                                    </div>
-                                )}
+                                <div className="mt-2">
+                                    {baseItem?.name
+                                        ? `${ScriptResources.SelectedBaseItem}: ${baseItem.name}`
+                                        : ScriptResources.ThisIsABaseItem}
+                                </div>
                             </li>
                             <li className="list-group-item">
                                 <strong>{ScriptResources.AlcoholicBeverage}</strong>{' '}

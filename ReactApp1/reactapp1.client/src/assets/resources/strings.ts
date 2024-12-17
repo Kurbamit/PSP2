@@ -209,6 +209,7 @@ const ScriptResources = {
     BaseItem: 'Base item',
     SelectBaseItem: 'Select base item',
     SelectedBaseItem: 'Selected base item',
+    ThisIsABaseItem: 'This is a base item',
 
 };
 
