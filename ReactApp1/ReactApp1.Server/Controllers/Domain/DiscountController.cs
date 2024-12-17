@@ -35,7 +35,7 @@ namespace ReactApp1.Server.Controllers.Domain
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpPost("discounts")]
         public async Task<IActionResult> CreateDiscount([FromBody] DiscountModelForAPI discount)
         {
             var newDiscount = await _discountService.CreateDiscount(discount, User);
@@ -44,7 +44,7 @@ namespace ReactApp1.Server.Controllers.Domain
         }
         
         [Authorize]
-        [HttpPut]
+        [HttpPut("discounts")]
         public async Task<IActionResult> UpdateDiscount([FromBody] DiscountModelForAPI discount)
         {
             await _discountService.UpdateDiscount(discount);

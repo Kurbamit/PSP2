@@ -24,6 +24,8 @@ import ServiceDetail from './components/Domain/Service/ServiceDetail.tsx';
 import Receipt from "./components/Domain/Order/Receipt.tsx";
 import Giftcards from './components/Domain/Giftcard/Giftcards.tsx'
 import GiftcardDetail from './components/Domain/Giftcard/GiftcardDetail.tsx'
+import Discounts from "./components/Domain/Discount/Discounts.tsx";
+import DiscountDetail from "./components/Domain/Discount/DiscountDetail.tsx";
 
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -113,6 +115,9 @@ function InnerApp({
                     <Route path="/employees" element={<Employees />} />
                     <Route path="/employees/new" element={<EmployeeDetail />} />
                     <Route path="/employees/:id" element={<EmployeeDetail />} />
+                    <Route path="/discounts" element={<Discounts />} />
+                    <Route path="/discounts/new" element={<DiscountDetail />} />
+                    <Route path="/discounts/:id" element={<DiscountDetail />} />
                     <Route path="/login" element={<Login onLogin={handleLogin} />} />
                     <Route path="/logout" element={<Logout onLogout={handleLogout} />} />
                 </Routes>

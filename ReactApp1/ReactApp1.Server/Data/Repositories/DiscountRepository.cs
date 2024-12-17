@@ -22,7 +22,7 @@ namespace ReactApp1.Server.Data.Repositories
             _logger = logger;
         }
         
-        public async Task<PaginatedResult<DiscountModelForAPI>> GetAllDiscounts(int pageSize, int pageNumber, IPrincipal user)
+        public async Task<PaginatedResult<DiscountModelForAPI>> GetAllDiscounts(int pageNumber, int pageSize, IPrincipal user)
         {
             var totalItems = await _context.Set<Discount>().FilterByAuthorizedUser(user).CountAsync();
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
@@ -38,7 +38,7 @@ namespace ReactApp1.Server.Data.Repositories
                     ValidTo = d.ValidTo,
                     EstablishmentId = d.EstablishmentId
                 })
-                .Paginate(pageSize, pageNumber);
+                .Paginate(pageNumber, pageSize);
 
             return new PaginatedResult<DiscountModelForAPI>()
             {
@@ -86,8 +86,8 @@ namespace ReactApp1.Server.Data.Repositories
             
                 newDiscount.Name = discount.DiscountName;
                 newDiscount.Percentage = discount.Value;
-                newDiscount.ValidFrom = discount.ValidFrom;
-                newDiscount.ValidTo = discount.ValidTo;
+                newDiscount.ValidFrom = discount.ValidFrom?.ToUniversalTime();
+                newDiscount.ValidTo = discount.ValidTo?.ToUniversalTime();
                 newDiscount.EstablishmentId = establishmentId.Value;
                 newDiscount.ReceiveTime = DateTime.UtcNow;
             
@@ -115,8 +115,8 @@ namespace ReactApp1.Server.Data.Repositories
 
             dbDiscount.Name = discount.DiscountName;
             dbDiscount.Percentage = discount.Value;
-            dbDiscount.ValidFrom = discount.ValidFrom;
-            dbDiscount.ValidTo = discount.ValidTo;
+            dbDiscount.ValidFrom = discount.ValidFrom?.ToUniversalTime();
+            dbDiscount.ValidTo = discount.ValidTo?.ToUniversalTime();
 
             try
             {
