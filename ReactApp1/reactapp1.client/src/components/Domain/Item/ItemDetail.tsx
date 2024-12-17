@@ -288,7 +288,7 @@ const ItemDetail: React.FC = () => {
                             <li className="list-group-item">
                                 <strong>{ScriptResources.BaseItem}</strong>
                                 <SelectDropdown
-                                    endpoint="/AllBaseItems" 
+                                    endpoint="/AllBaseItemsForEdit" 
                                     onSelect={(item) => {
                                         if (item) {
                                             setEditedItem((prev) => (prev ? { ...prev, baseItemId: item.id } : null));

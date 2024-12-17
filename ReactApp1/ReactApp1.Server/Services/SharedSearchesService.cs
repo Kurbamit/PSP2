@@ -51,7 +51,16 @@ namespace ReactApp1.Server.Services
         {
             return await _sharedSearchesRepository.GetAllTaxes(search);
         }
+        public async Task<List<SharedItem>> GetAllBaseItemsForEdit(int? establishmentId, string? search)
+        {
+            if (!establishmentId.HasValue)
+            {
+                _logger.LogError("Failed to fetch all items: invalid or expired access token");
+                throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
+            }
 
+            return await _sharedSearchesRepository.GetAllBaseItemsForEdit(establishmentId.Value, search);
+        }
         public async Task<List<SharedItem>> GetAllBaseItems(int? establishmentId, string? search)
         {
             if (!establishmentId.HasValue)
@@ -62,6 +71,15 @@ namespace ReactApp1.Server.Services
 
             return await _sharedSearchesRepository.GetAllBaseItems(establishmentId.Value, search);
         }
+        public async Task<List<SharedItem>> GetAllItemsVariations(int? establishmentId, string? search, int itemId)
+        {
+            if (!establishmentId.HasValue)
+            {
+                _logger.LogError("Failed to fetch all items: invalid or expired access token");
+                throw new UnauthorizedAccessException("Operation failed: Invalid or expired access token");
+            }
 
+            return await _sharedSearchesRepository.GetAllItemsVariations(establishmentId.Value, search, itemId);
+        }
     }
 }
