@@ -34,6 +34,7 @@ public class ItemModel
     public decimal? Discount { get; set; }
     public string? DiscountName { get; set; }
     public List<TaxModel> Taxes { get; set; }
+    public int BaseItemId { get; set; }
 
     public void MapUpdate(Item existingItem)
     {
@@ -41,6 +42,7 @@ public class ItemModel
         existingItem.Cost = this.Cost;
         existingItem.AlcoholicBeverage = this.AlcoholicBeverage;
         existingItem.ReceiveTime = this.ReceiveTime;
+        existingItem.BaseItemId = this.BaseItemId;
         if (existingItem.Storage != null && this.Storage.HasValue)
         {
             existingItem.Storage.Count = this.Storage.Value;

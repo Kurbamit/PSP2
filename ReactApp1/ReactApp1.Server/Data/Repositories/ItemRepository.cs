@@ -48,6 +48,7 @@ namespace ReactApp1.Server.Data.Repositories
                     Cost = f.Cost,
                     AlcoholicBeverage = f.AlcoholicBeverage,
                     ReceiveTime = f.ReceiveTime,
+                    BaseItemId = f.BaseItemId,
                     Storage = f.Storage == null ? null : f.Storage.Count
                 }).FirstOrDefaultAsync();
             return item;
@@ -96,6 +97,7 @@ namespace ReactApp1.Server.Data.Repositories
                     Cost = item.Cost,
                     AlcoholicBeverage = item.AlcoholicBeverage,
                     ReceiveTime = DateTime.UtcNow,
+                    BaseItemId = item.BaseItemId,
                     EstablishmentId = establishmentId,
                     CreatedByEmployeeId = userId
                 };
