@@ -160,6 +160,7 @@ const TaxDetail: React.FC = () => {
                                     type="number"
                                     name="percentage"
                                     value={editedTax.percentage || ''}
+                                    min={0}
                                     onChange={handleInputChange}
                                     className="form-control"
                                     disabled={!isEditing}

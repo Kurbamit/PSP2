@@ -478,15 +478,17 @@ const OrderDetail: React.FC = () => {
                                     <td>{item.count ?? ' '}</td>
                                     <td>{item.discountName ?? ' '}</td>
                                     <td>
-                                        <span
-                                            className="material-icons"
-                                            style={{cursor: 'pointer', marginRight: '10px'}}
-                                            onClick={() => {
-                                                setSelectedItemForDiscount(item.itemId);
-                                                setShowItemDiscountModal(true)
-                                            }}>
+                                        {order?.order.status === OrderStatusEnum.Open && (
+                                            <span
+                                                className="material-icons"
+                                                style={{cursor: 'pointer', marginRight: '10px'}}
+                                                onClick={() => {
+                                                    setSelectedItemForDiscount(item.itemId);
+                                                    setShowItemDiscountModal(true)
+                                                }}>
                                             attach_money
                                         </span>
+                                        )}
                                         <span
                                             className="material-icons"
                                             style={{cursor: 'pointer', marginRight: '10px'}}

@@ -93,7 +93,7 @@ const Orders: React.FC = () => {
             );
             
             if (response.status === 200) {
-                await fetchOrders();
+                navigate(`/orders/${response.data.order.orderId}`);
             }
             
         } catch (error) {
