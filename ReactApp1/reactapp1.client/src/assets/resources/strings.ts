@@ -211,7 +211,14 @@ const ScriptResources = {
     SelectedBaseItem: 'Selected base item',
     ThisIsABaseItem: 'This is a base item',
     SelectItemVariation: 'Select item variation',
-
+    DiscountId: 'Discount ID:',
+    ValidFrom: 'Valid From:',
+    ValidTo: 'Valid To:',
+    DiscountName: 'Discount Name:',
+    DiscountInformation: 'Discount Information:',
+    NewDiscountInformation: 'New Discount Information:',
+    CreateNewDiscount: 'Create New Discount:',
+    EditDiscount: 'Edit Discount:',
 };
 
 function checkForDuplicateKeys(resourceObject: Record<string, string>): void {
