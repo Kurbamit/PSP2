@@ -325,34 +325,41 @@ const ItemDetail: React.FC = () => {
                             )}
                         </div>
                     </div>
-                    <div className="mt-4 mb-3">
-                        <h5>{ScriptResources.Taxes}</h5>
-                        <ul className="list-group list-group-flush">
-                            {itemTaxes.length > 0 ? (
-                                itemTaxes.map((tax) => (
-                                    <li key={tax.taxId} className="list-group-item d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <strong>{tax.description}</strong>: {tax.percentage}%
-                                        </div>
+                        {!isNewItem &&
+                            (
+                            <>
+                                <div className="mt-4 mb-3">
+                                        <h5>{ScriptResources.Taxes}</h5>
+                                        <ul className="list-group list-group-flush">
+                                            {itemTaxes.length > 0 ? (
+                                                itemTaxes.map((tax) => (
+                                                    <li key={tax.taxId} className="list-group-item d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <strong>{tax.description}</strong>: {tax.percentage}%
+                                                        </div>
+                                                        <button
+                                                            className="btn btn-danger btn-sm"
+                                                            onClick={() => handleDeleteTax(tax.taxId)}
+                                                        >
+                                                            {ScriptResources.Delete}
+                                                        </button>
+                                                    </li>
+                                                ))
+                                            ) : (
+                                                <li className="list-group-item">{ScriptResources.NoTaxes}</li>
+                                            )}
+                                        </ul>
                                         <button
-                                            className="btn btn-danger btn-sm"
-                                            onClick={() => handleDeleteTax(tax.taxId)}
+                                            className="btn btn-primary mt-3"
+                                            onClick={() => setShowTaxModal(true)}
                                         >
-                                            {ScriptResources.Delete}
-                                        </button>
-                                    </li>
-                                ))
-                            ) : (
-                                <li className="list-group-item">{ScriptResources.NoTaxes}</li>
-                            )}
-                        </ul>
-                        <button
-                            className="btn btn-primary mt-3"
-                            onClick={() => setShowTaxModal(true)}
-                        >
-                            {ScriptResources.AddNewTax}
-                        </button>
-                    </div>
+                                            {ScriptResources.AddNewTax}
+                                    </button>
+                                </div>
+                            </>
+                            )
+                        }
+
                 </div>
             ) : (
                 <div>{ScriptResources.Loading}</div>

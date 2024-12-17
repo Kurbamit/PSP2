@@ -93,7 +93,7 @@ const Services: React.FC = () => {
                             <td>{service.name}</td>
                             <td>{service.establishmentId}</td>
                             <td>{service.serviceLength}</td>
-                            <td>{service.cost ? `$${service.cost.toFixed(2)}` : ScriptResources.NotAvailable}</td>
+                            <td>{service.cost ? `${service.cost.toFixed(2)}` : ScriptResources.NotAvailable}</td>
                             <td>{new Date(service.receiveTime).toLocaleString()}</td>
                             <td style={{ display: 'flex', justifyContent: 'space-around' }}>
                                 <span
