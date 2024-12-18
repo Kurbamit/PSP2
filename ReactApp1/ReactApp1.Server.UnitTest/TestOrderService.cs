@@ -255,6 +255,201 @@ namespace ReactApp1.Server.UnitTest
             Assert.Equal($"The requested quantity of item (id = {state.FullOrder.ItemId}) exceeds the " +
                          $"available stock. Only {state.Storage.Count} items are in stock", exception.Message);
         }
+        
+        [Fact]
+        public async Task RemoveItemFromOrder_OrderExistsStatusIsOpenItemCountReduced_RemovesItemFromOrder()
+        {
+            // arrange
+            var state = BuildTestState();
+            
+            state.FullOrder = new FullOrderModel(1, 1, 101, 2, null);
+            
+            // This order has 5 units of item 101, and we are removing 2
+            // The quantity is updated to 3, but the item stays in the order since it still has units left
+            state.FullOrderRepository
+                .Setup(x => x.GetFullOrderAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(() => new FullOrderModel
+                {
+                    OrderId = 1,
+                    ItemId = 101,
+                    Count = 5,
+                });
+
+            // act
+            await state.OrderService.RemoveItemFromOrder(state.FullOrder, It.IsAny<IPrincipal>());
+
+            // assert
+            state.FullOrderRepository.Verify(
+                repo => repo.UpdateItemInOrderCountAsync(It.IsAny<FullOrderModel>()),
+                Times.Once);
+        }
+        
+        [Fact]
+        public async Task RemoveItemFromOrder_OrderExistsStatusIsOpenItemCountReducedToZero_RemovesItemFromOrder()
+        {
+            // arrange
+            var state = BuildTestState();
+            
+            state.FullOrder = new FullOrderModel(1, 1, 101, 5, null);
+            
+            // This order has 5 units of item 101, and we are removing 5
+            // The item is removed from the order because it no longer has any units left
+            state.FullOrderRepository
+                .Setup(x => x.GetFullOrderAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(() => new FullOrderModel
+                {
+                    OrderId = 1,
+                    ItemId = 101,
+                    Count = 5,
+                });
+
+            // act
+            await state.OrderService.RemoveItemFromOrder(state.FullOrder, It.IsAny<IPrincipal>());
+
+            // assert
+            state.FullOrderRepository.Verify(
+                repo => repo.DeleteItemFromOrderAsync(It.IsAny<FullOrderModel>()),
+                Times.Once);
+        }
+        
+        [Fact]
+        public async Task RemoveItemFromOrder_OrderDoesNotExist_ThrowsOrderNotFoundException()
+        {
+            // arrange
+            var state = BuildTestState();
+            
+            state.OrderRepository
+                .Setup(x => x.GetOrderByIdAsync(It.IsAny<int>(), It.IsAny<IPrincipal>()))
+                .ReturnsAsync(() => null);
+
+            // act
+            Task Act() => state.OrderService.RemoveItemFromOrder(state.FullOrder, It.IsAny<IPrincipal>());
+
+            // assert
+            var exception = await Assert.ThrowsAsync<OrderNotFoundException>(Act);
+            Assert.Equal($"Order (id = {state.FullOrder.OrderId}) was not found", exception.Message);
+        }
+        
+        [Fact]
+        public async Task RemoveItemFromOrder_OrderStatusIsNotOpen_ThrowsOrderStatusConflictException()
+        {
+            // arrange
+            var state = BuildTestState();
+            
+            var order = new OrderModel
+            {
+                OrderId = 1,
+                Status = (int)OrderStatusEnum.Closed,
+                CreatedByEmployeeId = 2,
+                ReceiveTime = DateTime.MinValue,
+                Refunded = false
+            };
+            
+            state.OrderRepository
+                .Setup(x => x.GetOrderByIdAsync(It.IsAny<int>(), It.IsAny<IPrincipal>()))
+                .ReturnsAsync(() => order);
+
+            // act
+            Task Act() => state.OrderService.RemoveItemFromOrder(state.FullOrder, It.IsAny<IPrincipal>());
+
+            // assert
+            var exception = await Assert.ThrowsAsync<OrderStatusConflictException>(Act);
+            Assert.Equal($"The operation cannot be performed because the order status is '{(int)OrderStatusEnum.Closed}'", exception.Message);
+        }
+        
+        [Fact]
+        public async Task RemoveItemFromOrder_RemovedItemCountExceedsItemInOrderQuantity_RemovesItemFromOrder()
+        {
+            // arrange
+            var state = BuildTestState();
+            
+            state.FullOrder = new FullOrderModel(1, 1, 101, 10, null);
+            
+            state.FullOrderRepository
+                .Setup(x => x.GetFullOrderAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(() => new FullOrderModel
+                {
+                    OrderId = 1,
+                    ItemId = 101,
+                    Count = 5,
+                });
+
+            // act
+            await state.OrderService.RemoveItemFromOrder(state.FullOrder, It.IsAny<IPrincipal>());
+
+            // assert
+            state.FullOrderRepository.Verify(
+                repo => repo.DeleteItemFromOrderAsync(It.IsAny<FullOrderModel>()),
+                Times.Once);
+        }
+        
+        [Fact]
+        public async Task RemoveItemFromOrder_ItemNotFoundInOrder_RemovesItemFromOrder()
+        {
+            // arrange
+            var state = BuildTestState();
+            
+            state.FullOrder = new FullOrderModel(1, 1, 101, 10, null);
+            
+            state.FullOrderRepository
+                .Setup(x => x.GetFullOrderAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(() => null);
+            
+            // act
+            Task Act() => state.OrderService.RemoveItemFromOrder(state.FullOrder, It.IsAny<IPrincipal>());
+
+            // assert
+            var exception = await Assert.ThrowsAsync<ItemNotFoundInOrderException>(Act);
+            Assert.Equal($"Item (id = {state.FullOrder.ItemId}) was not found in order (id = {state.FullOrder.OrderId})", exception.Message);
+        }
+        
+        [Fact]
+        public async Task OpenOrder_UserHasValidAccessToken_OpensOrder()
+        {
+            // arrange
+            var state = BuildTestState();
+            
+            state.OrderRepository
+                .Setup(x => x.AddEmptyOrderAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(() => new OrderModel
+                {
+                    OrderId = 1,
+                    CreatedByEmployeeId = 2,
+                    Status = (int)OrderStatusEnum.Open
+                });
+            
+            // act
+            var order = await state.OrderService.OpenOrder(2, 3);
+            
+            // assert
+            Assert.Equal(1, order.Order.OrderId);
+            Assert.Equal(2, order.Order.CreatedByEmployeeId);
+            Assert.Equal(1, order.Order.Status);
+        }
+        
+        [Fact]
+        public async Task OpenOrder_UserDoesNotHaveValidAccessToken_ThrowsUnauthorizedAccessException()
+        {
+            // arrange
+            var state = BuildTestState();
+            
+            state.OrderRepository
+                .Setup(x => x.AddEmptyOrderAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ReturnsAsync(() => new OrderModel
+                {
+                    OrderId = 1,
+                    CreatedByEmployeeId = 2,
+                    Status = (int)OrderStatusEnum.Open
+                });
+            
+            // act
+            Task Act() => state.OrderService.OpenOrder(null, null);
+            
+            // assert
+            var exception = await Assert.ThrowsAsync<UnauthorizedAccessException>(Act);
+            Assert.Equal($"Operation failed: Invalid or expired access token", exception.Message);
+        }
+        
     }
 }
 
