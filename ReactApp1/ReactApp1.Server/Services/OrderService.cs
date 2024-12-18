@@ -360,7 +360,7 @@ namespace ReactApp1.Server.Services
             if (existingFullOrder == null)
             {
                 _logger.LogError($"The specified item {fullOrder.ItemId} is not linked to the given order {fullOrder.OrderId}");
-                throw new ItemNotFoundInOrderException(fullOrder.ItemId, fullOrder.OrderId);
+                throw new ItemNotFoundInOrderException(fullOrder.OrderId, fullOrder.ItemId);
             }
             
             // Ensure we don't return more items to storage than were originally reserved, this check handles that
